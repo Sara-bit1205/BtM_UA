@@ -1,6 +1,33 @@
-/* =========================================
-   ESTILOS GLOBALES — Behind The Mask
-   ========================================= */
+:root {
+  --color-principal: #000000;
+  --color-encabezado: #4891af;
+  --color1: #48b3af;
+  --color2: #258784;
+  --color3: #78cba4;
+  --color4: #a7e399;
+  --color5: #cff199;
+  --color-grisOscuro: #272324;
+  --color-piePagina: #12262d;
+
+  --colorTexto: #ffffff;
+
+  --texto-encabezados: "Luckiest Guy", cursive;
+  --texto-normal: "Poppins", sans-serif;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/poppins/Poppins-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/poppins/Poppins-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
 
 * {
   margin: 0;
@@ -8,13 +35,44 @@
   box-sizing: border-box;
 }
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #0d0d0d;
-  color: #f0f0f0;
+html, body, #root {
+  height: 100%;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  font-family: var(--texto-normal);
+  background-color: var(--color-principal);
+  color: var(--colorTexto);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--texto-encabezados);
+}
+
+.navBar {
+  background-color: var(--color-encabezado);
+  color: var(--colorTexto);
+  padding: 2rem 2rem;
+}
+
+main {
+  flex: 1;
+  background-color: var(--color-principal);
+  color: var(--colorTexto);
+  padding: 2rem;
+}
+
+.footer {
+  background-color: var(--color-piePagina);
+}
+
+.footer p {
+  color: var(--colorTexto);
+  text-align: center;
+  padding: 1rem 1rem;
 }

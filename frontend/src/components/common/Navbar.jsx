@@ -1,7 +1,7 @@
 // Barra de navegación superior
 function Navbar() {
   return (
-    <nav className="navbar">
+    <nav className="navBar">
       {/* Logo, menú y botones de sesión */}
     </nav>
   )

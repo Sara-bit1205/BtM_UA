@@ -2,7 +2,7 @@
 function Footer() {
   return (
     <footer className="footer">
-      {/* Links legales y créditos */}
+      <p>© Behind The Mask</p>
     </footer>
   )
 }

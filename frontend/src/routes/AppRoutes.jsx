@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import MainLayout from '../layouts/mainLayout'
 
 // Páginas públicas
 import HomePage from '../pages/public/HomePage'
@@ -34,33 +35,35 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* ── Rutas públicas ── */}
-      <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/que-es-btm" element={<AboutBTMPage />} />
-      <Route path="/test-personalidad" element={<PersonalityTestPage />} />
-      <Route path="/categorias" element={<CategoriesPage />} />
-      <Route path="/categorias/:id" element={<CategoryDetailPage />} />
-      <Route path="/personaje/:id" element={<CharacterDetailPage />} />
-      <Route path="/busqueda" element={<SearchPage />} />
-      <Route path="/sobre-nosotros" element={<AboutUsPage />} />
-      <Route path="/politica-privacidad" element={<PrivacyPolicyPage />} />
+      <Route element={<MainLayout />}>
+        {/* ── Rutas públicas ── */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/que-es-btm" element={<AboutBTMPage />} />
+        <Route path="/test-personalidad" element={<PersonalityTestPage />} />
+        <Route path="/categorias" element={<CategoriesPage />} />
+        <Route path="/categorias/:id" element={<CategoryDetailPage />} />
+        <Route path="/personaje/:id" element={<CharacterDetailPage />} />
+        <Route path="/busqueda" element={<SearchPage />} />
+        <Route path="/sobre-nosotros" element={<AboutUsPage />} />
+        <Route path="/politica-privacidad" element={<PrivacyPolicyPage />} />
 
-      {/* ── Rutas de usuario (rol: user) ── */}
-      <Route element={<ProtectedRoute allowedRoles={['user']} />}>
-        <Route path="/perfil" element={<UserProfilePage />} />
-        <Route path="/perfil/favoritos" element={<FavoritesPage />} />
-        <Route path="/perfil/editar" element={<EditUserPage />} />
-        <Route path="/perfil/mi-mbti" element={<MyMBTIPage />} />
-      </Route>
+        {/* ── Rutas de usuario (rol: user) ── */}
+        <Route element={<ProtectedRoute allowedRoles={['user']} />}>
+          <Route path="/perfil" element={<UserProfilePage />} />
+          <Route path="/perfil/favoritos" element={<FavoritesPage />} />
+          <Route path="/perfil/editar" element={<EditUserPage />} />
+          <Route path="/perfil/mi-mbti" element={<MyMBTIPage />} />
+        </Route>
 
-      {/* ── Rutas de administrador (rol: admin) ── */}
-      <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-        <Route path="/admin" element={<AdminProfilePage />} />
-        <Route path="/admin/personajes" element={<CharactersAdminPage />} />
-        <Route path="/admin/categorias" element={<CategoriesAdminPage />} />
-        <Route path="/admin/usuarios" element={<UsersListPage />} />
+        {/* ── Rutas de administrador (rol: admin) ── */}
+        <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+          <Route path="/admin" element={<AdminProfilePage />} />
+          <Route path="/admin/personajes" element={<CharactersAdminPage />} />
+          <Route path="/admin/categorias" element={<CategoriesAdminPage />} />
+          <Route path="/admin/usuarios" element={<UsersListPage />} />
+        </Route>
       </Route>
 
       {/* ── Ruta fallback ── */}

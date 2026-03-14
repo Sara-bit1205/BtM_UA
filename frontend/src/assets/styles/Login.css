@@ -1,0 +1,70 @@
+/* Contenedor principal negro */
+.login-container {
+  background-color: #000;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Arial Black', sans-serif; /* O una fuente tipo "bubble" si tienes */
+}
+
+.login-box {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Título verde neón */
+.login-title {
+  color: #C5E6A6; /* Verde clarito de la imagen */
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+}
+
+/* Etiquetas azul cian */
+.custom-label {
+  color: #4FB3C3; 
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+/* Inputs con bordes muy redondeados */
+.custom-input {
+  border-radius: 50px;
+  height: 45px;
+  border: none;
+  padding-left: 20px;
+}
+
+/* Botón Log In verde */
+.btn-login {
+  background-color: #C5E6A6;
+  color: #336666;
+  border: none;
+  border-radius: 50px;
+  padding: 10px 60px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-login:hover {
+  transform: scale(1.05);
+  background-color: #b5d696;
+}
+
+/* Enlaces inferiores */
+.register-link {
+  color: #C5E6A6;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.admin-account {
+  color: #88B04B;
+  font-size: 0.9rem;
+}

@@ -60,6 +60,80 @@ h1, h2, h3, h4, h5, h6 {
   padding: 2rem 2rem;
 }
 
+.navBarLogo {
+  width: 100px;
+  height: 100px;
+}
+
+.navBarLogo-img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  margin-right: 10px;
+}
+
+.form-control{
+  font-family: var(--texto-normal);
+}
+.form-control:hover{
+  border-radius: var(--color4);
+}
+
+.btnFilter{
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 2rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btnStyle{
+  background: var(--color3);
+  border-radius: 10px;
+  padding: 0;
+  cursor: pointer;
+  border: none;
+  font-size: 2rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btnUser{
+  background: var(--color4);
+  border: none;
+  cursor: pointer;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+   display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btnUser i {
+  font-size: 3rem;
+}
+
+.btnMenu {
+  background: var(--color5);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  width: 48px;
+  height: 48px;
+   display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 main {
   flex: 1;
   background-color: var(--color-principal);
@@ -75,4 +149,33 @@ main {
   color: var(--colorTexto);
   text-align: center;
   padding: 1rem 1rem;
+}
+
+@media (max-width: 576px) {
+
+  .navBar {
+    padding: 1rem;
+  }
+
+  .form-control{
+    font-size: 0.9rem;
+  }
+
+  .btnFilter,
+  .btnStyle,
+  .btnMenu {
+    width: 30px;
+    height: 30px;
+    font-size: 1.4rem;
+  }
+
+  .btnUser {
+    width: 29px;
+    height: 29px;
+  }
+
+  .btnUser i {
+    font-size: 1.8rem;
+  }
+
 }

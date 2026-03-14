@@ -1,0 +1,82 @@
+.search-container {
+  background-color: #000;
+  min-height: 100vh;
+  padding: 20px 10px;
+  color: white;
+  text-align: center;
+}
+
+.filter-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.5rem;
+}
+
+.highlight {
+  color: #4FB3C3; /* Azul cian */
+}
+
+/* ESTILO DE LA TARJETA */
+.character-card {
+  background-color: #000 !important;
+  border: 2px solid #C5E6A6 !important; /* Borde verde neón */
+  border-radius: 25px !important;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  width: 100%;
+  max-width: 180px; /* Tamaño similar a la foto */
+}
+
+.character-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 15px rgba(197, 230, 166, 0.4);
+}
+
+.card-img-wrapper {
+  padding: 5px; /* Espaciado interno para que se vea el borde */
+}
+
+.card-img-top {
+  border-radius: 20px !important;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+}
+
+.card-body {
+  padding: 10px !important;
+  text-align: left;
+}
+
+.character-name {
+  color: #4FB3C3;
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.character-type {
+  background-color: #C5E6A6;
+  color: #000;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 5px;
+}
+
+.character-universe {
+  color: #fff;
+  font-size: 0.75rem;
+  margin-top: 5px;
+  margin-bottom: 0;
+}
+
+/* Botón atrás */
+.btn-back {
+  background: none;
+  border: none;
+  color: #C5E6A6;
+  font-size: 2.5rem;
+  position: fixed;
+  bottom: 80px;
+  left: 20px;
+  cursor: pointer;
+}

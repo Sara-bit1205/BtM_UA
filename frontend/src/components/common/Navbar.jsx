@@ -1,24 +1,49 @@
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import logo from '../../assets/styles/logo.png';
-// Barra de navegación superior
+import { useAuth } from '../../context/AuthContext';
+
 function Navbar() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Manejador del envío del formulario (al pulsar Enter)
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Evita que la página se recargue
+    if (searchTerm.trim()) {
+      // Navega a la ruta exacta que tienes definida en AppRoutes
+      navigate('/busqueda'); 
+    }
+  };
+
   return (
     <nav className="navBar">
       <div className="container-fluid d-flex align-items-center justify-content-between gap-2">
 
-        {/* Logo */}
+        {/* Logo - Envuelto en Link para volver al inicio */}
         <div className="navBarLogo d-flex align-items-center justify-content-center">
-          <img src={logo} alt="Behind The Mask" className="navBarLogo-img" />
+          <Link to="/">
+            <img src={logo} alt="Behind The Mask" className="navBarLogo-img" />
+          </Link>
         </div>
 
-        {/* Buscador */}
-        <div className="navBarSearch flex-grow-1">
+        {/* Buscador - Envuelto en FORM para capturar el ENTER */}
+        <form className="navBarSearch flex-grow-1" onSubmit={handleSubmit}>
           <div className="input-group">
             <span className="input-group-text navBar__search-icon">
               <i className="bi bi-search"></i>
             </span>
-            <input type="text" className="form-control navBar__input" placeholder="Buscar personaje..." aria-label="Buscar personaje" />
+            <input 
+              type="text" 
+              className="form-control navBar__input" 
+              placeholder="Buscar personaje..." 
+              aria-label="Buscar personaje"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-        </div>
+        </form>
 
         {/* Iconos derecha */}
         <div className="navBarActions d-flex align-items-center gap-3">
@@ -30,9 +55,20 @@ function Navbar() {
             <i className="bi bi-brush"></i>
           </button>
 
-          <button type="button" className="btnUser" aria-label="Perfil">
-            <i className="bi bi-person-circle"></i>
-          </button>
+          {/* Enlace dinámico al Perfil o Login */}
+          <Link 
+            to={user ? (user.role === 'admin' ? '/admin' : '/perfil') : '/login'} 
+            className="profile-link"
+          >
+            <button 
+              type="button" 
+              className="btnUser" 
+              aria-label="Perfil"
+              style={{ color: user ? '#C5E6A6' : '#4FB3C3' }}
+            >
+              <i className="bi bi-person-circle"></i>
+            </button>
+          </Link>
 
           <button type="button" className="btnMenu" aria-label="Menú">
             <i className="bi bi-list"></i>
@@ -40,7 +76,7 @@ function Navbar() {
         </div>
       </div>
     </nav>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;

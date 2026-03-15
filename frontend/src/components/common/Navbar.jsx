@@ -10,10 +10,11 @@ function Navbar() {
 
   // Manejador del envío del formulario (al pulsar Enter)
   const handleSubmit = (e) => {
-    e.preventDefault(); // Evita que la página se recargue
+    e.preventDefault();
     if (searchTerm.trim()) {
-      // Navega a la ruta exacta que tienes definida en AppRoutes
-      navigate('/busqueda'); 
+      // Enviamos el término a la URL: /busqueda?query=Batman
+      navigate(`/busqueda?query=${encodeURIComponent(searchTerm)}`);
+      setSearchTerm(""); // Limpiamos el buscador después de navegar
     }
   };
 

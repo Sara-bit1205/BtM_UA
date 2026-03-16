@@ -6,6 +6,7 @@
   --color3: #78cba4;
   --color4: #a7e399;
   --color5: #cff199;
+  --colorDashed: #476eae;
   --color-grisOscuro: #272324;
   --color-piePagina: #12262d;
 
@@ -13,20 +14,6 @@
 
   --texto-encabezados: "Luckiest Guy", cursive;
   --texto-normal: "Poppins", sans-serif;
-}
-
-@font-face {
-  font-family: 'Poppins';
-  src: url('../fonts/poppins/Poppins-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Poppins';
-  src: url('../fonts/poppins/Poppins-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
 }
 
 * {
@@ -50,8 +37,133 @@ body {
   color: var(--colorTexto);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1{
   font-family: var(--texto-encabezados);
+  font-size: 30px;
+}
+
+h3{
+  font-family: var(--texto-normal);
+}
+
+
+p {
+  font-family: var(--texto-normal);
+}
+
+.home-section-title {
+  color: var(--color1);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/*Sección personaje del Día*/
+.card-personaje-del-dia {
+  overflow: hidden;
+  background: var(--color-principal);
+  height: fit-content;
+  border: 3px solid var(--color2) !important;
+  border-radius: 20px !important;
+}
+
+.card-personaje-del-dia .nombre-del-dia{
+  font-family: var(--texto-encabezados);
+  color: var(--color3);
+}
+
+.card-personaje-del-dia-img {
+  height: 260px;
+  object-fit: cover;
+  filter: brightness(0.55);
+  height: fit-content;
+}
+
+.personaje-del-dia-overlay {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.15));
+}
+
+
+.card-personaje-del-dia .home-mbti-badge {
+  background-color: var(--color-principal);
+  color: var(--color5);
+  border: 2px solid var(--color5);
+  font-weight: bold;
+  font-size: 1.65rem;
+  font-family: var(--texto-encabezados);
+  padding: 0.4rem 0.75rem;
+}
+
+
+/*Sección Personajes Populares*/
+.popular-carousel {
+  border: 2px dashed var(--colorDashed);
+  border-radius: 20px;
+  padding: 1rem 2rem;
+   background: var(--color-grisOscuro);
+}
+
+.popular-carousel .popular-card {
+  background: var(--color-principal); 
+  color: var(--colorTexto);
+  border: 2px solid var(--color4);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.popular-card-img {
+  height: 150px;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+.popular-card .popular-card-title {
+  font-size: 1.5rem;
+  font-family: var(--texto-encabezados);
+  color: var(--color3)
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  width: 10%;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  filter: invert(1);
+}
+
+.popular-card .home-mbti-badge-small {
+  background-color: var(--color-principal);
+  color: var(--color5);
+  border: 2px solid var(--color5);
+  font-weight: bold;
+  font-size: 1rem;
+  font-family: var(--texto-encabezados);
+  padding: 0.4rem 0.75rem;
+}
+
+
+.personality-card {
+  background-color: #1f1f1f;
+  color: #fff;
+  border: none;
+  border-radius: 18px;
+}
+
+.personality-icon-wrapper {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #2d2d2d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.personality-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
 }
 
 .navBar {

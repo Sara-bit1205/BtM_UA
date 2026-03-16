@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import logo from '../../assets/styles/logo.png';
+import logo from '../../assets/images/logo.png';
 import { useAuth } from '../../context/AuthContext';
 
 function Navbar() {
@@ -61,12 +61,7 @@ function Navbar() {
             to={user ? (user.role === 'admin' ? '/admin' : '/perfil') : '/login'} 
             className="profile-link"
           >
-            <button 
-              type="button" 
-              className="btnUser" 
-              aria-label="Perfil"
-              style={{ color: user ? '#C5E6A6' : '#4FB3C3' }}
-            >
+            <button type="button" className="btnUser" aria-label="Perfil">
               <i className="bi bi-person-circle"></i>
             </button>
           </Link>

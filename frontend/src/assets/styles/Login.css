@@ -1,6 +1,23 @@
+:root {
+  --color-principal: #000000;
+  --color-encabezado: #4891af;
+  --color1: #48b3af;
+  --color2: #258784;
+  --color3: #78cba4;
+  --color4: #a7e399;
+  --color5: #cff199;
+  --color-grisOscuro: #272324;
+  --color-piePagina: #12262d;
+
+  --colorTexto: #ffffff;
+
+  --texto-encabezados: "Luckiest Guy", cursive;
+  --texto-normal: "Poppins", sans-serif;
+}
+
 /* Contenedor principal */
 .login-container {
-  background-color: #000;
+  background-color: var(--color-principal);
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -18,8 +35,8 @@
 
 /* Título Adaptativo */
 .login-title {
-  color: #C5E6A6;
-  font-family: 'Arial Black', sans-serif;
+  color: var(--color5);
+  font-family: var(--texto-encabezados);
   font-size: clamp(2rem, 8vw, 3rem); /* Se ajusta entre 2rem y 3rem según el ancho */
   margin-bottom: 2rem;
   text-transform: uppercase;
@@ -34,7 +51,7 @@
 
 /* Etiquetas */
 .custom-label {
-  color: #4FB3C3;
+  color: var(--color1);
   font-weight: bold;
   font-size: 0.9rem;
   margin-left: 15px; /* Alineado con el inicio del input redondeado */
@@ -56,14 +73,14 @@
 
 .custom-input:focus {
   outline: none;
-  border-color: #4FB3C3;
+  border-color:var(--color1);
   box-shadow: 0 0 8px rgba(79, 179, 195, 0.4);
 }
 
 /* Botón Log In */
 .btn-login {
-  background-color: #C5E6A6;
-  color: #1a331a; /* Un tono más oscuro para contraste */
+  background-color: var(--color5);
+  color: var(--color-grisOscuro); /* Un tono más oscuro para contraste */
   border: none;
   border-radius: 50px;
   padding: 12px 20px;
@@ -84,7 +101,7 @@
 
 .btn-login:hover {
   transform: scale(1.03);
-  background-color: #b5d696;
+  background-color: var(--color5);
 }
 
 /* Footer */
@@ -94,7 +111,7 @@
 }
 
 .register-link {
-  color: #C5E6A6;
+  color: var(--color5);
   text-decoration: none;
   font-weight: bold;
   border-bottom: 2px solid transparent;
@@ -102,5 +119,5 @@
 }
 
 .register-link:hover {
-  border-bottom: 2px solid #C5E6A6;
+  border-bottom: 2px solid var(--color5);
 }

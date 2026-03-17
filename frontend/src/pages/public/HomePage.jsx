@@ -68,7 +68,7 @@ function HomePage() {
   const gruposPersonajes = agruparDe2En2(personajesPopulares);
   return (
     <main className="container py-4 home-page">
-      <div className="row g-4">
+      <div className="row g-5">
         {/* PERSONAJE DEL DÍA */}
         <div className="col-12">
           <h1 className="home-section-title mb-3 text-center">PERSONAJE DEL DÍA</h1>
@@ -82,7 +82,7 @@ function HomePage() {
                   <h3 className="card-title mb-1 text-uppercase fw-bold nombre-del-dia">
                     {personajeDelDia.nombre}
                   </h3>
-                  <p className="card-text mb-0 small">
+                  <p className="card-text mb-0">
                     Universo {personajeDelDia.universo}
                   </p>
                 </div>
@@ -106,22 +106,20 @@ function HomePage() {
                 <div key={index} className={`carousel-item ${index === 0 ? 'active' : ''}`} >
                   <div className="row g-3">
                     {grupo.map((personaje, idx) => (
-                      <div className="col-6" key={idx}>
-                        <div className="card popular-card h-100">
-                          <img src={personaje.imagen}  className="card-img-top popular-card-img"  alt={personaje.nombre}/>
-
-                          <div className="card-body p-2">
-                            <div className="d-flex justify-content-between align-items-start gap-2">
-                              <div>
-                                <h6 className="card-title mb-1 fw-bold text-uppercase popular-card-title">
+                      <div className="col-6 " key={idx}>
+                        <div className="card popular-card"> 
+                          <img src={personaje.imagen} className="card-img-top popular-card-img" alt={personaje.nombre}/>
+                          <div className="card-body">
+                            <div className="d-flex justify-content-between align-items-start">
+                              <div style={{ minWidth: 0 }}> {/* El minWidth evita que el texto desborde el flex */}
+                                <h3 className="card-title popular-card-title text-truncate">
                                   {personaje.nombre}
-                                </h6>
-                                <p className="card-text mb-0 small">
+                                </h3>
+                                <p className="card-text mb-0 x-small text-truncate">
                                   {personaje.universo}
                                 </p>
                               </div>
-
-                              <span className="badge rounded-pill home-mbti-badge home-mbti-badge-small">
+                              <span className="badge rounded-pill home-mbti-badge-small">
                                 {personaje.mbti}
                               </span>
                             </div>
@@ -148,7 +146,7 @@ function HomePage() {
 
         {/* PERSONALIDADES MÁS POPULARES */}
         <div className="col-12">
-          <h2 className="home-section-title mb-3">PERSONALIDADES MÁS POPULARES</h2>
+          <h1 className="home-section-title2 mb-3 text-center">PERSONALIDADES POPULARES</h1>
 
           {personalidades.map((item, index) => (
             <div className="card personality-card" key={index}>
@@ -158,7 +156,7 @@ function HomePage() {
                 </div>
 
                 <div>
-                  <h5 className="mb-1 fw-bold">{item.tipo}</h5>
+                  <h3 className="mb-1 fw-bold">{item.tipo}</h3>
                   <p className="mb-0">{item.descripcion}</p>
                 </div>
               </div>

@@ -43,12 +43,6 @@
   letter-spacing: 2px;
 }
 
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
 /* Etiquetas */
 .custom-label {
   color: var(--color1);
@@ -56,7 +50,7 @@
   font-size: 0.9rem;
   margin-left: 15px; /* Alineado con el inicio del input redondeado */
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 /* Inputs */
@@ -96,6 +90,22 @@
   .btn-login {
     width: auto; /* En tablet/PC vuelve a su tamaño contenido */
     padding: 12px 60px;
+  }
+   .login-box {
+    max-width: 700px; /* tablet */
+  }
+
+  .custom-label {
+    font-size: 1.3rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .login-box {
+    max-width: 900px; /* PC grande */
+  }
+   .custom-label {
+    font-size: 1.5rem;
   }
 }
 

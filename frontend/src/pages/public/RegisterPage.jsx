@@ -3,8 +3,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import authService from '../../services/authService';
 import '../../assets/styles/Login.css'; // Reutilizamos los mismos estilos
 
-const [validated, setValidated] = useState(false);
 function RegisterPage() {
+  
+  const [validated, setValidated] = useState(false);
   const [form, setForm] = useState({ 
     nombre: '', 
     username: '', 

@@ -1,0 +1,92 @@
+:root {
+  --color-principal: #000000;
+  --color-encabezado: #4891af;
+  --color1: #48b3af;
+  --color2: #258784;
+  --color3: #78cba4;
+  --color4: #a7e399;
+  --color5: #cff199;
+  --color-grisOscuro: #272324;
+  --color-piePagina: #12262d;
+
+  --colorTexto: #ffffff;
+
+  --texto-encabezados: "Luckiest Guy", cursive;
+  --texto-normal: "Poppins", sans-serif;
+}
+
+.about-container {
+  background-color: var(--color-principal);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  color: var(--colorTexto);
+}
+
+.about-card {
+  background-color: var(--color-grisOscuro);
+  border-radius: 30px;
+  padding: clamp(1.5rem, 5vw, 3rem); /* Padding fluido */
+  width: 100%;
+  max-width: 800px; /* Tamaño máximo para lectura cómoda en PC */
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.about-title {
+  font-family: var(--texto-encabezados);
+  color: var(--color5); /* Tu verde claro */
+  text-align: center;
+  font-size: clamp(1.8rem, 6vw, 3rem); /* Tamaño fluido según pantalla */
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+}
+
+.about-content p {
+  font-family: var(--texto-normal);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  font-size: clamp(0.95rem, 2vw, 1.1rem);
+  text-align: left;
+}
+
+/* Botón atrás estilo neón */
+.btn-back {
+  background: none;
+  border: none;
+  color: var(--color4);
+  font-size: 2.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.btn-back:hover {
+  transform: scale(1.1);
+  color: var(--color5);
+}
+
+/* --- MEDIA QUERIES PARA RESPONSIVE --- */
+
+/* MÓVIL (Por defecto ya es una columna, pero ajustamos márgenes) */
+@media (max-width: 767px) {
+  .about-container {
+    align-items: flex-start; /* En móvil empieza desde arriba para poder hacer scroll */
+    padding-top: 40px;
+  }
+  .about-card {
+    border-radius: 20px;
+    padding: 1.5rem;
+  }
+}
+
+/* TABLET / PC (Centramos y damos más aire) */
+@media (min-width: 768px) {
+  .about-card {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  }
+}

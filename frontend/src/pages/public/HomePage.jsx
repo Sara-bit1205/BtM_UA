@@ -3,6 +3,7 @@
 
 import { Link } from 'react-router-dom';
 import React from 'react';
+import '../../assets/styles/home.css';
 
 //--------------------
 import captainAmericaImg from '../../assets/images/captainAmerica.jpg';
@@ -146,7 +147,7 @@ function HomePage() {
 
         {/* PERSONALIDADES MÁS POPULARES */}
         <div className="col-12">
-          <h1 className="home-section-title2 mb-3 text-center">PERSONALIDADES POPULARES</h1>
+          <h1 className="home-section-title2 mb-3">PERSONALIDADES POPULARES</h1>
 
           {personalidades.map((item, index) => (
             <div className="card personality-card" key={index}>

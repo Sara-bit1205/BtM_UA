@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import logo from '../../assets/images/logo.png';
 import { useAuth } from '../../context/AuthContext';
+import StylePanel from './StylePanel';
 
 function Navbar() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [isStylePanelOpen, setIsStylePanelOpen] = useState(false);
   // Manejador del envío del formulario (al pulsar Enter)
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -19,6 +20,7 @@ function Navbar() {
   };
 
   return (
+    <>
     <nav className="navBar">
       <div className="container-fluid d-flex align-items-center justify-content-between gap-2">
 
@@ -52,7 +54,8 @@ function Navbar() {
             <i className="bi bi-funnel-fill"></i>
           </button>
 
-          <button type="button" className="btnStyle" aria-label="Cambiar estilo">
+          {/*Botón para abrir panel de estilos*/}
+          <button type="button" className="btnStyle" aria-label="Cambiar estilo" aria-expanded={isStylePanelOpen} aria-controls="stylePanel" onClick={() => setIsStylePanelOpen(prev => !prev)}>
             <i className="bi bi-brush"></i>
           </button>
 
@@ -72,6 +75,11 @@ function Navbar() {
         </div>
       </div>
     </nav>
+
+    <div id="style-panel">
+        <StylePanel isOpen={isStylePanelOpen} onClose = {() => setIsStylePanelOpen(false)} />
+    </div>
+    </>
   );
 }
 

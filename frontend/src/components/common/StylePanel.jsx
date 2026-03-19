@@ -1,21 +1,44 @@
+import { useEffect, useRef } from "react";
 import {useTheme} from "../../context/ThemeContext";
 
-function StylePanel ({ isOpen }) {
+function StylePanel ({ isOpen ,onClose}) {
     const { theme, setTheme, fontSize, setFontSize, accessibleFont, setAccessibleFont } = useTheme();
 
+    const panelRef = useRef(null);
+
+    useEffect(() => {
+            if (!isOpen) return;
+
+            const clickOutside = (event) => {
+                if (panelRef.current && !panelRef.current.contains(event.target)){
+                    onClose();
+                }
+            };
+
+            const escape = (event) => {
+                if(event.key === "Escape"){
+                    onClose();
+                }
+            };
+
+            document.addEventListener("mousedown", clickOutside);
+            document.addEventListener("keydown", escape);
+
+            return () => {
+                document.removeEventListener("mousedown", clickOutside);
+                document.removeEventListener("keydown", escape);
+            };
+    }, [isOpen,onClose]);
+    
     if (!isOpen) return null;
 
     return (
-        <div
-            className="style-panel"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Panel de accesibilidad"
-            >
+        /*El stylePanel es un dropdown/floating panel*/
+        <div ref={panelRef} className="style-panel" role="dialog" aria-modal="true" aria-label="Panel de accesibilidad">
             <div className="style-panel__section">
                 <div className="titulo_close d-flex justify-content-between align-items-center mb-3">
                     <h3 className="style-panel__title text-center">TEMA</h3>
-                    <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" className="btn-close" aria-label="Close" onClick = {onClose}></button>
                 </div>
                 <div className="style-panel__themes">
                 <button

@@ -69,13 +69,37 @@ function Navbar() {
             </button>
           </Link>
 
-          <button type="button" className="btnMenu" aria-label="Menú">
+          <button type="button" className="btnMenu navbar-toggler" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Menú">
             <i className="bi bi-list"></i>
           </button>
+          
         </div>
       </div>
     </nav>
 
+    <div className="offcanvas offcanvas-end" tabIndex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+        <div className="offcanvas-header">
+          <h5 className="offcanvas-title" id="offcanvasNavbarLabel">
+            Menú
+          </h5>
+          <button type="button"  className="btn-close"  data-bs-dismiss="offcanvas"  aria-label="Cerrar"></button>
+        </div>
+
+        <div className="offcanvas-body">
+          <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
+            <li className="nav-item">
+              <p>1</p>
+            </li>
+            <li className="nav-item">
+               <p>1</p>
+            </li>
+            <li className="nav-item">
+              <p>1</p>
+              {/* <Link className="nav-link" to="/login">Login</Link> */}
+            </li>
+          </ul>
+        </div>
+    </div>
     <div id="style-panel">
         <StylePanel isOpen={isStylePanelOpen} onClose = {() => setIsStylePanelOpen(false)} />
     </div>

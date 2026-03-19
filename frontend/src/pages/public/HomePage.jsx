@@ -9,6 +9,10 @@ import '../../assets/styles/home.css';
 import captainAmericaImg from '../../assets/images/captainAmerica.jpg';
 import maleficaImg from '../../assets/images/malefica.jpg';
 import spidermanImg from '../../assets/images/spiderman.jpg';
+import elsaImg from '../../assets/images/elsa.png';
+import batmanImg from '../../assets/images/batman.jpg';
+
+import arquitectoIcono from '../../assets/images/bricks.svg';
 //---------------------
 
 const personajeDelDia = {
@@ -35,15 +39,13 @@ const personajesPopulares = [
     nombre: "BATMAN",
     universo: "Universo DC",
     mbti: "INTJ",
-    imagen:
-      "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=800&q=80",
+    imagen: batmanImg,
   },
   {
     nombre: "ELSA",
     universo: "Universo Disney",
     mbti: "INFJ",
-    imagen:
-      "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=800&q=80",
+    imagen: elsaImg,
   },
 ];
 
@@ -51,8 +53,7 @@ const personalidades = [
   {
     tipo: "INTJ",
     descripcion: "Arquitecto/a",
-    icono:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/HD_transparent_picture.png/240px-HD_transparent_picture.png",
+    icono: arquitectoIcono,
   },
 ];
 
@@ -75,23 +76,30 @@ function HomePage() {
           <h1 className="home-section-title mb-3 text-center">PERSONAJE DEL DÍA</h1>
 
           <div className="card text-bg-dark card-personaje-del-dia">
-            <img src={personajeDelDia.imagen} className="card-img card-personaje-del-dia-img" alt={personajeDelDia.nombre}/>
-
+            <Link className="nav-link" to="/personaje/:id">
+              <img src={personajeDelDia.imagen} className="card-img card-personaje-del-dia-img" alt={personajeDelDia.nombre}/>
+            </Link>
             <div className="card-img-overlay d-flex flex-column justify-content-end personaje-del-dia-overlay">
               <div className="d-flex justify-content-between align-items-end">
                 <div>
+                  <Link className="nav-link" to="/personaje/:id">
                   <h3 className="card-title mb-1 text-uppercase fw-bold nombre-del-dia">
                     {personajeDelDia.nombre}
                   </h3>
+                  </Link>
+                  <Link className="nav-link" to="/categorias/:id">
                   <p className="card-text mb-0">
                     Universo {personajeDelDia.universo}
                   </p>
+                  </Link>
                 </div>
                 
+                <Link className="nav-link" to="/categorias/:id">
                 {/* Badge --> forma personalizada de Bootstrap, para hacer la etiqueta MBTI */}
-                <span className="badge rounded-pill home-mbti-badge mr-2">
-                  {personajeDelDia.mbti}
-                </span>
+                  <span className="badge rounded-pill home-mbti-badge mr-2">
+                    {personajeDelDia.mbti}
+                  </span>
+                </Link>
               </div>
             </div>
           </div>
@@ -109,20 +117,28 @@ function HomePage() {
                     {grupo.map((personaje, idx) => (
                       <div className="col-6 " key={idx}>
                         <div className="card popular-card"> 
-                          <img src={personaje.imagen} className="card-img-top popular-card-img" alt={personaje.nombre}/>
+                          <Link className="nav-link" to="/personaje/:id">
+                            <img src={personaje.imagen} className="card-img-top popular-card-img" alt={personaje.nombre}/>
+                          </Link>
                           <div className="card-body">
                             <div className="d-flex justify-content-between align-items-start">
                               <div style={{ minWidth: 0 }}> {/* El minWidth evita que el texto desborde el flex */}
+                                <Link className="nav-link" to="/personaje/:id">
                                 <h3 className="card-title popular-card-title text-truncate">
                                   {personaje.nombre}
                                 </h3>
+                                </Link>
+                                <Link className="nav-link" to="/categorias/:id">
                                 <p className="card-text mb-0 x-small text-truncate">
                                   {personaje.universo}
                                 </p>
+                                </Link>
                               </div>
-                              <span className="badge rounded-pill home-mbti-badge-small">
-                                {personaje.mbti}
-                              </span>
+                              <Link className="nav-link" to="/categorias/:id">
+                                <span className="badge rounded-pill home-mbti-badge-small">
+                                  {personaje.mbti}
+                                </span>
+                              </Link>
                             </div>
                           </div>
                         </div>
@@ -157,7 +173,9 @@ function HomePage() {
                 </div>
 
                 <div>
-                  <h3 className="mb-1 fw-bold">{item.tipo}</h3>
+                  <Link className="nav-link" to="/categorias/:id">
+                    <h3 className="mb-1 fw-bold tipoPersonalidad-titulo">{item.tipo}</h3>
+                  </Link>
                   <p className="mb-0">{item.descripcion}</p>
                 </div>
               </div>

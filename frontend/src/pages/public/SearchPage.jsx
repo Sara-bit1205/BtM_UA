@@ -1,6 +1,11 @@
 import { useLocation } from 'react-router-dom';
 import '../../assets/styles/SearchPage.css';
 
+//---------------------
+import remyImg from '../../assets/images/remy.jpg';
+import mulanImg from '../../assets/images/mulan.jpg';
+import rapuncelImg from '../../assets/images/rapuncel.jpg';
+//---------------------
 function SearchPage() {
   // 1. Obtenemos la URL actual
   const location = useLocation();
@@ -10,9 +15,9 @@ function SearchPage() {
   const searchTerm = queryParams.get('query') || "";
 
   const personajes = [
-    { id: 1, nombre: 'RAPUNCEL', tipo: 'ENFP', universo: 'Universo Disney', img: 'https://via.placeholder.com/150' },
-    { id: 2, nombre: 'REMY', tipo: 'ENFP', universo: 'Universo Disney', img: 'https://via.placeholder.com/150' },
-    { id: 3, nombre: 'MULÁN', tipo: 'ISTP', universo: 'Universo Disney', img: 'https://via.placeholder.com/150' },
+    { id: 1, nombre: 'RAPUNCEL', tipo: 'ENFP', universo: 'Universo Disney', img: rapuncelImg },
+    { id: 2, nombre: 'REMY', tipo: 'ENFP', universo: 'Universo Disney', img: remyImg },
+    { id: 3, nombre: 'MULÁN', tipo: 'ISTP', universo: 'Universo Disney', img: mulanImg },
     // ... agrega más personajes aquí
   ];
 

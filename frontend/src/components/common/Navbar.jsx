@@ -34,9 +34,11 @@ function Navbar() {
         {/* Buscador - Envuelto en FORM para capturar el ENTER */}
         <form className="navBarSearch flex-grow-1" onSubmit={handleSubmit}>
           <div className="input-group">
-            <span className="input-group-text navBar__search-icon">
-              <i className="bi bi-search"></i>
-            </span>
+            <Link className="nav-link" to="/busqueda">
+              <span className="input-group-text navBar__search-icon">
+                <i className="bi bi-search"></i>
+              </span>
+            </Link>
             <input 
               type="text" 
               className="form-control navBar__input" 
@@ -79,24 +81,26 @@ function Navbar() {
 
     <div className="offcanvas offcanvas-end" tabIndex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
         <div className="offcanvas-header">
-          <h5 className="offcanvas-title" id="offcanvasNavbarLabel">
-            Menú
-          </h5>
+          <h3 className="offcanvas-title" id="offcanvasNavbarLabel">
+            MENÚ
+          </h3>
           <button type="button"  className="btn-close"  data-bs-dismiss="offcanvas"  aria-label="Cerrar"></button>
         </div>
-
+        <li><hr className="divider-thick" /></li>
         <div className="offcanvas-body">
           <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
-            <li className="nav-item">
-              <p>1</p>
-            </li>
-            <li className="nav-item">
-               <p>1</p>
-            </li>
-            <li className="nav-item">
-              <p>1</p>
-              {/* <Link className="nav-link" to="/login">Login</Link> */}
-            </li>
+            <Link className="nav-link" to="/que-es-btm">
+              <li className="nav-item">
+                <p>Qué es BtM?</p>
+              </li>
+            </Link>
+            <li><hr className="divider-thick" /></li>
+            <Link className="nav-link" to="/test-personalidad">
+              <li className="nav-item">
+                <p>Test de Personalidad (MBTI)</p>
+              </li>
+            </Link>
+            <li><hr className="divider-thick" /></li>
           </ul>
         </div>
     </div>

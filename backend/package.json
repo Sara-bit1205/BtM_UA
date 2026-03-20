@@ -8,14 +8,15 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
-    "express": "^4.21.1",
-    "mongoose": "^8.8.1",
+    "@supabase/supabase-js": "^2.99.3",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
-    "dotenv": "^16.4.5",
     "cors": "^2.8.5",
-    "nodemailer": "^6.9.15",
-    "express-validator": "^7.2.0"
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "express-validator": "^7.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.8.1",
+    "nodemailer": "^6.9.15"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"

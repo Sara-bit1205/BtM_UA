@@ -1,3 +1,5 @@
+/*Versión antigua de búsqueda con Mongo.
+Busca personajes filtrando por texto, universo, personalidad y MBTI.*/
 const Character = require('../models/Character')
 
 // GET /api/search?query=&universe=&personality=&mbtiType=

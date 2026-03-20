@@ -1,3 +1,6 @@
+/*Versión antigua de middleware para autenticar con JWT y usuario Mongo.
+Lee el token, lo valida y mete el usuario en req.user.*/
+
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 

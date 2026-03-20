@@ -1,3 +1,5 @@
+/*Versión antigua para categorías con Mongo.*/
+
 const Category = require('../models/Category')
 
 // GET /api/categories

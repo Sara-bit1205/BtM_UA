@@ -1,3 +1,5 @@
+/*Versión antigua de usuario en Mongo.*/
+
 const User = require('../models/User')
 
 // GET /api/users/me  [user, admin]

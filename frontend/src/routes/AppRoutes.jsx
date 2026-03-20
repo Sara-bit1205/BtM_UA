@@ -14,6 +14,9 @@ import CharacterDetailPage from '../pages/public/CharacterDetailPage'
 import SearchPage from '../pages/public/SearchPage'
 import AboutUsPage from '../pages/public/AboutUsPage'
 import PrivacyPolicyPage from '../pages/public/PrivacyPolicyPage'
+import Universos from '../pages/public/Universos';
+import Personalidades from '../pages/public/Personalidades';
+import Psicologia from '../pages/public/Psicologia';
 
 // Páginas de usuario autenticado
 import UserProfilePage from '../pages/user/UserProfilePage'
@@ -48,6 +51,9 @@ function AppRoutes() {
         <Route path="/busqueda" element={<SearchPage />} />
         <Route path="/sobre-nosotros" element={<AboutUsPage />} />
         <Route path="/politica-privacidad" element={<PrivacyPolicyPage />} />
+        <Route path="/universos" element={<Universos />} />
+        <Route path="/personalidades" element={<Personalidades />} />
+        <Route path="/psicologia" element={<Psicologia />} />
 
         {/* ── Rutas de usuario (rol: user) ── */}
         <Route element={<ProtectedRoute allowedRoles={['user']} />}>

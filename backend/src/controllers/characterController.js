@@ -1,3 +1,6 @@
+/*Versión antigua de personajes con Mongo.*/
+
+
 const Character = require('../models/Character')
 
 // GET /api/characters

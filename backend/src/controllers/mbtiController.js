@@ -1,3 +1,6 @@
+/*Versión antigua en Mongo para el test MBTI.
+Devuelve preguntas, calcula el resultado y lo guarda en el usuario.*/
+
 const MBTIResult = require('../models/MBTIResult')
 const User = require('../models/User')
 const mbtiService = require('../services/mbtiService')

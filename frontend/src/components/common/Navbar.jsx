@@ -4,11 +4,19 @@ import logo from '../../assets/images/logo.png';
 import { useAuth } from '../../context/AuthContext';
 import StylePanel from './StylePanel';
 
+// 1. Array actualizado con iconos de Bootstrap
+const CATEGORIES = [
+  { id: 'universos', name: 'Universos', icon: 'bi-globe' },
+  { id: 'personalidades', name: 'Personalidades', icon: 'bi-people-fill' },
+  { id: 'psicologia', name: 'Psicología', icon: 'bi-puzzle-fill' }, 
+];
+
 function Navbar() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [isStylePanelOpen, setIsStylePanelOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(null);
   // Manejador del envío del formulario (al pulsar Enter)
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -89,18 +97,131 @@ function Navbar() {
         <li><hr className="divider-thick" /></li>
         <div className="offcanvas-body">
           <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
-            <Link className="nav-link" to="/que-es-btm">
-              <li className="nav-item">
-                <p>Qué es BtM?</p>
-              </li>
-            </Link>
+            {/* SOBRE */}
+            <li className="menu-section">SOBRE BtM</li>
+
+            <li className="nav-item">
+              <Link className="nav-link" to="/que-es-btm">
+                Qué es BtM
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link className="nav-link" to="/como-funciona">
+                Cómo funciona
+              </Link>
+            </li>
+
             <li><hr className="divider-thick" /></li>
-            <Link className="nav-link" to="/test-personalidad">
-              <li className="nav-item">
-                <p>Test de Personalidad (MBTI)</p>
-              </li>
-            </Link>
+
+            {/* PERSONALIDAD */}
+            <li className="menu-section">PERSONALIDAD</li>
+
+            <li className="nav-item">
+              <Link className="nav-link" to="/test-mbti">
+                Test MBTI
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link className="nav-link" to="/tipos-mbti">
+                Tipos de personalidad
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link className="nav-link" to="/metodo-test">
+                Cómo se calcula
+              </Link>
+            </li>
+
             <li><hr className="divider-thick" /></li>
+
+            {/* MULTIMEDIA */}
+            <li className="menu-section">MULTIMEDIA</li>
+
+            <li className="nav-item">
+              <Link className="nav-link" to="/descargas">
+                Descargas
+              </Link>
+            </li>
+
+            <li><hr className="divider-thick" /></li>
+
+            {/* Contenedor de los botones */}
+            <div className="d-flex flex-column">
+              {/* INYECTAMOS LOS ESTILOS CSS PARA LAS ANIMACIONES AQUÍ MISMO */}
+            <style>
+              {`
+                .btn-categoria {
+                  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+                  border-radius: 12px !important;
+                  margin-bottom: 8px;
+                }
+                /* Efecto al pasar el ratón (Hover) */
+                .btn-categoria:hover {
+                  transform: translateX(8px); /* Se desliza un poco a la derecha */
+                  background-color: rgba(150, 150, 150, 0.15) !important;
+                  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                }
+                /* Efecto al hacer clic (Active) */
+                .btn-categoria:active {
+                  transform: scale(0.97) translateX(8px); /* Se encoge un poquito, como un botón físico */
+                }
+                /* Animación del icono principal */
+                .btn-categoria .icono-cat {
+                  transition: transform 0.3s ease;
+                }
+                .btn-categoria:hover .icono-cat {
+                  transform: scale(1.15) rotate(5deg); /* El icono crece y gira un pelín */
+                }
+                /* Animación de la flecha de la derecha */
+                .btn-categoria .flecha-cat {
+                  transition: all 0.3s ease;
+                }
+                .btn-categoria:hover .flecha-cat {
+                  transform: translateX(5px); /* La flecha indica movimiento */
+                  opacity: 1 !important;
+                }
+              `}
+            </style>
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => {setActiveCategory(cat.id);
+                                  navigate(`/${cat.id}`); // Esto lo que hace es coger los nombres del array de categorías y navegar a la ruta correspondiente al hacer click en cada botón
+                  }}
+                  // 1. AQUÍ AÑADIMOS "btn-categoria" al className del botón
+                  data-bs-dismiss="offcanvas" //Se añade para que cuando hagamos click encima se cierre la ventana lateral
+                  className={`btn btn-categoria d-flex align-items-center w-100 text-start border-0 px-3 py-3 ${
+                    activeCategory === cat.id ? 'bg-secondary bg-opacity-25' : 'bg-transparent'
+                  }`}
+                  style={{ color: 'inherit' }}
+                >
+                  {/* 2. AQUÍ AÑADIMOS "icono-cat" al icono de la izquierda */}
+                  <i className={`bi ${cat.icon} me-3 fs-4 icono-cat`}></i>
+                  
+                  <span className="fs-6 fw-semibold flex-grow-1">{cat.name}</span>
+                  
+                  {/* 3. AQUÍ AÑADIMOS "flecha-cat" al icono de la derecha */}
+                  <i className="bi bi-chevron-right text-secondary opacity-50 fs-5 flecha-cat"></i>
+                </button>
+              ))}
+            </div>
+              
+            <li><hr className="divider-thick" /></li>
+
+            {/* IDIOMA */}
+            <li className="menu-section">IDIOMA</li>
+
+            <li className="nav-item">
+              <p>Español</p>
+            </li>
+            <li className="nav-item">
+              <p>Inglés</p>
+            </li>
+            <li><hr className="divider-thick" /></li>
+
           </ul>
         </div>
     </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const UNIVERSOS_DATA = [
   {
@@ -37,9 +38,13 @@ function Universos() {
             <h3 className="m-0" style={{ color: 'var(--color4)', fontFamily: 'var(--texto-encabezados)', fontWeight: 'bold' }}>
               {seccion.categoria}
             </h3>
-            <a href="#" className="text-decoration-none" style={{ color: 'var(--colorTexto)', fontSize: '0.9rem' }}>
-              Ver más <i className="bi bi-arrow-right"></i>
-            </a>
+            <Link 
+                to="/categorias"
+                className="text-decoration-none d-flex align-items-center gap-1" 
+                style={{ color: 'var(--colorTexto)', fontSize: '0.9rem' }}
+              >
+                Ver más <i className="bi bi-arrow-right"></i>
+              </Link>
           </div>
 
           {/* Fila deslizable horizontalmente (El equivalente a tu captura) */}

@@ -1,8 +1,3 @@
-/*Es el archivo que conecta el backend con Supabase.
-Crea el cliente de Supabase usando SUPABASE_URL y SUPABASE_KEY, y expone connectDB() y getSupabase().
-
-Eso significa que todos los _supabase.js dependen de este archivo para hacer consultas.*/
-
 const { createClient } = require('@supabase/supabase-js')
 
 const supabaseUrl = process.env.SUPABASE_URL

@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import authService from '../../services/authService';
+import { supabase } from '../../supabaseClient';
 import '../../assets/styles/Login.css';
 
 function LoginPage() {
   const [form, setForm] = useState({ email: '', password: '', rememberMe: false });
-  const [error, setError] = useState(null); // Estado para feedback de error
+  const [error, setError] = useState(null);
   const { login } = useAuth();
   const navigate = useNavigate();
   const [validated, setValidated] = useState(false);
@@ -21,7 +21,6 @@ function LoginPage() {
       }));
     }
   }, []);
-  
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -34,7 +33,7 @@ function LoginPage() {
     if (error) setError(null);
   };
 
-    const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -46,18 +45,40 @@ function LoginPage() {
     }
 
     try {
-      const response = await authService.login(form);
+      // 🔐 1. LOGIN REAL (auth.users)
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: form.email,
+        password: form.password
+      });
 
+      if (error) throw error;
+
+      const user = data.user;
+
+      // 💾 remember me
       if (form.rememberMe) {
         localStorage.setItem("email", form.email);
       } else {
         localStorage.removeItem("email");
       }
 
-      login(response.user, response.token);
-      navigate(response.user.role === 'admin' ? '/admin' : '/perfil');
+      // 👤 2. OBTENER PROFILE (tu tabla)
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      // 🧠 3. GUARDAR EN CONTEXTO
+      login(profile, data.session.access_token);
+
+      // 🚀 4. REDIRECCIÓN
+      navigate(profile.role === 'admin' ? '/admin' : '/perfil');
 
     } catch (err) {
+      console.error(err);
       setError("Credenciales incorrectas. Inténtalo de nuevo.");
     }
 
@@ -68,7 +89,15 @@ function LoginPage() {
     <main className="login-container">
       <div className="login-box">
         <h1 className="login-title">INICIA SESIÓN</h1>
-        <form onSubmit={handleSubmit}   className={`login-form needs-validation ${validated ? 'was-validated' : ''}`} noValidate>
+
+        <form
+          onSubmit={handleSubmit}
+          className={`login-form needs-validation ${validated ? 'was-validated' : ''}`}
+          noValidate
+        >
+
+          {error && <p className="text-danger">{error}</p>}
+
           <div className="text-start">
             <label className="custom-label">USUARIO/EMAIL</label>
             <input
@@ -95,22 +124,22 @@ function LoginPage() {
               value={form.password}
               onChange={handleChange}
               required
+              minLength={6}
             />
             <div className="invalid-feedback">
               La contraseña debe tener al menos 6 caracteres
             </div>
           </div>
 
-           <div className="form-check text-start">
+          <div className="form-check text-start">
             <input
               className="form-check-input"
               type="checkbox"
-              id="rememberMe"
               name="rememberMe"
               checked={form.rememberMe}
               onChange={handleChange}
             />
-            <label className="form-check-label text-white" htmlFor="rememberMe">
+            <label className="form-check-label text-white">
               Recordar mis datos
             </label>
           </div>
@@ -121,7 +150,12 @@ function LoginPage() {
         </form>
 
         <div className="login-footer">
-          <p>¿No tienes cuenta? <Link to="/register" className="register-link">REGÍSTRATE</Link></p>
+          <p>
+            ¿No tienes cuenta?{" "}
+            <Link to="/register" className="register-link">
+              REGÍSTRATE
+            </Link>
+          </p>
         </div>
       </div>
     </main>

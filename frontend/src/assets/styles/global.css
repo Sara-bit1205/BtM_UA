@@ -215,7 +215,7 @@ main {
   flex: 1;
   background-color: var(--color-principal);
   color: var(--colorTexto);
-  padding: 2rem;
+  padding: 1rem;
 }
 
 .footer {

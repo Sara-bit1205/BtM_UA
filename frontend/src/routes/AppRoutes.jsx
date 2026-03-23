@@ -47,7 +47,7 @@ function AppRoutes() {
         <Route path="/test-personalidad" element={<PersonalityTestPage />} />
         <Route path="/categorias" element={<CategoriesPage />} />
         <Route path="/categorias/:id" element={<CategoryDetailPage />} />
-        <Route path="/personaje/:id" element={<CharacterDetailPage />} />
+        <Route path="/personaje/:slug" element={<CharacterDetailPage />} />
         <Route path="/busqueda" element={<SearchPage />} />
         <Route path="/sobre-nosotros" element={<AboutUsPage />} />
         <Route path="/politica-privacidad" element={<PrivacyPolicyPage />} />

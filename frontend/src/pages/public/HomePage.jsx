@@ -16,6 +16,7 @@ import arquitectoIcono from '../../assets/images/bricks.svg';
 //---------------------
 
 const personajeDelDia = {
+  slug: "capitan-america",
   nombre: "Capitán América",
   universo: "Marvel",
   mbti: "ISFJ",
@@ -24,24 +25,28 @@ const personajeDelDia = {
 
 const personajesPopulares = [
   {
+    slug: "malefica",
     nombre: "MALÉFICA",
     universo: "Universo Disney",
     mbti: "INTJ",
     imagen: maleficaImg,
   },
   {
+    slug: "spiderman",
     nombre: "SPIDERMAN",
     universo: "Universo Marvel",
     mbti: "INTJ",
     imagen: spidermanImg,
   },
   {
+    slug: "batman",
     nombre: "BATMAN",
     universo: "Universo DC",
     mbti: "INTJ",
     imagen: batmanImg,
   },
   {
+    slug: "elsa",
     nombre: "ELSA",
     universo: "Universo Disney",
     mbti: "INFJ",
@@ -76,18 +81,18 @@ function HomePage() {
           <h1 className="home-section-title mb-3 text-center">PERSONAJE DEL DÍA</h1>
 
           <div className="card text-bg-dark card-personaje-del-dia">
-            <Link className="nav-link" to="/personaje/:id">
+            <Link className="nav-link" to={`/personaje/${personajeDelDia.slug}`}>
               <img src={personajeDelDia.imagen} className="card-img card-personaje-del-dia-img" alt={personajeDelDia.nombre}/>
             </Link>
             <div className="card-img-overlay d-flex flex-column justify-content-end personaje-del-dia-overlay">
               <div className="d-flex justify-content-between align-items-end">
                 <div>
-                  <Link className="nav-link" to="/personaje/:id">
+                  <Link className="nav-link" to={`/personaje/${personajeDelDia.slug}`}>
                   <h3 className="card-title mb-1 text-uppercase fw-bold nombre-del-dia">
                     {personajeDelDia.nombre}
                   </h3>
                   </Link>
-                  <Link className="nav-link" to="/categorias/:id">
+                  <Link className="nav-link" to={`/categorias/${personajeDelDia.universo.toLowerCase().replace(/\s+/g, '-')}`}>
                   <p className="card-text mb-0">
                     Universo {personajeDelDia.universo}
                   </p>
@@ -117,13 +122,13 @@ function HomePage() {
                     {grupo.map((personaje, idx) => (
                       <div className="col-6 " key={idx}>
                         <div className="card popular-card"> 
-                          <Link className="nav-link" to="/personaje/:id">
+                          <Link className="nav-link" to={`/personaje/${personaje.slug}`}>
                             <img src={personaje.imagen} className="card-img-top popular-card-img" alt={personaje.nombre}/>
                           </Link>
                           <div className="card-body">
                             <div className="d-flex justify-content-between align-items-start">
                               <div style={{ minWidth: 0 }}> {/* El minWidth evita que el texto desborde el flex */}
-                                <Link className="nav-link" to="/personaje/:id">
+                                <Link className="nav-link" to={`/personaje/${personaje.slug}`}>
                                 <h3 className="card-title popular-card-title text-truncate">
                                   {personaje.nombre}
                                 </h3>

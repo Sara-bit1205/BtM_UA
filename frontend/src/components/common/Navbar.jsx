@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import logo from '../../assets/images/logo.png';
 import { useAuth } from '../../context/AuthContext';
@@ -17,6 +17,15 @@ function Navbar() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isStylePanelOpen, setIsStylePanelOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
+  
+  /*Lo del idioma hay que mirarlo bien*/
+  // useEffect(() => {
+  //   localStorage.setItem("lang", language);
+  // }, [language]);
+
+  // const [language, setLanguage] = useState(localStorage.getItem("lang") || "es");
+  //--------------------------------------
+
   // Manejador del envío del formulario (al pulsar Enter)
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -106,12 +115,6 @@ function Navbar() {
               </Link>
             </li>
 
-            <li className="nav-item">
-              <Link className="nav-link" to="/como-funciona">
-                Cómo funciona
-              </Link>
-            </li>
-
             <li><hr className="divider-thick" /></li>
 
             {/* PERSONALIDAD */}
@@ -125,29 +128,19 @@ function Navbar() {
 
             <li className="nav-item">
               <Link className="nav-link" to="/tipos-mbti">
-                Tipos de personalidad
+                Tipos de personalidad MBTI
               </Link>
             </li>
 
             <li className="nav-item">
               <Link className="nav-link" to="/metodo-test">
-                Cómo se calcula
+                Cómo se calculan los resultados
               </Link>
             </li>
 
             <li><hr className="divider-thick" /></li>
 
-            {/* MULTIMEDIA */}
-            <li className="menu-section">MULTIMEDIA</li>
-
-            <li className="nav-item">
-              <Link className="nav-link" to="/descargas">
-                Descargas
-              </Link>
-            </li>
-
-            <li><hr className="divider-thick" /></li>
-
+            <li className="menu-section">EXPLORAR</li>
             {/* Contenedor de los botones */}
             <div className="d-flex flex-column">
               {/* INYECTAMOS LOS ESTILOS CSS PARA LAS ANIMACIONES AQUÍ MISMO */}
@@ -208,17 +201,42 @@ function Navbar() {
                 </button>
               ))}
             </div>
-              
+            
+            <li><hr className="divider-thick" /></li>
+            {/* MULTIMEDIA */}
+            <li className="menu-section">MULTIMEDIA</li>
+
+            <li className="nav-item">
+              <Link className="nav-link" to="/descargas">
+                Descargas
+              </Link>
+            </li>
+
             <li><hr className="divider-thick" /></li>
 
             {/* IDIOMA */}
             <li className="menu-section">IDIOMA</li>
 
             <li className="nav-item">
-              <p>Español</p>
-            </li>
-            <li className="nav-item">
-              <p>Inglés</p>
+              <div className="d-flex align-items-center gap-4 px-2 py-2">
+
+                {/* Español */}
+                {/* <button type="button"  onClick={() => setLanguage("es")} className="btn btn-link p-0 d-flex align-items-center gap-2 text-decoration-none"  style={{ color: "inherit" }}>
+                  <img  src="https://flagcdn.com/es.svg"  alt="Español" style={{  width: 26, filter: language === "es" ? "none" : "grayscale(100%) brightness(0.3)", transition: "all .3s" }}/>
+                  <span className={language === "es" ? "fw-semibold" : "opacity-75"}>
+                    Español
+                  </span>
+                </button> */}
+
+                {/* Inglés */}
+                {/* <button type="button" onClick={() => setLanguage("en")} className="btn btn-link p-0 d-flex align-items-center gap-2 text-decoration-none" style={{ color: "inherit" }}>
+                  <img src="https://flagcdn.com/gb.svg" alt="English" style={{ width: 26, filter: language === "en" ? "none" : "grayscale(100%) brightness(0.3)", transition: "all .3s" }}/>
+                  <span className={language === "en" ? "fw-semibold" : "opacity-75"}>
+                    English
+                  </span>
+                </button> */}
+
+              </div>
             </li>
             <li><hr className="divider-thick" /></li>
 

@@ -17,6 +17,11 @@ import PrivacyPolicyPage from '../pages/public/PrivacyPolicyPage'
 import Universos from '../pages/public/Universos';
 import Personalidades from '../pages/public/Personalidades';
 import Psicologia from '../pages/public/Psicologia';
+import Politica_Privacidad from '../pages/public/Politica_privacidad';
+// Página de lista de personajes (prueba) Tendría que estar en admin, pero la dejo aquí para que ver el diseño y luego la movemos
+import ListaPersonajes from '../pages/public/listaPersonajes';
+import FormularioPersonaje from '../pages/public/FormularioPersonaje';
+import EliminarPersonaje from '../pages/public/EliminarPersonaje';
 
 // Páginas de usuario autenticado
 import UserProfilePage from '../pages/user/UserProfilePage'
@@ -54,6 +59,10 @@ function AppRoutes() {
         <Route path="/universos" element={<Universos />} />
         <Route path="/personalidades" element={<Personalidades />} />
         <Route path="/psicologia" element={<Psicologia />} />
+        <Route path="/lista-personajes" element={<ListaPersonajes />} />
+        <Route path="/formulario-personaje" element={<FormularioPersonaje />} />
+        <Route path="/politica_privacidad" element={<Politica_Privacidad />} />
+        <Route path="/eliminar-personaje" element={<EliminarPersonaje />} />
 
         {/* ── Rutas de usuario (rol: user) ── */}
         <Route element={<ProtectedRoute allowedRoles={['user']} />}>

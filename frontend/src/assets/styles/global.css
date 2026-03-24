@@ -222,16 +222,20 @@ main {
   background-color: var(--color-piePagina);
 }
 
-.footer p {
+.footer p,
+.footer a {
+  font-family: var(--texto-normal);
   color: var(--color-textoPiePagina);
   text-align: center;
-  padding: 1rem 1rem;
+  padding: 1rem;
 }
 
+.footer a:hover,
 .footer p:hover {
   color: var(--colorTexto);
   font-weight: bold;
 }
+
 
 /*Panel de Estilos*/
 .style-panel {

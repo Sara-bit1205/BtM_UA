@@ -1,9 +1,6 @@
 import { useParams } from 'react-router-dom'
-<<<<<<< HEAD
 import React from 'react'
 import '../../assets/styles/personajes.css';
-=======
->>>>>>> c64b419 (Guardar cambios)
 import batmanImg from '../../assets/images/batman.jpg';
 import captainAmericaImg from '../../assets/images/captainAmerica.jpg';
 import maleficaImg from '../../assets/images/malefica.jpg';

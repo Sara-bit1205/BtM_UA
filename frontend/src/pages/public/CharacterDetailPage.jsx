@@ -1,6 +1,9 @@
 import { useParams } from 'react-router-dom'
+<<<<<<< HEAD
 import React from 'react'
 import '../../assets/styles/personajes.css';
+=======
+>>>>>>> c64b419 (Guardar cambios)
 import batmanImg from '../../assets/images/batman.jpg';
 import captainAmericaImg from '../../assets/images/captainAmerica.jpg';
 import maleficaImg from '../../assets/images/malefica.jpg';
@@ -43,6 +46,12 @@ const charactersMock = [
           image: captainAmericaImg,
         },
       ],
+    actors: [
+      "Chris Evans (2011-2019)",
+      "Reb Brown (1979, 1990)"
+    ],
+    psicologicalAnalisis: "Capitán América es un personaje que encarna los valores de la justicia, el honor y el sacrificio. Su personalidad ISFJ lo hace ser un héroe protector, leal y comprometido con su causa, pero también puede ser rígido y a veces inflexible. A lo largo de sus historias, Steve Rogers enfrenta dilemas morales y emocionales que reflejan su fuerte sentido del deber y su deseo de hacer lo correcto.",
+    sound: ["captain-america/voz-original.mp3"],
   },
   {
     id: "2",
@@ -76,6 +85,13 @@ const charactersMock = [
         image: batmanImg,
       },
     ],
+    actors: [
+      "Michael Keaton (1989-1992)",
+      "Christian Bale (2005-2012)",
+    ],
+    psicologicalAnalisis: "Batman es un personaje que encarna la lucha entre la justicia y el deseo de vivir una vida normal. Su personalidad INTJ lo hace ser un héroe estratégico, analítico y reservado, pero también puede ser obsesivo y a veces distante. A lo largo de sus historias, Bruce Wayne enfrenta dilemas morales y emocionales que reflejan su compleja psicología.",
+    sound: ["batman/voz-original.mp3"],
+
   },
   {
     id: "3",
@@ -109,6 +125,8 @@ const charactersMock = [
         image: maleficaImg,
       },
     ],
+    psicologicalAnalisis: "Maléfica es un personaje que encarna la lucha entre el bien y el mal. Su personalidad INTJ lo hace ser una villana compleja, estratégica y poderosa, pero también puede ser manipuladora y a veces cruel. A lo largo de sus historias, Maléfica enfrenta dilemas morales y emocionales que reflejan su compleja psicología.",
+    sound: ["malefica/voz-original.mp3"],
   },
   {
     id: "4",
@@ -142,6 +160,13 @@ const charactersMock = [
         image: spidermanImg,
       },
     ],
+    actors: [
+      "Tobey Maguire (2002-2007)",
+      "Andrew Garfield (2012-2014)",
+      "Tom Holland (2016-presente)"
+    ],
+    psicologicalAnalisis: "Spiderman es un personaje que encarna la lucha entre la responsabilidad y el deseo de vivir una vida normal. Su personalidad ENFP lo hace ser un héroe apasionado, creativo y empático, pero también puede ser impulsivo y a veces inseguro. A lo largo de sus historias, Peter Parker enfrenta dilemas morales y emocionales que reflejan su compleja psicología.",
+    sound: ["spiderman/voz-original.mp3"],
   },
   {
     id: "5",
@@ -170,6 +195,8 @@ const charactersMock = [
         image: elsaImg,
       },
     ],
+    psicologicalAnalisis: "Elsa es un personaje que encarna la lucha entre la introspección y la expresión emocional. Su personalidad INFJ la hace ser una persona profunda, empática y creativa, pero también puede ser reservada y a veces indecisa. A lo largo de sus historias, Elsa enfrenta dilemas morales y emocionales que reflejan su compleja psicología.",
+    sound: ["elsa/voz-original.mp3"],
   },
 ];
 
@@ -285,6 +312,106 @@ function CharacterDetailPage() {
                   <span className="carousel-control-next-icon" aria-hidden="true"></span>
                   <span className="visually-hidden">Siguiente</span>
                 </button>
+              </div>
+            </section>
+
+            <section className = "accordion" id="acordeonPersonaje">
+              {/* --- DESPLEGABLE 1: Actores --- */}
+              <div className="accordion-item mb-3 bg-transparent border-0">
+                <h2 className="accordion-header" id="headingActores">
+                  <button 
+                    className="accordion-button collapsed custom-acordeon-btn" 
+                    type="button" 
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#collapseActores" 
+                    aria-expanded="false" 
+                    aria-controls="collapseActores"
+                  >
+                    Actores/as que lo han interpretado:
+                  </button>
+                </h2>
+                <div id="collapseActores" className="accordion-collapse collapse" aria-labelledby="headingActores" data-bs-parent="#acordeonPersonaje">
+                  <div className="accordion-body custom-acordeon-body">
+                    {character.actors.join(" • ")}
+                  </div>
+                </div>
+              </div>
+
+              {/* --- DESPLEGABLE 2: Análisis MBTI --- */}
+              <div className="accordion-item mb-3 bg-transparent border-0">
+                <h2 className="accordion-header" id="headingMBTI">
+                  <button 
+                    className="accordion-button collapsed custom-acordeon-btn" 
+                    type="button" 
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#collapseMBTI" 
+                    aria-expanded="false" 
+                    aria-controls="collapseMBTI"
+                  >
+                    Análisis de Personalidad (MBTI)
+                  </button>
+                </h2>
+                <div id="collapseMBTI" className="accordion-collapse collapse" aria-labelledby="headingMBTI" data-bs-parent="#acordeonPersonaje">
+                  <div className="accordion-body custom-acordeon-body">
+                    {character.psicologicalAnalisis}
+                  </div>
+                </div>
+              </div>
+
+              {/* --- DESPLEGABLE 3: Modelo 3D --- */}
+              <div className="accordion-item mb-3 bg-transparent border-0">
+                <h2 className="accordion-header" id="heading3D">
+                  <button
+                    className="accordion-button collapsed custom-acordeon-btn"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapse3D"
+                    aria-expanded="false"
+                    aria-controls="collapse3D"
+                  >
+                    Modelo 3D interactivo
+                  </button>
+                </h2>
+                {/* Aquí faltaba la capa "collapse" de Bootstrap */}
+                <div id="collapse3D" className="accordion-collapse collapse" aria-labelledby="heading3D" data-bs-parent="#acordeonPersonaje">
+                  <div className="accordion-body custom-acordeon-body p-2 text-center">
+                      <model-viewer 
+                          src="malefica/scene.gltf" 
+                          alt="Modelo 3D de Maléfica" 
+                          camera-controls="true" 
+                          auto-rotate="true" 
+                          // Corregido el style a formato React
+                          style={{ width: '100%', height: '250px', backgroundColor: '#2a2a2a', borderRadius: '8px' }}>
+                      </model-viewer>
+                  </div>
+                </div>
+              </div>
+
+              {/* --- DESPLEGABLE 4: Audio --- */}
+              <div className="accordion-item mb-3 bg-transparent border-0">
+                <h2 className="accordion-header" id="headingAudio">
+                  <button
+                    className="accordion-button collapsed custom-acordeon-btn"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapseAudio"
+                    aria-expanded="false"
+                    aria-controls="collapseAudio"
+                  >
+                    Escucha al personaje: Frases icónicas y voz original
+                  </button>
+                </h2>
+                {/* Aquí faltaba la capa "collapse" de Bootstrap y tenías un ID repetido */}
+                <div id="collapseAudio" className="accordion-collapse collapse" aria-labelledby="headingAudio" data-bs-parent="#acordeonPersonaje">
+                  <div className="accordion-body custom-acordeon-body text-center">
+                      {/* Corregido el style a formato React */}
+                      <audio controls style={{ width: '100%', marginTop: '10px' }}>
+                        {/* Corregida la etiqueta source para que se cierre con /> */}
+                        <source src={character.sound[0]} type="audio/mpeg" />
+                        Tu navegador no soporta el elemento de audio.
+                      </audio>
+                  </div>
+                </div>
               </div>
             </section>
           </div>

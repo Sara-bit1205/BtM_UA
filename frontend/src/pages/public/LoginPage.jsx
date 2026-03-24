@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+<<<<<<< HEAD
 //import { supabase } from '../../supabaseClient';
+=======
+// import { supabase } from '../../supabaseClient';
+>>>>>>> c64b419 (Guardar cambios)
 import '../../assets/styles/Login.css';
 
 function LoginPage() {

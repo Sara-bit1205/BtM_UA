@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+<<<<<<< HEAD
 //import { supabase } from '../../supabaseClient';
+=======
+// import { supabase } from '../../supabaseClient';
+>>>>>>> c64b419 (Guardar cambios)
 import '../../assets/styles/Login.css';
 
 function RegisterPage() {

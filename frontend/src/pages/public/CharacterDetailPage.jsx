@@ -314,10 +314,10 @@ function CharacterDetailPage() {
 
             <section className = "accordion" id="acordeonPersonaje">
               {/* --- DESPLEGABLE 1: Actores --- */}
-              <div className="accordion-item mb-3 bg-transparent border-0">
+              <div className="accordion-item btm-accordion-item">
                 <h2 className="accordion-header" id="headingActores">
                   <button 
-                    className="accordion-button collapsed custom-acordeon-btn" 
+                    className="accordion-button collapsed custom-acordeon-btn btm-accordion-btn" 
                     type="button" 
                     data-bs-toggle="collapse" 
                     data-bs-target="#collapseActores" 
@@ -328,17 +328,17 @@ function CharacterDetailPage() {
                   </button>
                 </h2>
                 <div id="collapseActores" className="accordion-collapse collapse" aria-labelledby="headingActores" data-bs-parent="#acordeonPersonaje">
-                  <div className="accordion-body custom-acordeon-body">
+                  <div className="accordion-body custom-acordeon-body btm-accordion-body">
                     {character.actors.join(" • ")}
                   </div>
                 </div>
               </div>
 
               {/* --- DESPLEGABLE 2: Análisis MBTI --- */}
-              <div className="accordion-item mb-3 bg-transparent border-0">
+              <div className="accordion-item btm-accordion-item">
                 <h2 className="accordion-header" id="headingMBTI">
                   <button 
-                    className="accordion-button collapsed custom-acordeon-btn" 
+                    className="accordion-button collapsed custom-acordeon-btn btm-accordion-btn" 
                     type="button" 
                     data-bs-toggle="collapse" 
                     data-bs-target="#collapseMBTI" 
@@ -349,17 +349,17 @@ function CharacterDetailPage() {
                   </button>
                 </h2>
                 <div id="collapseMBTI" className="accordion-collapse collapse" aria-labelledby="headingMBTI" data-bs-parent="#acordeonPersonaje">
-                  <div className="accordion-body custom-acordeon-body">
+                  <div className="accordion-body custom-acordeon-body btm-accordion-body">
                     {character.psicologicalAnalisis}
                   </div>
                 </div>
               </div>
 
               {/* --- DESPLEGABLE 3: Modelo 3D --- */}
-              <div className="accordion-item mb-3 bg-transparent border-0">
+              <div className="accordion-item btm-accordion-item">
                 <h2 className="accordion-header" id="heading3D">
                   <button
-                    className="accordion-button collapsed custom-acordeon-btn"
+                    className="accordion-button collapsed custom-acordeon-btn btm-accordion-btn"
                     type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#collapse3D"
@@ -371,7 +371,7 @@ function CharacterDetailPage() {
                 </h2>
                 {/* Aquí faltaba la capa "collapse" de Bootstrap */}
                 <div id="collapse3D" className="accordion-collapse collapse" aria-labelledby="heading3D" data-bs-parent="#acordeonPersonaje">
-                  <div className="accordion-body custom-acordeon-body p-2 text-center">
+                  <div className="accordion-body custom-acordeon-body p-2 text-center btm-accordion-body">
                       <model-viewer 
                           src="malefica/scene.gltf" 
                           alt="Modelo 3D de Maléfica" 
@@ -385,10 +385,10 @@ function CharacterDetailPage() {
               </div>
 
               {/* --- DESPLEGABLE 4: Audio --- */}
-              <div className="accordion-item mb-3 bg-transparent border-0">
+              <div className="accordion-item btm-accordion-item">
                 <h2 className="accordion-header" id="headingAudio">
                   <button
-                    className="accordion-button collapsed custom-acordeon-btn"
+                    className="accordion-button collapsed custom-acordeon-btn btm-accordion-btn"
                     type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#collapseAudio"
@@ -400,7 +400,7 @@ function CharacterDetailPage() {
                 </h2>
                 {/* Aquí faltaba la capa "collapse" de Bootstrap y tenías un ID repetido */}
                 <div id="collapseAudio" className="accordion-collapse collapse" aria-labelledby="headingAudio" data-bs-parent="#acordeonPersonaje">
-                  <div className="accordion-body custom-acordeon-body text-center">
+                  <div className="accordion-body custom-acordeon-body text-center btm-accordion-body">
                       {/* Corregido el style a formato React */}
                       <audio controls style={{ width: '100%', marginTop: '10px' }}>
                         {/* Corregida la etiqueta source para que se cierre con /> */}

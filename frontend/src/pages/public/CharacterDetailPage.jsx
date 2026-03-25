@@ -122,6 +122,10 @@ const charactersMock = [
         image: maleficaImg,
       },
     ],
+    actors: [
+      "Eleanor Audley (1959)",
+      "Angelina Jolie (2014-2019)"
+    ],
     psicologicalAnalisis: "Maléfica es un personaje que encarna la lucha entre el bien y el mal. Su personalidad INTJ lo hace ser una villana compleja, estratégica y poderosa, pero también puede ser manipuladora y a veces cruel. A lo largo de sus historias, Maléfica enfrenta dilemas morales y emocionales que reflejan su compleja psicología.",
     sound: ["malefica/voz-original.mp3"],
   },
@@ -192,24 +196,18 @@ const charactersMock = [
         image: elsaImg,
       },
     ],
+    actors: [
+      "Idina Menzel (2013-2019)"
+    ],
     psicologicalAnalisis: "Elsa es un personaje que encarna la lucha entre la introspección y la expresión emocional. Su personalidad INFJ la hace ser una persona profunda, empática y creativa, pero también puede ser reservada y a veces indecisa. A lo largo de sus historias, Elsa enfrenta dilemas morales y emocionales que reflejan su compleja psicología.",
     sound: ["elsa/voz-original.mp3"],
   },
 ];
 
-// function agruparDe2En2(items) {
-//   const grupos = [];
-//   for(let i = 0; i < items.length; i += 2){
-//     //Se usa items.slice --> para tomar un subarray de 2 elementos a partir del índice i
-//     grupos.push(items.slice(i, i + 2));
-//   }
-//   return grupos;
-// }
 
 function CharacterDetailPage() {
   const { slug } = useParams()
   const character = charactersMock.find((c) => c.slug === slug)
-  // const gruposFilmografia = agruparDe2En2(character.filmography);
 
   if (!character) {
     return <main><h1>Personaje no encontrado</h1></main>
@@ -259,56 +257,68 @@ function CharacterDetailPage() {
 
             <hr className="divider-thick mb-3" />
 
-            <section className="filmography mb-3">
-              <h3 className="filmographyTitle">Filmografía:</h3>
+            <section className="filmography mb-4">
+              <div className="d-flex justify-content-between align-items-end mb-3 px-2">
+                <h3 className="filmographyTitle m-0">Filmografía:</h3>
+              </div>
 
-              <div
-                id="filmographyCarousel"
-                className="carousel slide filmographyCarousel"
-                data-bs-ride="carousel"
-              >
-                <div className="carousel-inner">
-                  {character.filmography.map((movie, index) => (
-                    <div
-                      key={index}
-                      className={`carousel-item ${index === 0 ? 'active' : ''}`}
-                    >
-                      <div className="filmography-slide card-body">
-                        <div className="card filmography-card">
-                          <img
-                            src={movie.image}
-                            className="card-img-top filmography-card-img"
-                            alt={movie.title}
-                          />
-                          <div className="card-body">
-                            <h4 className="filmography-card-title text-truncate">{movie.title}</h4>
-                            <p className="filmography-card-year mb-0">{movie.year}</p>
-                          </div>
-                        </div>
-                      </div>
+              <div className="d-flex flex-nowrap overflow-x-auto gap-3 py-3 px-2 filmography-slider" style={{ scrollBehavior: 'smooth' }}>
+                {character.filmography.map((movie, index) => (
+                  <div key={index}
+                    className="card border-0 flex-shrink-0 filmography-card"
+                    style={{
+                      width: '240px',
+                      backgroundColor: 'var(--color-principal)',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                      e.currentTarget.style.boxShadow = '0 8px 15px rgba(0,0,0,0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
+                    <img
+                      src={movie.image}
+                      alt={movie.title}
+                      className="card-img-top p-3 filmography-card-img"
+                      style={{
+                        height: '200px',
+                        objectFit: 'cover',
+                        borderRadius: '20px',
+                      }}
+                    />
+
+                    <div className="card-body d-flex flex-column pt-0">
+                      <span
+                        className="align-self-start mb-2 px-2 py-1 rounded-1"
+                        style={{
+                          backgroundColor: 'var(--color5)',
+                          color: 'var(--color-principal)',
+                          fontFamily: 'var(--texto-normal)',
+                          fontSize: '0.8rem',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        {movie.year}
+                      </span>
+
+                      <h4
+                        className="card-title m-0 filmTitle"
+                        style={{
+                          color: 'var(--color3)',
+                          fontFamily: 'var(--texto-normal)',
+                        }}
+                      >
+                        {movie.title}
+                      </h4>
                     </div>
-                  ))}
-                </div>
-
-                <button
-                  className="carousel-control-prev"
-                  type="button"
-                  data-bs-target="#filmographyCarousel"
-                  data-bs-slide="prev"
-                >
-                  <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                  <span className="visually-hidden">Anterior</span>
-                </button>
-
-                <button
-                  className="carousel-control-next"
-                  type="button"
-                  data-bs-target="#filmographyCarousel"
-                  data-bs-slide="next"
-                >
-                  <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                  <span className="visually-hidden">Siguiente</span>
-                </button>
+                  </div>
+                ))}
               </div>
             </section>
 

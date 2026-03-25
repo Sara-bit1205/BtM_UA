@@ -160,3 +160,9 @@
   overflow: visible;
   white-space: normal;
 }
+
+.btmAccordion .btm-accordion-item{
+  background-color: var(--color-principal) !important;
+  border: 3px solid var(--color4) !important; /* Tu verde neón */
+  border-radius: 12px !important;
+}

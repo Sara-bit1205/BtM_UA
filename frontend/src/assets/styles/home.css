@@ -90,7 +90,7 @@
   box-shadow: 0 0 10px var(--color4);
 }
 
-.popular-card-img {
+.popular-card .popular-card-img {
   width: 100%;
   height: 80%; /* Altura fija para la imagen para que todas las cards sean iguales */
   object-fit: cover;

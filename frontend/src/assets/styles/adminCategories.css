@@ -1,0 +1,841 @@
+/* ============================================================
+   Admin — Gestión de Categorías
+   Compatible con global.css CSS variables & Bootstrap 5
+   ============================================================ */
+
+/* ── Página contenedor ── */
+.admin-cat-page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2rem) clamp(0.75rem, 3vw, 1.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 100%;
+}
+
+/* ── Título de sección ── */
+.admin-cat-title {
+  font-family: var(--texto-encabezados);
+  color: var(--color1);
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+/* ── Barra de acciones (botones + / editar / borrar) ── */
+.admin-cat-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.85rem;
+}
+
+.admin-cat-action-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3px solid var(--color4);
+  background: var(--color-principal);
+  color: var(--color4);
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.admin-cat-action-btn:hover {
+  background: var(--color4);
+  color: var(--color-principal);
+  transform: scale(1.1);
+  box-shadow: 0 0 12px var(--color4);
+}
+
+.admin-cat-action-btn.danger {
+  border-color: #d32f81;
+  color: #d32f81;
+}
+
+.admin-cat-action-btn.danger:hover {
+  background: #d32f81;
+  color: var(--colorTexto);
+  box-shadow: 0 0 12px #d32f81;
+}
+
+.admin-cat-action-btn.active {
+  background: var(--color4);
+  color: var(--color-principal);
+}
+
+.admin-cat-action-btn.active.danger {
+  background: #d32f81;
+  color: var(--colorTexto);
+}
+
+/* ── Ítem de categoría (acordeón) ─────────────────────────────── */
+/* El ítem no tiene fondo ni borde propio: el header y la sublist-inner
+   son elementos independientes que visualmente se "conectan" entre sí.
+   Esto elimina por completo el reborde negro lateral e inferior. */
+.admin-cat-item {
+  border-radius: 12px;
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.admin-cat-item:hover {
+  transform: translateY(-2px);
+  filter: drop-shadow(0 4px 14px rgba(95, 235, 190, 0.18));
+}
+
+/* Cabecera: lleva todo el estilo visual */
+.admin-cat-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.1rem;
+  cursor: pointer;
+  user-select: none;
+  background: var(--color-grisOscuro);
+  border: 2px solid var(--color4);
+  border-radius: 12px;
+  transition: border-color 0.22s ease, background 0.22s ease;
+}
+
+/* Hover: borde más brillante + tinte sutil */
+.admin-cat-item-header:hover {
+  border-color: var(--color1);
+  background: rgba(207, 241, 153, 0.07);
+}
+
+/* Cuando está abierto: radio inferior plano para empalmar con la sublist */
+.admin-cat-item.open > .admin-cat-item-header {
+  border-radius: 12px 12px 0 0;
+  border-color: var(--color1);
+  border-bottom-color: rgba(207, 241, 153, 0.2);
+}
+
+.admin-cat-item-name {
+  font-family: var(--texto-encabezados);
+  color: var(--colorTexto);
+  font-size: clamp(0.95rem, 3.5vw, 1.1rem);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* Checkbox nativo oculto — el ✓ se renderiza con label::before */
+.admin-cat-item-check {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+  pointer-events: none;
+}
+
+/* Pseudo-checkbox como ::before del label */
+.admin-cat-item-check + label::before {
+  content: '';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border: 2px solid var(--color2);
+  border-radius: 5px;
+  background: transparent;
+  margin-right: 0.55rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: transparent;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.1s ease;
+}
+
+/* Estado hover: resaltar el borde */
+.admin-cat-item-check + label:hover::before {
+  border-color: var(--color4);
+  background: rgba(207, 241, 153, 0.12);
+}
+
+/* Estado checked: fondo verde + marca ✓ */
+.admin-cat-item-check:checked + label::before {
+  content: '✓';
+  background: var(--color4);
+  border-color: var(--color4);
+  color: var(--color-principal);
+}
+
+/* Subcategorías desplegadas */
+/* El ul solo controla la altura animada — sin fondo ni padding propios */
+.admin-cat-sublist {
+  /* Reset de márgenes y padding que el navegador aplica a <ul> por defecto:
+     sin esto quedaría un hueco negro entre la cabecera y el contenido verde */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.admin-cat-sublist.open {
+  max-height: 500px;
+}
+
+/* El div interior conecta visualmente con la cabecera */
+.admin-cat-sublist-inner {
+  background: var(--color5);
+  padding: 0.7rem 1.1rem 1rem 1.5rem;
+  /* Continuación de los bordes laterales + inferior de la cabecera */
+  border: 2px solid var(--color1);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.admin-cat-sublist li {
+  font-family: var(--texto-normal);
+  color: var(--color-principal);
+  font-size: clamp(0.85rem, 3vw, 0.95rem);
+  list-style: disc;
+}
+
+/* ── Chevron animado — compartido entre ListView y árbol de borrar ── */
+/* Rota 180° con transición suave cuando el padre tiene clase .open */
+.admin-cat-chevron {
+  color: var(--color4);
+  font-size: 0.75rem;
+  display: inline-block;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.admin-cat-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* ── Estado hover y abierto del acordeón de listado ── */
+/* Los estados hover y open ya se gestionan directamente en
+   .admin-cat-item-header y .admin-cat-item.open > .admin-cat-item-header
+   — no se necesitan estilos adicionales aquí */
+
+/* Resaltar el borde del ítem completo en hover para mayor feedback */
+.admin-cat-item:hover {
+  border-color: var(--color1);
+}
+
+/* ── Formulario (Crear / Editar) ── */
+.admin-cat-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.admin-cat-form-title {
+  font-family: var(--texto-encabezados);
+  color: var(--color1);
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+/* Campo de texto / nombre */
+.admin-cat-label {
+  font-family: var(--texto-encabezados);
+  color: var(--color5);
+  font-size: clamp(1rem, 3.5vw, 1.2rem);
+  letter-spacing: 1px;
+}
+
+.admin-cat-input {
+  width: 100%;
+  background: var(--color-grisOscuro);
+  color: var(--colorTexto);
+  border: 2px solid var(--color2);
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  font-family: var(--texto-normal);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.admin-cat-input:focus {
+  border-color: var(--color4);
+}
+
+.admin-cat-input.error {
+  border-color: #d32f81;
+}
+
+.admin-cat-error {
+  color: #d32f81;
+  font-size: 0.85rem;
+  font-family: var(--texto-normal);
+  /* Sin margin negativo: evita que el texto quede bajo el dropdown absoluto */
+  margin-top: 0.3rem;
+  padding-left: 0.25rem;
+}
+
+/* ── Dropdown custom ── */
+/* El dropdown-wrap necesita z-index para superar elementos vecinos
+   cuando su lista está desplegada */
+.admin-cat-dropdown-wrap {
+  position: relative;
+  z-index: 10;
+}
+
+/* Elevar el z-index del wrap mientras el botón esté abierto */
+.admin-cat-dropdown-wrap:focus-within,
+.admin-cat-dropdown-btn.open ~ * {
+  z-index: 20;
+}
+
+.admin-cat-dropdown-btn {
+  width: 100%;
+  /* Mismo fondo que los inputs del formulario para consistencia visual */
+  background: var(--color-grisOscuro);
+  color: var(--colorTexto);
+  border: 2px solid var(--color2);
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  font-family: var(--texto-normal);
+  font-size: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.admin-cat-dropdown-btn:hover {
+  border-color: var(--color4);
+  background: var(--color-grisOscuro);
+}
+
+.admin-cat-dropdown-btn .chevron {
+  font-size: 0.8rem;
+  transition: transform 0.2s ease;
+}
+
+.admin-cat-dropdown-btn.open .chevron {
+  transform: rotate(180deg);
+}
+
+.admin-cat-dropdown-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--color5);
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: max-height 0.3s ease, opacity 0.25s ease;
+}
+
+.admin-cat-dropdown-list.open {
+  max-height: 400px;
+  opacity: 1;
+  pointer-events: all;
+}
+
+.admin-cat-dropdown-item {
+  font-family: var(--texto-normal);
+  color: var(--color-principal);
+  font-size: 0.95rem;
+  padding: 0.2rem 0;
+  cursor: pointer;
+  list-style: disc;
+  margin-left: 1rem;
+}
+
+.admin-cat-dropdown-item.selected {
+  font-weight: 700;
+  color: var(--color2);
+}
+
+/* ── Sección añadir personajes ── */
+.admin-cat-chars-btn {
+  background: #d32f81;
+  color: var(--colorTexto);
+  font-family: var(--texto-encabezados);
+  font-size: clamp(0.85rem, 3vw, 1rem);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  align-self: center;
+}
+
+.admin-cat-chars-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px #d32f81;
+}
+
+/* Grid de personajes seleccionados */
+.admin-cat-chars-grid {
+  background: var(--color-grisOscuro);
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  min-height: 80px;
+}
+
+.admin-cat-char-thumb {
+  position: relative;
+  width: 70px;
+  height: 70px;
+}
+
+.admin-cat-char-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid var(--color4);
+}
+
+.admin-cat-char-remove {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color4);
+  color: var(--color-principal);
+  border: none;
+  font-size: 0.65rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  transition: background 0.15s ease;
+}
+
+.admin-cat-char-remove:hover {
+  background: #d32f81;
+  color: var(--colorTexto);
+}
+
+/* ── Confirmation block (Borrar) ── */
+.admin-cat-confirm-box {
+  background: var(--color-grisOscuro);
+  border: 3px solid #d32f81;
+  border-radius: 14px;
+  padding: 1rem 1.2rem;
+}
+
+.admin-cat-confirm-box p {
+  font-family: var(--texto-encabezados);
+  color: var(--colorTexto);
+  font-size: clamp(0.95rem, 3vw, 1.1rem);
+  margin-bottom: 0.5rem;
+}
+
+.admin-cat-confirm-box ul {
+  padding-left: 1.2rem;
+}
+
+.admin-cat-confirm-box li {
+  font-family: var(--texto-normal);
+  color: var(--colorTexto);
+  font-size: 0.95rem;
+}
+
+/* ── Botones Aceptar / Cancelar ── */
+.admin-cat-btn-row {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.admin-cat-btn-accept {
+  background: var(--color2);
+  color: var(--colorTexto);
+  font-family: var(--texto-encabezados);
+  font-size: clamp(1rem, 3.5vw, 1.2rem);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 0.65rem 2rem;
+  border: 3px solid var(--color3);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.admin-cat-btn-accept:hover {
+  background: var(--color1);
+  transform: translateY(-2px);
+  box-shadow: 0 0 14px var(--color3);
+}
+
+.admin-cat-btn-accept:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.admin-cat-btn-cancel {
+  background: #d32f81;
+  color: var(--colorTexto);
+  font-family: var(--texto-encabezados);
+  font-size: clamp(1rem, 3.5vw, 1.2rem);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 0.65rem 2rem;
+  border: 3px solid #ff6ab8;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-cat-btn-cancel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 14px #d32f81;
+}
+
+/* ── Botón volver ───────────────────────────────────────────── */
+/* Posición sticky dentro del flujo de la página (no fixed al viewport)
+   — queda al fondo del contenido sin superponerse a elementos externos */
+.admin-cat-back-btn {
+  align-self: flex-start;
+  margin-top: auto;
+  position: sticky;
+  bottom: 1.5rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color2);
+  color: var(--colorTexto);
+  border: 3px solid var(--color3);
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+
+.admin-cat-back-btn:hover {
+  background: var(--color1);
+  transform: scale(1.12);
+  color: var(--colorTexto);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+}
+
+/* ── Delete: árbol de selección rediseñado como tarjetas oscuras ── */
+.admin-cat-tree {
+  /* Contenedor sin fondo propio: cada sección es su propia tarjeta */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-cat-tree-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+/* Grupo clickable (tiene categorías hijas) */
+.admin-cat-tree-group.clickable {
+  cursor: pointer;
+}
+
+/* Hover más notorio sobre fondo oscuro */
+.admin-cat-tree-group.clickable:hover {
+  background: rgba(95, 235, 190, 0.12);
+}
+
+.admin-cat-tree-group-name {
+  font-family: var(--texto-encabezados);
+  color: var(--colorTexto);
+  font-weight: 600;
+  /* Tamaño aumentado para mejor legibilidad */
+  font-size: clamp(0.95rem, 3vw, 1.05rem);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.admin-cat-tree-toggle {
+  background: none;
+  border: none;
+  color: var(--color2);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  transition: transform 0.2s ease;
+}
+
+.admin-cat-tree-toggle.open {
+  transform: rotate(180deg);
+}
+
+/* Sección de grupo: cada una es una tarjeta con borde */
+.admin-cat-tree-section {
+  border: 2px solid var(--color4);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--color-grisOscuro);
+  transition: border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+/* Hover sobre la tarjeta completa */
+.admin-cat-tree-section:hover {
+  border-color: var(--color1);
+  box-shadow: 0 0 10px rgba(95, 235, 190, 0.2);
+}
+
+/* Con hijos expandidos: cambiar el color del borde a resalte */
+.admin-cat-tree-section.open {
+  border-color: var(--color1);
+}
+
+/* Línea separadora entre cabecera y lista cuando está abierto */
+.admin-cat-tree-section.open > .admin-cat-tree-group {
+  border-bottom: 1px solid rgba(207, 241, 153, 0.2);
+}
+
+/* Indicador de grupo vacío (sin categorías) */
+.admin-cat-tree-empty-hint {
+  font-family: var(--texto-normal);
+  color: var(--colorTexto);
+  opacity: 0.4;
+  font-size: 0.78rem;
+  font-style: italic;
+  flex-shrink: 0;
+}
+
+.admin-cat-tree-children {
+  /* Reset de márgenes del navegador en <ul> — evita el hueco inferior */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.28s ease;
+}
+
+.admin-cat-tree-children.open {
+  max-height: 400px;
+  opacity: 1;
+}
+
+.admin-cat-tree-child {
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 1rem 0.4rem 2rem;
+  border-radius: 6px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.admin-cat-tree-child:hover {
+  background: rgba(95, 235, 190, 0.1);
+}
+
+.admin-cat-tree-child-name {
+  font-family: var(--texto-normal);
+  color: var(--colorTexto);
+  /* Tamaño aumentado: más legible en lista de borrado */
+  font-size: clamp(0.9rem, 3vw, 1rem);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.15s ease;
+  width: 100%;
+}
+
+.admin-cat-tree-child-name:hover {
+  color: var(--color4);
+}
+
+.admin-cat-tree-child-name.selected {
+  font-weight: 700;
+  color: var(--color4);
+}
+
+/* ── Modal de selección de personajes ── */
+@keyframes acOverlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes acModalSlideUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.admin-char-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: acOverlayFadeIn 0.2s ease;
+}
+
+.admin-char-modal {
+  background: var(--color-principal);
+  border: 3px solid var(--color4);
+  border-radius: 18px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: acModalSlideUp 0.25s ease;
+}
+
+.admin-char-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-char-modal-title {
+  font-family: var(--texto-encabezados);
+  color: var(--color1);
+  font-size: clamp(1.1rem, 4vw, 1.5rem);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+.admin-char-modal-close {
+  background: none;
+  border: 2px solid var(--color4);
+  color: var(--color4);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.admin-char-modal-close:hover {
+  background: var(--color4);
+  color: var(--color-principal);
+}
+
+.admin-char-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 0.6rem;
+}
+
+.admin-char-modal-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.25rem;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  user-select: none;
+}
+
+.admin-char-modal-item:hover {
+  border-color: var(--color2);
+  background: var(--color-grisOscuro);
+}
+
+.admin-char-modal-item.selected {
+  border-color: var(--color4);
+  background: var(--color-grisOscuro);
+}
+
+.admin-char-modal-img {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color2);
+  transition: border-color 0.2s ease;
+}
+
+.admin-char-modal-item.selected .admin-char-modal-img {
+  border-color: var(--color4);
+}
+
+.admin-char-modal-name {
+  font-family: var(--texto-normal);
+  color: var(--colorTexto);
+  font-size: 0.78rem;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.admin-char-modal-check {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  background: var(--color4);
+  color: var(--color-principal);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.admin-char-modal-empty {
+  font-family: var(--texto-normal);
+  color: var(--colorTexto);
+  opacity: 0.6;
+  text-align: center;
+  padding: 1rem 0;
+}

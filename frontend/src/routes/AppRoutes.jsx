@@ -18,6 +18,8 @@ import Universos from '../pages/public/Universos';
 import Personalidades from '../pages/public/Personalidades';
 import Psicologia from '../pages/public/Psicologia';
 import Politica_Privacidad from '../pages/public/Politica_privacidad';
+import MBTITypesPage from '../pages/public/MBTITypesPage';
+import HowMBTIWorksPage from '../pages/public/HowMBTIWorksPage';
 // Página de lista de personajes (prueba) Tendría que estar en admin, pero la dejo aquí para que ver el diseño y luego la movemos
 import ListaPersonajes from '../pages/public/listaPersonajes';
 import FormularioPersonaje from '../pages/public/FormularioPersonaje';
@@ -50,6 +52,8 @@ function AppRoutes() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/que-es-btm" element={<AboutBTMPage />} />
         <Route path="/test-personalidad" element={<PersonalityTestPage />} />
+        <Route path="/tipos-personalidad" element={<MBTITypesPage />} />
+        <Route path="/como-se-calcula" element={<HowMBTIWorksPage />} />
         <Route path="/categorias" element={<CategoriesPage />} />
         <Route path="/categorias/:id" element={<CategoryDetailPage />} />
         <Route path="/personaje/:slug" element={<CharacterDetailPage />} />

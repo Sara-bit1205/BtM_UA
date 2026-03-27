@@ -121,19 +121,19 @@ function Navbar() {
             <li className="menu-section">PERSONALIDAD</li>
 
             <li className="nav-item">
-              <Link className="nav-link" to="/test-mbti">
+              <Link className="nav-link" to="/test-personalidad">
                 Test MBTI
               </Link>
             </li>
 
             <li className="nav-item">
-              <Link className="nav-link" to="/tipos-mbti">
+              <Link className="nav-link" to="/tipos-personalidad">
                 Tipos de personalidad MBTI
               </Link>
             </li>
 
             <li className="nav-item">
-              <Link className="nav-link" to="/metodo-test">
+              <Link className="nav-link" to="/como-se-calcula">
                 Cómo se calculan los resultados
               </Link>
             </li>

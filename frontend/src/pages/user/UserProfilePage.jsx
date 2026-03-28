@@ -1,13 +1,23 @@
-import { useRef } from 'react'
+import { useRef,useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { supabase } from '../../lib/supabase.js'
 import '../../assets/styles/profile.css'
 import '../../assets/styles/mbti.css'
 
-// Panel de perfil del usuario (rol: user) con datos provisionales
 function UserProfilePage() {
   const { user, logout } = useAuth()
   const dialogRef = useRef(null)
+  const avatarUrl = useMemo(() => {
+    const avatarPath = user?.avatar || 'default-avatar.jpg'
+
+    const { data } = supabase
+      .storage
+      .from('avatars')
+      .getPublicUrl(avatarPath)
+
+    return data.publicUrl
+  }, [user?.avatar])
 
   const openDialog = () => dialogRef.current?.showModal()
   const closeDialog = () => dialogRef.current?.close()
@@ -19,8 +29,16 @@ function UserProfilePage() {
       <article className="profile-card">
         <img
           className="profile-card__avatar"
-          src={user.avatar}
-          alt={`Avatar de ${user.name}`}
+          src={avatarUrl}
+          alt={`Avatar de ${user?.name || 'usuario'}`}
+          onError={(e) => {
+            const { data } = supabase
+              .storage
+              .from('avatars')
+              .getPublicUrl('default-avatar.jpg')
+
+            e.currentTarget.src = data.publicUrl
+          }}
         />
 
         <div className="profile-card__body">
@@ -37,7 +55,7 @@ function UserProfilePage() {
             </div>
             <div className="profile-card__row">
               <dt>Contraseña:</dt>
-              <dd>********</dd>
+              <dd>*************</dd>
             </div>
             <div className="profile-card__row">
               <dt>Fecha de nacimiento:</dt>
@@ -47,7 +65,6 @@ function UserProfilePage() {
         </div>
       </article>
 
-      {/* ── MBTI invite dialog (se abre automáticamente si no tiene tipo MBTI) ── */}
       <dialog
         ref={dialogRef}
         className="mbti-invite-dialog"

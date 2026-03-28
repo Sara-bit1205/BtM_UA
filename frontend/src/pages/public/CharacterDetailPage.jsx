@@ -1,6 +1,9 @@
 import { useParams } from 'react-router-dom'
 import React from 'react'
+import { useState, useEffect } from 'react';
 import '../../assets/styles/personajes.css';
+import { supabase } from '../../lib/supabase.js';
+
 import batmanImg from '../../assets/images/batman.jpg';
 import captainAmericaImg from '../../assets/images/captainAmerica.jpg';
 import maleficaImg from '../../assets/images/malefica.jpg';
@@ -204,27 +207,99 @@ const charactersMock = [
   },
 ];
 
+const communityPhotosMock = [
+  { id: 1, image: maleficaImg, alt: 'Cosplay de Maléfica 1' },
+  { id: 2, image: elsaImg, alt: 'Fan art de Elsa' },
+  { id: 3, image: batmanImg, alt: 'Cosplay de Batman' },
+  { id: 4, image: spidermanImg, alt: 'Cosplay de Spiderman' },
+  { id: 5, image: captainAmericaImg, alt: 'Cosplay de Capitán América' },
+];
+
+const commentsMock = [
+  {
+    id: 1,
+    user: 'Usuario1',
+    avatar: batmanImg,
+    time: 'Hace 2 horas',
+    text: '¡Super chulo el cosplay!',
+  },
+  {
+    id: 2,
+    user: 'Usuario2',
+    avatar: maleficaImg,
+    time: 'Hace 1 min',
+    text: 'El mío es mejor',
+  },
+];
 
 function CharacterDetailPage() {
   const { slug } = useParams()
   const character = charactersMock.find((c) => c.slug === slug)
+  const ultimasFotos = communityPhotosMock.slice(-4).reverse();
+  const [isFavorite, setIsFavorite] = useState(false);
 
   if (!character) {
     return <main><h1>Personaje no encontrado</h1></main>
   }
+
+  const handleFavorite = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      alert("Debes iniciar sesión");
+      return;
+    }
+
+    if (isFavorite) {
+      // quitar favorito
+      await supabase
+        .from('favorites')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('character_id', character.id);
+
+      setIsFavorite(false);
+    } else {
+      // añadir favorito
+      await supabase.from('favorites').insert({
+        user_id: user.id,
+        character_id: character.id,
+      });
+
+      setIsFavorite(true);
+    }
+  };
+
+  useEffect(() => {
+    const checkFavorite = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('favorites')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('character_id', character.id)
+        .single();
+
+      if (data) setIsFavorite(true);
+    };
+
+    checkFavorite();
+  }, [character.id]);
 
   return (
     <main className = "character-detail-page">
         <div className="cardPersonajeIndividual">
           <img src={character.image} className="card-img-top" alt={character.name} />
           <div className="card-body">
-            <div className = "card-header mb-3">
+            <div className="card-header mb-3">
               <h1 className="card-title">{character.name}</h1>
-              <i className="bi bi-heart" style={{ color: 'var(--color4)', fontSize: '1.5rem' }}></i>
+              <i className={`bi ${isFavorite ? 'bi-heart-fill' : 'bi-heart'} favorite-icon`} onClick={handleFavorite}></i>
             </div>
             <h3 className="card-subtitle mb-2">Universo {character.universe} / Personalidad: {character.personalityTags.join(", ")}</h3>
             
-            <section className="auxiliar mb-3">
+            <section className="auxiliar mt-5 mb-3">
               <div className="etiquetaMBTI text-center mb-2">
                 <span className = "tituloMBTI">Personalidad</span>
                 <span className="mbti">{character.mbti} </span>
@@ -370,7 +445,7 @@ function CharacterDetailPage() {
               </div>
 
               {/* --- DESPLEGABLE 3: Modelo 3D --- */}
-              <div className="accordion-item mb-3 bg-transparent border-0 btm-accordion-item">
+              {/* <div className="accordion-item mb-3 bg-transparent border-0 btm-accordion-item">
                 <h2 className="accordion-header" id="heading3D">
                   <button
                     className="accordion-button collapsed btm-accordion-btn"
@@ -382,9 +457,9 @@ function CharacterDetailPage() {
                   >
                     Modelo 3D interactivo
                   </button>
-                </h2>
+                </h2> */}
                 {/* Aquí faltaba la capa "collapse" de Bootstrap */}
-                <div id="collapse3D" className="accordion-collapse collapse" aria-labelledby="heading3D" data-bs-parent="#acordeonPersonaje">
+                {/* <div id="collapse3D" className="accordion-collapse collapse" aria-labelledby="heading3D" data-bs-parent="#acordeonPersonaje">
                   <div className="accordion-body custom-acordeon-body p-2 text-center btm-accordion-body">
                       <model-viewer 
                           src="malefica/scene.gltf" 
@@ -394,6 +469,43 @@ function CharacterDetailPage() {
                           // Corregido el style a formato React
                           style={{ width: '100%', height: '250px', backgroundColor: '#2a2a2a', borderRadius: '8px' }}>
                       </model-viewer>
+                  </div>
+                </div>
+              </div> */}
+
+              {/* --- DESPLEGABLE 3: Imágenes --- */}
+              <div className="accordion-item mb-3 bg-transparent border-0 btm-accordion-item">
+                <h2 className="accordion-header" id="headingImgs">
+                  <button 
+                    className="accordion-button collapsed btm-accordion-btn" 
+                    type="button" 
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#collapseImgs" 
+                    aria-expanded="false" 
+                    aria-controls="collapseImgs"
+                  >
+                    Imágenes relacionadas
+                  </button>
+                </h2>
+                <div id="collapseImgs" className="accordion-collapse collapse" aria-labelledby="headingImgs" data-bs-parent="#acordeonPersonaje">
+                  <div className="accordion-body custom-acordeon-body btm-accordion-body">
+                    <div className="related-images-grid">
+                      {[character.image, character.image, character.image, character.image].map((img, index) => (
+                        
+                        <div key={index} className="related-image-item">
+
+                          <img
+                            src={img}
+                            alt={`${character.name} ${index}`}
+                            className="related-image"
+                          />
+                          {/* BOTÓN DESCARGA */}
+                          <a href={img} download className="download-btn">
+                            <i className="bi bi-download"></i>
+                          </a>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -409,7 +521,7 @@ function CharacterDetailPage() {
                     aria-expanded="false"
                     aria-controls="collapseAudio"
                   >
-                    Escucha al personaje: Frases icónicas y voz original
+                    Bandas sonoras y audios relacionados
                   </button>
                 </h2>
                 {/* Aquí faltaba la capa "collapse" de Bootstrap y tenías un ID repetido */}
@@ -424,6 +536,66 @@ function CharacterDetailPage() {
                   </div>
                 </div>
               </div>
+            </section>
+
+            <section className = "galeriaComunidad mb-4">
+              <div className = "auxGaleria mb-3">
+                <h3 className = "galeriaTitle">Galería de la comunidad </h3>
+                <button className=" btn-sm buttonImg mr-2 ml-2"> + Subir imagen</button>
+              </div>
+              <div className="community-gallery-grid">
+                {ultimasFotos.map((foto) => (
+                  <div key={foto.id} className="community-gallery-item">
+                    <img
+                      src={foto.image}
+                      alt={foto.alt}
+                      className="community-gallery-image"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <section className="community-comments mt-4">
+                <div className="comments-header mb-3">
+                  <i className="bi bi-chat-left-text comments-icon"></i>
+                  <h3 className="commentsTitle mb-0">Comentarios</h3>
+                </div>
+
+                <div className="comment-form-box mb-4">
+                  <textarea
+                    className="form-control community-textarea"
+                    placeholder="Escribe un comentario..."
+                    rows={4}></textarea>
+
+                  <div className="d-flex justify-content-end mt-3">
+                    <button type="button" className="btn btn-primary comment-button">
+                      Publicar
+                    </button>
+                  </div>
+                </div>
+
+                <div className="comments-list">
+                  {commentsMock.map((comment) => (
+                    <article key={comment.id} className="comment-item">
+                      <div className="comment-main">
+                        <div className="comment-avatar">
+                          <img src={comment.avatar} alt={comment.user} />
+                        </div>
+
+                        <div className="comment-content">
+                          <div className="comment-meta">
+                            <span className="comment-user">{comment.user}</span>
+                            <span className="comment-time">{comment.time}</span>
+                          </div>
+
+                          <p className="comment-text mb-0">{comment.text}</p>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+
             </section>
           </div>
         </div>

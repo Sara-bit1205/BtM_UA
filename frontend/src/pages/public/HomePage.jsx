@@ -2,7 +2,7 @@
 // Punto de entrada: muestra bienvenida, accesos a Menú Lateral y búsqueda
 
 import { Link } from 'react-router-dom';
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import '../../assets/styles/home.css';
 
 //--------------------
@@ -62,17 +62,36 @@ const personalidades = [
   },
 ];
 
-function agruparDe2En2(items) {
+function agruparItems(items, size) {
   const grupos = [];
-  for(let i = 0; i < items.length; i += 2){
-    //Se usa items.slice --> para tomar un subarray de 2 elementos a partir del índice i
-    grupos.push(items.slice(i, i + 2));
+  for (let i = 0; i < items.length; i += size) {
+    grupos.push(items.slice(i, i + size));
   }
   return grupos;
 }
 
 function HomePage() {
-  const gruposPersonajes = agruparDe2En2(personajesPopulares);
+  const getItemsPerSlide = () => {
+  const width = window.innerWidth;
+  if (width >= 992) return 3; // lg
+  if (width >= 768) return 2; // md
+  return 1; // móvil
+  };
+
+  const [itemsPorSlide, setItemsPorSlide] = useState(getItemsPerSlide());
+
+  useEffect(() => {
+    const handleResize = () => {
+      setItemsPorSlide(getItemsPerSlide());
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  const gruposPersonajes = useMemo(() => {
+      return agruparItems(personajesPopulares, itemsPorSlide);
+    }, [itemsPorSlide]);
+
   return (
     <main className="container py-4 home-page">
       <div className="row g-5">
@@ -112,33 +131,47 @@ function HomePage() {
 
         {/* PERSONAJES MÁS POPULARES */}
         <div className="col-12">
-        
-          <div id="popularCharactersCarousel" className="carousel slide popular-carousel" data-bs-ride="carousel" >
+          <div
+            id="popularCharactersCarousel"
+            className="carousel slide popular-carousel"
+            data-bs-ride="carousel"
+          >
             <h1 className="home-section-title mb-3 text-center">PERSONAJES POPULARES</h1>
+
             <div className="carousel-inner">
               {gruposPersonajes.map((grupo, index) => (
-                <div key={index} className={`carousel-item ${index === 0 ? 'active' : ''}`} >
-                  <div className="row g-3">
-                    {grupo.map((personaje, idx) => (
-                      <div className="col-6 " key={idx}>
-                        <div className="card popular-card"> 
+                <div
+                  key={index}
+                  className={`carousel-item ${index === 0 ? 'active' : ''}`}
+                >
+                  <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    {grupo.map((personaje) => (
+                      <div className="col" key={personaje.slug}>
+                        <div className="card popular-card">
                           <Link className="nav-link" to={`/personaje/${personaje.slug}`}>
-                            <img src={personaje.imagen} className="card-img-top popular-card-img" alt={personaje.nombre}/>
+                            <img
+                              src={personaje.imagen}
+                              className="card-img-top popular-card-img"
+                              alt={personaje.nombre}
+                            />
                           </Link>
+
                           <div className="card-body">
-                            <div className="d-flex justify-content-between align-items-start">
-                              <div style={{ minWidth: 0 }}> {/* El minWidth evita que el texto desborde el flex */}
+                            <div className="d-flex justify-content-between align-items-start gap-2">
+                              <div style={{ minWidth: 0 }}>
                                 <Link className="nav-link" to={`/personaje/${personaje.slug}`}>
-                                <h3 className="card-title popular-card-title text-truncate">
-                                  {personaje.nombre}
-                                </h3>
+                                  <h3 className="card-title popular-card-title text-truncate">
+                                    {personaje.nombre}
+                                  </h3>
                                 </Link>
+
                                 <Link className="nav-link" to="/categorias/:id">
-                                <p className="card-text mb-0 x-small text-truncate">
-                                  {personaje.universo}
-                                </p>
+                                  <p className="card-text mb-0 text-truncate">
+                                    {personaje.universo}
+                                  </p>
                                 </Link>
                               </div>
+
                               <Link className="nav-link" to="/categorias/:id">
                                 <span className="badge rounded-pill home-mbti-badge-small">
                                   {personaje.mbti}
@@ -154,12 +187,22 @@ function HomePage() {
               ))}
             </div>
 
-            <button className="carousel-control-prev"  type="button"  data-bs-target="#popularCharactersCarousel" data-bs-slide="prev">
+            <button
+              className="carousel-control-prev"
+              type="button"
+              data-bs-target="#popularCharactersCarousel"
+              data-bs-slide="prev"
+            >
               <span className="carousel-control-prev-icon" aria-hidden="true"></span>
               <span className="visually-hidden">Anterior</span>
             </button>
 
-            <button className="carousel-control-next"  type="button"  data-bs-target="#popularCharactersCarousel"  data-bs-slide="next">
+            <button
+              className="carousel-control-next"
+              type="button"
+              data-bs-target="#popularCharactersCarousel"
+              data-bs-slide="next"
+            >
               <span className="carousel-control-next-icon" aria-hidden="true"></span>
               <span className="visually-hidden">Siguiente</span>
             </button>

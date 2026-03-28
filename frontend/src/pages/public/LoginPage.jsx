@@ -45,7 +45,6 @@ function LoginPage() {
     }
 
     try {
-      // 🔐 1. LOGIN REAL (auth.users)
       const { data, error } = await supabase.auth.signInWithPassword({
         email: form.email,
         password: form.password
@@ -55,14 +54,12 @@ function LoginPage() {
 
       const user = data.user;
 
-      // 💾 remember me
       if (form.rememberMe) {
         localStorage.setItem("email", form.email);
       } else {
         localStorage.removeItem("email");
       }
 
-      // 👤 2. OBTENER PROFILE (tu tabla)
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -71,10 +68,10 @@ function LoginPage() {
 
       if (profileError) throw profileError;
 
-      // 🧠 3. GUARDAR EN CONTEXTO
+      
       login(profile, data.session.access_token);
 
-      // 🚀 4. REDIRECCIÓN
+    
       navigate(profile.role === 'admin' ? '/admin' : '/perfil');
 
     } catch (err) {

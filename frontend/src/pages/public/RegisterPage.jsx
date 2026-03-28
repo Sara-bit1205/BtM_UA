@@ -51,7 +51,6 @@ function RegisterPage() {
       const cleanUsername = form.username.trim();
       const cleanName = form.nombre.trim();
 
-      // 🔐 Crear usuario en auth
       const { data, error } = await supabase.auth.signUp({
         email: cleanEmail,
         password: form.password,
@@ -67,7 +66,6 @@ function RegisterPage() {
 
       const user = data.user;
 
-      // 🧠 actualizar profile (trigger ya lo creó)
       await supabase
         .from('profiles')
         .update({
@@ -76,7 +74,6 @@ function RegisterPage() {
         })
         .eq('id', user.id);
 
-      // 🖼️ avatar opcional
       if (form.profileImage) {
         const fileExt = form.profileImage.name.split('.').pop();
         const fileName = `${user.id}.${fileExt}`;

@@ -1,4 +1,4 @@
-import { useRef,useMemo } from 'react'
+import { useRef,useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase.js'
@@ -8,6 +8,8 @@ import '../../assets/styles/mbti.css'
 function UserProfilePage() {
   const { user, logout } = useAuth()
   const dialogRef = useRef(null)
+  const unsubscribeDialogRef = useRef(null)
+  const [isUnsubscribed, setIsUnsubscribed] = useState(false)
   const avatarUrl = useMemo(() => {
     const avatarPath = user?.avatar || 'default-avatar.jpg'
 
@@ -21,6 +23,34 @@ function UserProfilePage() {
 
   const openDialog = () => dialogRef.current?.showModal()
   const closeDialog = () => dialogRef.current?.close()
+
+  const openUnsubscribe = () => {
+    setIsUnsubscribed(false) // Resetear al primer paso
+    unsubscribeDialogRef.current?.showModal()
+  }
+  
+  const handleConfirmBaja = async () => {
+    try {
+      const { error } = await supabase
+        .from('users') 
+        .delete()
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      // Si todo va bien, mostramos el mensaje de éxito en el modal
+      setIsUnsubscribed(true);
+      
+    } catch (error) {
+      console.error("Error al dar de baja:", error.message);
+      alert("No hemos podido procesar la baja. Inténtalo de nuevo.");
+    }
+  };
+
+  const handleFinalExit = () => {
+    unsubscribeDialogRef.current?.close()
+    logout() // Redirige al inicio
+  }
 
   return (
     <section className="profile-page">
@@ -100,9 +130,40 @@ function UserProfilePage() {
         <Link className="profile-action" to="/perfil/editar">EDITAR MIS DATOS</Link>
         <button className="profile-action" type="button" onClick={openDialog}>MI MBTI</button>
         <button className="profile-action" type="button">MIS FOTOS SUBIDAS</button>
-        <button className="profile-action" type="button" onClick={logout}>LOGOUT</button>
-        <button className="profile-action profile-action--danger" type="button">DARSE DE BAJA</button>
+         <button className="profile-action" type="button" onClick={logout}>LOGOUT</button> 
+        <button className="profile-action profile-action--danger" type="button" onClick={() => {
+            setIsUnsubscribed(false); 
+            unsubscribeDialogRef.current?.showModal();
+          }}>DARSE DE BAJA</button> 
       </nav>
+
+     
+      <dialog ref={unsubscribeDialogRef} className="mbti-invite-dialog modal-baja-personalizado">
+        <div className="modal-baja-content">
+          {!isUnsubscribed ? (
+            <>
+              <h2 className="modal-baja-titulo">¿SEGURO QUE QUIERES DARTE DE BAJA?</h2>
+              <div className="modal-baja-acciones">
+                <button className="btn-confirm" onClick={handleConfirmBaja}>
+                  ACEPTAR
+                </button>
+                <button className="btn-cancel" onClick={() => unsubscribeDialogRef.current?.close()}>
+                  CANCELAR
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 className="modal-baja-titulo">
+                HA SIDO DADO DE BAJA CORRECTAMENTE, SERÁ REDIRIGIDO A LA PÁGINA PRINCIPAL
+              </h2>
+              <button className="btn-confirm" onClick={logout}>
+                SALIR
+              </button>
+            </>
+          )}
+        </div>
+      </dialog>
     </section>
   )
 }

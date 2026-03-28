@@ -152,6 +152,16 @@ function RegisterPage() {
               required
             />
           </div>
+          <div className="col-12 text-start">
+            <label className="custom-label">FECHA DE NACIMIENTO</label>
+            <input
+              type="date"
+              name="birth_date"
+              className="form-control custom-input"
+              onChange={handleChange}
+              required
+            />
+          </div>
 
           <div className="col-12 col-md-6 text-start">
             <label className="custom-label">CONTRASEÑA</label>

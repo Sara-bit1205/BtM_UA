@@ -85,6 +85,138 @@
   width: 100%; /* Ocupa todo el ancho en móviles */
   transition: transform 0.2s, background-color 0.2s;
 }
+/*Edit*/
+.edit-user-page {
+  background-color: var(--color-principal);
+  min-height: 100vh;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.edit-user-page .profile-page {
+  width: 100%;
+  max-width: none; 
+  margin: 0;
+}
+
+.edit-user-page .profile-greeting {
+  color: var(--color2);
+  font-size: clamp(30px, 8vw, 60px);
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.edit-user-page .profile-card {
+  border: 3px solid var(--color1);
+  border-radius: 20px;
+  padding: 20px;
+  background-color: transparent;
+  width: 100%;
+  border-radius: 10px;
+}
+
+.edit-user-page .edit-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px 30px;
+  width: 100%;
+}
+
+.edit-user-page .form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-user-page .edit-form .custom-label {
+  color: var(--color4);
+  font-size: clamp(14px, 2vw, 20px);
+  margin-left: 0;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.edit-user-page .edit-form .custom-input {
+  width: 100%;
+  height: 46px;
+  border-radius: 6px;
+  padding: 0 12px;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: 2px solid var(--color1);
+  background-color: var(--colorTexto);
+  color: var(--color-grisOscuro);
+}
+
+.edit-user-page .edit-form input[type="file"].custom-input {
+  height: auto;
+  min-height: 46px;
+  padding: 10px 16px;
+  border-radius: 6px;
+}
+
+.edit-user-page .edit-form .custom-input:hover {
+  border: 2px solid var(--color4);
+}
+
+.edit-user-page .botonesEdit {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 10px;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+}
+
+.edit-user-page .btn-aceptar,
+.edit-user-page .btn-cancelar {
+  border: none;
+  border-radius: 50px;
+  padding: 12px 28px;
+  font-family: var(--texto-encabezados);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, border 0.2s ease;
+}
+
+.edit-user-page .btn-aceptar {
+  color: var(--color2);
+  background-color: var(--color5);
+}
+
+.edit-user-page .btn-aceptar:hover {
+  border: 3px solid var(--color2);
+  transform: scale(1.03);
+}
+
+.edit-user-page .btn-cancelar {
+  color: var(--colorTexto);
+  background-color: var(--color-grisOscuro);
+}
+
+.edit-user-page .btn-cancelar:hover {
+  border: 3px solid var(--color1);
+  transform: scale(1.03);
+}
+
+.edit-user-page .favorites-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--color4);
+  color: var(--color-grisOscuro);
+  text-decoration: none;
+  font-weight: 800;
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.edit-user-page .favorites-back:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
 
 @media (min-width: 768px) {
   .btn-login {
@@ -107,6 +239,11 @@
    .custom-label {
     font-size: 1.5rem;
   }
+   .edit-user-page .edit-form {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+  
 }
 
 .btn-login:hover {

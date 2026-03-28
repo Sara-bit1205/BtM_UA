@@ -59,7 +59,7 @@ function UserProfilePage() {
             </div>
             <div className="profile-card__row">
               <dt>Fecha de nacimiento:</dt>
-              <dd>{user.birthDate || '—'}</dd>
+              <dd>{user.birth_date || '—'}</dd>
             </div>
           </dl>
         </div>

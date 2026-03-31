@@ -1,86 +1,82 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { supabase } from '../../lib/supabase.js';
-import '../../assets/styles/Login.css';
+/*El nuevo LoginPage autentica directamente con Supabase usando email y 
+contraseña, pero ya no guarda usuario ni token manualmente; en lugar de
+ eso, deja que AuthContext detecte automáticamente la nueva sesión,
+  cargue el perfil del usuario y, cuando todo esté listo, redirija a 
+  /perfil o /admin según el rol.*/
+  
+import { useState, useEffect } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
+import { supabase } from '../../lib/supabase.js'
+import '../../assets/styles/Login.css'
 
 function LoginPage() {
-  const [form, setForm] = useState({ email: '', password: '', rememberMe: false });
-  const [error, setError] = useState(null);
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const [validated, setValidated] = useState(false);
+  const [form, setForm] = useState({ email: '', password: '', rememberMe: false })
+  const [error, setError] = useState(null)
+  const { role, isAuthenticated } = useAuth()
+  const navigate = useNavigate()
+  const [validated, setValidated] = useState(false)
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem("email");
+    const savedEmail = localStorage.getItem('email')
     if (savedEmail) {
-      setForm(prev => ({
+      setForm((prev) => ({
         ...prev,
         email: savedEmail,
-        rememberMe: true
-      }));
+        rememberMe: true,
+      }))
     }
-  }, []);
+  }, [])
+
+  useEffect(() => {
+    if (!isAuthenticated) return
+    navigate(role === 'admin' ? '/admin' : '/perfil')
+  }, [isAuthenticated, role, navigate])
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type, checked } = e.target
 
-    setForm({
-      ...form,
-      [name]: type === 'checkbox' ? checked : value
-    });
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }))
 
-    if (error) setError(null);
-  };
+    if (error) setError(null)
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
 
-    const formElement = e.currentTarget;
+    const formElement = e.currentTarget
 
     if (!formElement.checkValidity()) {
-      setValidated(true);
-      return;
+      setValidated(true)
+      return
     }
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: form.email,
-        password: form.password
-      });
+        password: form.password,
+      })
 
-      if (error) throw error;
-
-      const user = data.user;
+      if (error) throw error
 
       if (form.rememberMe) {
-        localStorage.setItem("email", form.email);
+        localStorage.setItem('email', form.email)
       } else {
-        localStorage.removeItem("email");
+        localStorage.removeItem('email')
       }
 
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (profileError) throw profileError;
-
-      
-      login(profile, data.session.access_token);
-
-    
-      navigate(profile.role === 'admin' ? '/admin' : '/perfil');
-
+      setError(null)
     } catch (err) {
-      console.error(err);
-      setError("Credenciales incorrectas. Inténtalo de nuevo.");
+      console.error(err)
+      setError('Credenciales incorrectas. Inténtalo de nuevo.')
     }
 
-    setValidated(true);
-  };
+    setValidated(true)
+  }
 
   return (
     <main className="login-container">
@@ -92,7 +88,6 @@ function LoginPage() {
           className={`login-form needs-validation ${validated ? 'was-validated' : ''}`}
           noValidate
         >
-
           {error && <p className="text-danger">{error}</p>}
 
           <div className="text-start">
@@ -148,7 +143,7 @@ function LoginPage() {
 
         <div className="login-footer">
           <p>
-            ¿No tienes cuenta?{" "}
+            ¿No tienes cuenta?{' '}
             <Link to="/register" className="register-link">
               REGÍSTRATE
             </Link>
@@ -156,7 +151,7 @@ function LoginPage() {
         </div>
       </div>
     </main>
-  );
+  )
 }
 
-export default LoginPage;
+export default LoginPage

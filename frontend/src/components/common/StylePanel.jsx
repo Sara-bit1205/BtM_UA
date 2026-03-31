@@ -1,3 +1,11 @@
+/*Es un panel flotante de accesibilidad y estilo que solo se muestra 
+cuando isOpen es true. Usa useTheme() para leer y cambiar el tema, el
+ tamaño del texto y la fuente accesible; además, con useEffect escucha 
+ clics fuera del panel y la tecla Escape para cerrarse automáticamente.
+  En resumen, es un componente de interfaz que controla preferencias 
+  visuales del usuario y no depende ni de auth, ni de backend, ni de 
+  base de datos.*/
+  
 import { useEffect, useRef } from "react";
 import {useTheme} from "../../context/ThemeContext";
 

@@ -1,11 +1,38 @@
-import axios from 'axios'
+/*Es simplemente un wrapper (o capa fina) sobre las funciones de supabase.auth.*/
 
-const API = import.meta.env.VITE_API_URL
+import { supabase } from '../lib/supabase'
 
 const authService = {
-  register: (data) => axios.post(`${API}/auth/register`, data).then((r) => r.data),
-  login: (data) => axios.post(`${API}/auth/login`, data).then((r) => r.data),
-  verifyEmail: (token) => axios.get(`${API}/auth/verify/${token}`).then((r) => r.data),
+  async register({ email, password, username, name }) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username,
+          name,
+        },
+      },
+    })
+
+    if (error) throw error
+    return data
+  },
+
+  async login({ email, password }) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (error) throw error
+    return data
+  },
+
+  async logout() {
+    const { error } = await supabase.auth.signOut()
+    if (error) throw error
+  },
 }
 
 export default authService

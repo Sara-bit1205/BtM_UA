@@ -1,4 +1,11 @@
-// Pie de página con enlaces a Sobre Nosotros y Política de Privacidad
+/*Este Footer es el pie de página de la aplicación y sirve para mostrar
+ información básica y enlaces de navegación importantes. Está dividido 
+ en tres partes: una sección de marca con el nombre y lema, un bloque
+  de enlaces organizado en columnas (para escritorio) o en acordeón 
+  (para móvil, usando Bootstrap), y una línea inferior con el copyright 
+  dinámico. Utiliza Link de React Router para navegar sin recargar la 
+  página y adapta su diseño según el tamaño de pantalla, ofreciendo una 
+  experiencia*/
 import { Link } from 'react-router-dom'
 
 function Footer() {

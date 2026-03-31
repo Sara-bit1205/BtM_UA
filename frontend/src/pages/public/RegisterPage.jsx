@@ -1,108 +1,123 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
-import '../../assets/styles/Login.css';
+/*Esta versión registra al usuario en Supabase Auth, deja que el trigger 
+cree automáticamente su fila en profiles, luego completa ese perfil
+ con username, name y birth_date, y si el usuario ha subido una imagen,
+  la guarda en Storage y actualiza el campo avatar con la URL pública.*/
+  
+import { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { supabase } from '../../lib/supabase'
+import '../../assets/styles/Login.css'
 
 function RegisterPage() {
-  const [validated, setValidated] = useState(false);
-  const [error, setError] = useState(null);
+  const [validated, setValidated] = useState(false)
+  const [error, setError] = useState(null)
 
   const [form, setForm] = useState({
     nombre: '',
     username: '',
     email: '',
+    birth_date: '',
     password: '',
     confirmPassword: '',
-    profileImage: null
-  });
+    profileImage: null,
+  })
 
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
-    const { name, value, files, type } = e.target;
+    const { name, value, files, type } = e.target
 
     setForm((prev) => ({
       ...prev,
-      [name]: type === 'file' ? files[0] : value
-    }));
+      [name]: type === 'file' ? files[0] : value,
+    }))
 
-    if (error) setError(null);
-  };
+    if (error) setError(null)
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
 
-    const formElement = e.currentTarget;
+    const formElement = e.currentTarget
 
     if (!formElement.checkValidity()) {
-      setValidated(true);
-      return;
+      setValidated(true)
+      return
     }
 
     if (form.password !== form.confirmPassword) {
-      setError("Las contraseñas no coinciden");
-      setValidated(true);
-      return;
+      setError('Las contraseñas no coinciden')
+      setValidated(true)
+      return
     }
 
     try {
-      const cleanEmail = form.email.trim().toLowerCase();
-      const cleanUsername = form.username.trim();
-      const cleanName = form.nombre.trim();
+      const cleanEmail = form.email.trim().toLowerCase()
+      const cleanUsername = form.username.trim()
+      const cleanName = form.nombre.trim()
 
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email: cleanEmail,
         password: form.password,
         options: {
           data: {
             username: cleanUsername,
-            name: cleanName
-          }
-        }
-      });
+            name: cleanName,
+          },
+        },
+      })
 
-      if (error) throw error;
+      if (signUpError) throw signUpError
 
-      const user = data.user;
+      const user = data.user
+      if (!user) {
+        throw new Error('No se pudo crear el usuario')
+      }
 
-      await supabase
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
           username: cleanUsername,
-          name: cleanName
+          name: cleanName,
+          birth_date: form.birth_date || null,
         })
-        .eq('id', user.id);
+        .eq('id', user.id)
+
+      if (profileError) throw profileError
 
       if (form.profileImage) {
-        const fileExt = form.profileImage.name.split('.').pop();
-        const fileName = `${user.id}.${fileExt}`;
+        const fileExt = form.profileImage.name.split('.').pop()
+        const fileName = `${user.id}.${fileExt}`
 
         const { error: uploadError } = await supabase.storage
           .from('avatars')
-          .upload(fileName, form.profileImage);
+          .upload(fileName, form.profileImage, {
+            upsert: true,
+          })
 
-        if (!uploadError) {
-          const { data: publicUrl } = supabase.storage
-            .from('avatars')
-            .getPublicUrl(fileName);
+        if (uploadError) throw uploadError
 
-          await supabase
-            .from('profiles')
-            .update({ avatar: publicUrl.publicUrl })
-            .eq('id', user.id);
-        }
+        const { data: publicUrlData } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(fileName)
+
+        const { error: avatarUpdateError } = await supabase
+          .from('profiles')
+          .update({ avatar: publicUrlData.publicUrl })
+          .eq('id', user.id)
+
+        if (avatarUpdateError) throw avatarUpdateError
       }
 
-      navigate('/login');
-
+      navigate('/login')
     } catch (err) {
-      console.error(err);
-      setError(err.message || "Error al registrarse");
+      console.error(err)
+      setError(err.message || 'Error al registrarse')
     }
 
-    setValidated(true);
-  };
+    setValidated(true)
+  }
 
   return (
     <main className="login-container">
@@ -114,7 +129,6 @@ function RegisterPage() {
           className={`row g-3 needs-validation ${validated ? 'was-validated' : ''}`}
           noValidate
         >
-
           {error && <p className="text-danger">{error}</p>}
 
           <div className="col-12 col-md-6 text-start">
@@ -123,6 +137,7 @@ function RegisterPage() {
               type="text"
               name="nombre"
               className="form-control custom-input"
+              value={form.nombre}
               onChange={handleChange}
               required
             />
@@ -134,6 +149,7 @@ function RegisterPage() {
               type="text"
               name="username"
               className="form-control custom-input"
+              value={form.username}
               onChange={handleChange}
               required
             />
@@ -145,16 +161,19 @@ function RegisterPage() {
               type="email"
               name="email"
               className="form-control custom-input"
+              value={form.email}
               onChange={handleChange}
               required
             />
           </div>
+
           <div className="col-12 text-start">
             <label className="custom-label">FECHA DE NACIMIENTO</label>
             <input
               type="date"
               name="birth_date"
               className="form-control custom-input"
+              value={form.birth_date}
               onChange={handleChange}
               required
             />
@@ -166,6 +185,7 @@ function RegisterPage() {
               type="password"
               name="password"
               className="form-control custom-input"
+              value={form.password}
               onChange={handleChange}
               required
               minLength={6}
@@ -178,6 +198,7 @@ function RegisterPage() {
               type="password"
               name="confirmPassword"
               className="form-control custom-input"
+              value={form.confirmPassword}
               onChange={handleChange}
               required
             />
@@ -190,6 +211,7 @@ function RegisterPage() {
               name="profileImage"
               className="form-control custom-input"
               onChange={handleChange}
+              accept="image/*"
             />
           </div>
 
@@ -198,7 +220,6 @@ function RegisterPage() {
               REGISTRARSE
             </button>
           </div>
-
         </form>
 
         <div className="login-footer mt-3">
@@ -207,7 +228,7 @@ function RegisterPage() {
         </div>
       </div>
     </main>
-  );
+  )
 }
 
-export default RegisterPage;
+export default RegisterPage

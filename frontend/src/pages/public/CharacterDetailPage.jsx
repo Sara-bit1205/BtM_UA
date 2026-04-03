@@ -1,7 +1,6 @@
 import { useParams } from 'react-router-dom'
 import React from 'react'
 import { useState, useEffect } from 'react';
-import '../../assets/styles/personajes.css';
 import { supabase } from '../../lib/supabase.js';
 
 import batmanImg from '../../assets/images/batman.jpg';

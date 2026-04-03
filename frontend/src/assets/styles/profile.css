@@ -216,7 +216,7 @@ button.profile-action {
   box-shadow: none;
 }
 /* móvil */
-@media (max-width: 767.98px) {
+@media (max-width: 768px) {
   .profile-card {
     flex-direction: column;
     text-align: center;

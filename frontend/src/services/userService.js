@@ -7,14 +7,17 @@ perfil y favoritos directamente sobre las tablas profiles y favorites,
 import { supabase } from '../lib/supabase'
 
 const userService = {
-  // ── PERFIL ───────────────────────────────
+  //Obtener el perfil
   async getProfile() {
+    //Primero obtenemos el usuario autenticado para saber su id, si no hay usuario autenticado lanzamos un error
     const { data: userData, error: userError } = await supabase.auth.getUser()
     if (userError) throw userError
 
+    //Luego obtenemos el perfil de la tabla profiles filtrando por el id del usuario, y devolvemos los datos del perfil
     const userId = userData?.user?.id
     if (!userId) throw new Error('No hay usuario autenticado')
 
+    //Obtenemos el perfil de la tabla profiles filtrando por el id del usuario, y devolvemos los datos del perfil
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -25,13 +28,17 @@ const userService = {
     return data
   },
 
+  //Actualiza el perfil del usuario actual.
   async updateProfile(values) {
+    //Primero obtenemos el usuario autenticado para saber su id, si no hay usuario autenticado lanzamos un error
     const { data: userData, error: userError } = await supabase.auth.getUser()
     if (userError) throw userError
 
+    //Luego obtenemos el perfil de la tabla profiles filtrando por el id del usuario, y devolvemos los datos del perfil
     const userId = userData?.user?.id
     if (!userId) throw new Error('No hay usuario autenticado')
 
+    //Actualizamos el perfil de la tabla profiles filtrando por el id del usuario, con los valores proporcionados, y devolvemos los datos actualizados del perfil
     const { data, error } = await supabase
       .from('profiles')
       .update(values)
@@ -43,7 +50,7 @@ const userService = {
     return data
   },
 
-  // ── BORRAR CUENTA (SOFT DELETE) ───────────
+  //"Borra la cuenta" --> realmente lo que hace es marca al usuario como inactivo, Así el perfil sigue existiendo en la base de datos, pero queda desactivado.
   async deleteAccount() {
     const { data: userData, error: userError } = await supabase.auth.getUser()
     if (userError) throw userError
@@ -51,6 +58,7 @@ const userService = {
     const userId = userData?.user?.id
     if (!userId) throw new Error('No hay usuario autenticado')
 
+    //Busca el perfil del usuario actual y pone su campo is_active a false, para marcarlo como inactivo, y devuelve los datos actualizados del perfil
     const { data, error } = await supabase
       .from('profiles')
       .update({ is_active: false })
@@ -60,19 +68,23 @@ const userService = {
 
     if (error) throw error
 
+    //Después de desactivar el perfil, cierra la sesión del usuario.
     await supabase.auth.signOut()
 
     return data
   },
 
-  // ── FAVORITOS ─────────────────────────────
+  //Trae los favoritos del usuario actual.
   async getFavorites() {
+    //Obtenemos el usuario autenticado para saber su id, si no hay usuario autenticado lanzamos un error
     const { data: userData, error: userError } = await supabase.auth.getUser()
     if (userError) throw userError
 
+    //Obtiene el id del usuario autenticado
     const userId = userData?.user?.id
     if (!userId) throw new Error('No hay usuario autenticado')
 
+    //Obtiene la lista de favoritos de la tabla favorites filtrando por el id del usuario, e incluyendo los datos relacionados del personaje, su tipo MBTI y su universo, ordenados por fecha de creación (los más nuevos primero)
     const { data, error } = await supabase
       .from('favorites')
       .select(`
@@ -97,6 +109,7 @@ const userService = {
     return data
   },
 
+  //Añade un personaje a favoritos para el usuario actual.
   async addFavorite(characterId) {
     const { data: userData, error: userError } = await supabase.auth.getUser()
     if (userError) throw userError
@@ -104,6 +117,7 @@ const userService = {
     const userId = userData?.user?.id
     if (!userId) throw new Error('No hay usuario autenticado')
 
+    //Inserta un nuevo registro en la tabla favorites con el user_id, character_id y la fecha de creación automática, y devuelve el nuevo favorito insertado
     const { data, error } = await supabase
       .from('favorites')
       .insert({
@@ -117,6 +131,7 @@ const userService = {
     return data
   },
 
+  //Quitamos un personaje de favoritos para el usuario actual.
   async removeFavorite(characterId) {
     const { data: userData, error: userError } = await supabase.auth.getUser()
     if (userError) throw userError
@@ -124,6 +139,7 @@ const userService = {
     const userId = userData?.user?.id
     if (!userId) throw new Error('No hay usuario autenticado')
 
+    //Borra la fila de favorites que cumpla --> que pertece al usuario actual y correcponde a ese personaje
     const { error } = await supabase
       .from('favorites')
       .delete()
@@ -134,7 +150,7 @@ const userService = {
     return true
   },
 
-  // ── ADMIN ────────────────────────────────
+  //Función para el admin --> Recupera todos los usuarios registrados, ordenados por fecha de creación (los más nuevos primero)
   async getAll() {
     const { data, error } = await supabase
       .from('profiles')

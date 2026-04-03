@@ -2,7 +2,9 @@
 cree automáticamente su fila en profiles, luego completa ese perfil
  con username, name y birth_date, y si el usuario ha subido una imagen,
   la guarda en Storage y actualiza el campo avatar con la URL pública.*/
-  
+
+//MIGRADO
+
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'

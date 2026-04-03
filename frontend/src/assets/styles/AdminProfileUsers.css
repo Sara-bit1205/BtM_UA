@@ -1,0 +1,39 @@
+.users-list-page h1{
+    color: var(--color1);
+    font-family: var(--texto-encabezados);
+    font-size: clamp(20px, 3vw, 30px) !important;
+    transition: font-size 0.3s ease;
+}
+
+.users-list-page .user-list {
+    background-color: var(--color-grisOscuro);
+}
+
+.users-list-page .user-list:hover {
+    background-color: var(--color3);
+}
+
+.users-list-page .user-table {
+  table-layout: fixed;
+  width: 100%;
+  font-family: var(--texto-normal);
+  color: var(--colorTexto);
+  font-size: clamp(10px, 4vw, 20px);
+  transition: font-size 0.3s ease;
+  background-color: var(--color-grisOscuro);
+}
+
+.users-list-page .user-table th,
+.users-list-page .user-table td {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+@media (max-width: 768px) {
+  .users-list-page .user-table th,
+  .users-list-page .user-table td {
+    font-size: 0.85rem;
+    padding: 6px;
+  }
+}

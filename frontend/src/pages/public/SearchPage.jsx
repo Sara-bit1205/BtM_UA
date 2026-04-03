@@ -1,5 +1,8 @@
 import { useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { supabase } from '../../lib/supabase';
 import '../../assets/styles/SearchPage.css';
+
 
 //---------------------
 import remyImg from '../../assets/images/remy.jpg';
@@ -9,17 +12,46 @@ import rapuncelImg from '../../assets/images/rapuncel.jpg';
 function SearchPage() {
   // 1. Obtenemos la URL actual
   const location = useLocation();
-  
+  const [loading, setLoading] = useState(true);
   // 2. Extraemos el parámetro "query" de la URL
   const queryParams = new URLSearchParams(location.search);
   const searchTerm = queryParams.get('query') || "";
 
-  const personajes = [
-    { id: 1, nombre: 'RAPUNCEL', tipo: 'ENFP', universo: 'Universo Disney', img: rapuncelImg },
-    { id: 2, nombre: 'REMY', tipo: 'ENFP', universo: 'Universo Disney', img: remyImg },
-    { id: 3, nombre: 'MULÁN', tipo: 'ISTP', universo: 'Universo Disney', img: mulanImg },
-    // ... agrega más personajes aquí
-  ];
+  const [personajes, setPersonajes] = useState([]);
+
+  useEffect(() => {
+  const fetchPersonajes = async () => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from('characters')
+      .select(`
+        _id,
+        name,
+        coverImage,
+      `);
+
+    if (error) {
+      console.error(error);
+    } else {
+      const adaptados = data.map(c => ({
+        id: c._id,
+        nombre: c.name,
+        tipo: c.mbti_types?.code || 'N/A',
+        universo: c.character_universe_categories
+          ?.map(uc => uc.universe_categories?.universes?.name)
+          .filter(Boolean)
+          .join(', ') || 'Desconocido',
+        img: c.cover_image
+      }));
+      setPersonajes(adaptados);
+    }
+
+    setLoading(false);
+  };
+
+  fetchPersonajes();
+}, []);
 
   // 3. Filtramos los personajes basándonos en el nombre
   const personajesFiltrados = personajes.filter(p => {

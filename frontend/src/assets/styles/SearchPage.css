@@ -102,6 +102,162 @@
   z-index: 10;
 }
 
+/* TODO ESTO ES PARA FILTROS*/
+.filter-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.filter-popup-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.filter-box {
+  background-color: var(--color5);
+  width: 90%;
+  max-width: 350px;
+  margin: 100px auto;
+  border-radius: 40px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  font-family: var(--texto-normal);
+  color: var(--color-grisOscuro);
+  transform: translateY(-20px);
+  transition: transform 0.3s ease;
+}
+
+.filter-popup-overlay.show .filter-box {
+  transform: translateY(0);
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
+  background-color: #b8e695;
+  border-radius: 40px 40px 15px 15px;
+}
+
+.filter-header h5 {
+  font-family: var(--texto-encabezados);
+  font-size: 1.8rem;
+  margin: 0;
+  color: var(--color-grisOscuro);
+}
+
+.btn-toggle-filter {
+  background: white;
+  border: none;
+  border-radius: 5px;
+  padding: 2px 8px;
+  color: var(--color-grisOscuro);
+  cursor: pointer;
+}
+
+.filter-body {
+  padding: 20px 25px;
+}
+
+.filter-item {
+  border-bottom: 2px solid rgba(0,0,0,0.1);
+  padding: 12px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.filter-item p {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.custom-filter-list {
+  background-color: #a7e399;
+  border-radius: 20px;
+  list-style: none;
+  padding: 15px;
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.custom-filter-list li {
+  padding: 8px 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 12px;
+}
+
+.custom-filter-list li::before {
+  content: "•";
+  margin-right: 8px;
+}
+
+.custom-filter-list li:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding-left: 20px;
+}
+
+.custom-filter-list li.active {
+  background-color: var(--color2);
+  color: white;
+}
+
+.grid-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 15px;
+}
+
+.grid-list li {
+  padding: 8px 0;
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+.grid-list li::before {
+  content: "";
+  margin: 0;
+}
+
+.scrollable-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.btn-aplicar-filtros {
+  background-color: var(--color2);
+  color: white;
+  border: none;
+  width: 100%;
+  padding: 15px;
+  font-family: var(--texto-encabezados);
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-aplicar-filtros:hover {
+  background-color: var(--color-grisOscuro);
+}
+
 /* --- 2. TABLETS (Pantallas medianas) --- */
 @media (min-width: 768px) {
   .search-container {

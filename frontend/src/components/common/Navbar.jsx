@@ -8,10 +8,11 @@ antiguo y pasa a usar el estado real de Supabase a través de
 isAuthenticated y role.*/
 
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import logo from '../../assets/images/logo.png'
 import { useAuth } from '../../context/AuthContext'
 import StylePanel from './StylePanel'
+
 
 const CATEGORIES = [
   { id: 'universos', name: 'Universos', icon: 'bi-globe' },
@@ -25,7 +26,8 @@ function Navbar() {
   const [searchTerm, setSearchTerm] = useState('')
   const [isStylePanelOpen, setIsStylePanelOpen] = useState(false)
   const [activeCategory, setActiveCategory] = useState(null)
-
+  const location = useLocation(); // Importar de react-router-dom
+  
   const handleSubmit = (e) => {
     e.preventDefault()
     if (searchTerm.trim()) {
@@ -33,6 +35,16 @@ function Navbar() {
       setSearchTerm('')
     }
   }
+
+  const handleFilterClick = () => {
+    if (location.pathname !== '/busqueda') {
+      navigate('/busqueda?openFilters=true');
+    } else {
+      // Si ya estamos en búsqueda, emitimos un evento personalizado 
+      // o usamos un estado global. Lo más simple:
+      window.dispatchEvent(new CustomEvent('toggle-search-filters'));
+    }
+  };
 
   const profilePath = !isAuthenticated
     ? '/login'
@@ -69,7 +81,7 @@ function Navbar() {
           </form>
 
           <div className="navBarActions d-flex align-items-center gap-3">
-            <button type="button" className="btnFilter" aria-label="Filtrar">
+            <button type="button" className="btnFilter" aria-label="Filtrar" onClick={handleFilterClick}>
               <i className="bi bi-funnel-fill"></i>
             </button>
 

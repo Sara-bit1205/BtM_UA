@@ -1,10 +1,10 @@
-/*La nueva versión de UserProfilePage toma los datos del profile cargado
- por AuthContext, muestra la información del usuario y, en vez de borrar 
- una cuenta desde una tabla inexistente, usa el servicio de usuario para 
- darla de baja de forma segura marcando is_active = false y cerrando 
- sesión después.*/
+/* La nueva versión de UserProfilePage toma los datos del profile cargado
+ por AuthContext, muestra la información del usuario y, en vez de borrar
+ una cuenta desde una tabla inexistente, usa el servicio de usuario para
+ darla de baja de forma segura marcando is_active = false y cerrando
+ sesión después. */
 
-//MIGRADO
+// MIGRADO
 
 import { useRef, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -14,56 +14,47 @@ import userService from '../../services/userService'
 import '../../assets/styles/profile.css'
 import '../../assets/styles/mbti.css'
 
+const DEFAULT_AVATAR = 'default-avatar.jpg'
+
+function getAvatarFile(profile) {
+  return profile?.avatar_path || profile?.avatar || DEFAULT_AVATAR
+}
+
+function getAvatarPublicUrl(filePath) {
+  const { data } = supabase.storage.from('avatars').getPublicUrl(filePath)
+  return data.publicUrl
+}
+
 function UserProfilePage() {
-  // de useAuth() --> sacamos profile y logout
   const { profile, logout } = useAuth()
-  //sirve para hacer cosas como --> navigate('/') y así mandar al usuario a otras páginas
   const navigate = useNavigate()
-  //Se guardan las referencias a cada <dialog> para poder abrirlos y cerrarlos desde JS
+
   const dialogRef = useRef(null)
+  const unsubscribeDialogRef = useRef(null)
+  const logoutDialogRef = useRef(null)
 
-  //Estados...
-  const unsubscribeDialogRef = useRef(null)  
-  const [isUnsubscribed, setIsUnsubscribed] = useState(false)  //isUnsubscrived --> dice si ya se ha dado de baja
-  const [loadingUnsubscribe, setLoadingUnsubscribe] = useState(false)  //loadingUnsubscribe --> dice si se está procesando la baja (para deshabilitar botones y mostrar texto de "Procesando...")
-  const logoutDialogRef = useRef(null)  //logoutDialogRef --> referencia al diálogo de confirmación de logout
-  const [loadingLogout, setLoadingLogout] = useState(false)  //loadingLogout --> dice si se está procesando el logout (para deshabilitar botones y mostrar texto de "Cerrando sesión...")
-  
+  const [isUnsubscribed, setIsUnsubscribed] = useState(false)
+  const [loadingUnsubscribe, setLoadingUnsubscribe] = useState(false)
+  const [loadingLogout, setLoadingLogout] = useState(false)
 
-  //Si usuario no tiene foto de perfil --> se le da el default-avatar y si sí tiene se pone su profile.avatar
-  //useMemo se usa para memorizar el resultado de la función que genera la URL del avatar, y solo recalcularla cuando profile?.avatar cambie. Así evitamos llamadas innecesarias a supabase.storage cada vez que se renderiza el componente.
   const avatarUrl = useMemo(() => {
-    console.log('AVATAR EN DB:', profile?.avatar)
+    const avatarFile = getAvatarFile(profile)
 
-    if (!profile?.avatar) {
-      const { data } = supabase.storage
-        .from('avatars')
-        .getPublicUrl('default-avatar.jpg')
+    console.log('avatar_path:', profile?.avatar_path)
+    console.log('avatar:', profile?.avatar)
+    console.log('avatar final usado:', avatarFile)
 
-      console.log('DEFAULT URL:', data.publicUrl)
-      return data.publicUrl
-    }
+    return getAvatarPublicUrl(avatarFile)
+  }, [profile?.avatar_path, profile?.avatar])
 
-    const { data } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(profile.avatar)
+  const openDialog = () => dialogRef.current?.showModal()
+  const closeDialog = () => dialogRef.current?.close()
 
-    console.log('AVATAR URL GENERADA:', data.publicUrl)
-
-    return data.publicUrl
-  }, [profile?.avatar])
-
-
-  const openDialog = () => dialogRef.current?.showModal() //abre el <dialog>
-  const closeDialog = () => dialogRef.current?.close() // lo cierra
-
-  //cuando pulsa darse de baja --> inUnsuscribe = false y abre el popup
   const openUnsubscribe = () => {
     setIsUnsubscribed(false)
     unsubscribeDialogRef.current?.showModal()
   }
 
-  //Cuando confirma que quiere darse de baja --> se llama a userService.deleteAccount() que marca is_active = false en la base de datos, y luego se muestra un mensaje de "Ha sido dado de baja correctamente..." y un botón para salir que cierra el popup y redirige a la página principal. Si hay error, se muestra una alerta.
   const handleConfirmBaja = async () => {
     try {
       setLoadingUnsubscribe(true)
@@ -77,19 +68,17 @@ function UserProfilePage() {
     }
   }
 
-  //Cuando usuario pulsa Salir del darse de baja --> se cierra el popup y se redirige a la página principal
   const handleFinalExit = async () => {
     unsubscribeDialogRef.current?.close()
     navigate('/')
   }
 
-  const openLogoutDialog = () => logoutDialogRef.current?.showModal() //abre el popup de confirmación de logout
+  const openLogoutDialog = () => logoutDialogRef.current?.showModal()
+
   const closeLogoutDialog = () => {
-    if (!loadingLogout) logoutDialogRef.current?.close() //cierra el popup de confirmación de logout (solo si no se está procesando el logout, para evitar que el usuario cierre el popup mientras se está cerrando sesión)
+    if (!loadingLogout) logoutDialogRef.current?.close()
   }
 
-  //Confirmamos logout
-  //activa loading, llama a logout(), manda al usuario a / (pag principal), si falla muestra error y quita el logout al final
   const handleConfirmLogout = async () => {
     try {
       setLoadingLogout(true)
@@ -100,25 +89,19 @@ function UserProfilePage() {
       alert('No hemos podido procesar el cierre de sesión. Inténtalo de nuevo.')
     } finally {
       setLoadingLogout(false)
-
     }
   }
 
   const saludo = useMemo(() => {
     const hora = new Date().getHours()
 
-    if (hora >= 6 && hora < 13){
-      return 'BUENOS DÍAS' 
-    } else if (hora >= 13 && hora < 21) {
-      return 'BUENAS TARDES'
-    } else {
-      return 'BUENAS NOCHES'
-    }
-  })
+    if (hora >= 6 && hora < 13) return 'BUENOS DÍAS'
+    if (hora >= 13 && hora < 21) return 'BUENAS TARDES'
+    return 'BUENAS NOCHES'
+  }, [])
 
   const saludoNombre = `${saludo}, ${profile?.username || 'usuario'}`
 
-  //Si aún no hay datos del usuario, enseñas “Cargando perfil...”.
   if (!profile) {
     return (
       <section className="profile-page">
@@ -126,20 +109,19 @@ function UserProfilePage() {
       </section>
     )
   }
- 
+
+
   return (
     <section className="profile-page">
       <h1 className="profile-greeting">{saludoNombre}</h1>
 
       <article className="profile-card">
-        {/* si url correcta muestra la imagen, si no muestra el avatar por defecto */}
         <img
           className="profile-card__avatar"
           src={avatarUrl}
           alt={`Avatar de ${profile?.name || 'usuario'}`}
           onError={(e) => {
-            const { data } = supabase.storage.from('avatars').getPublicUrl('default-avatar.jpg')
-            e.currentTarget.src = data.publicUrl
+            e.currentTarget.src = getAvatarPublicUrl(DEFAULT_AVATAR_PATH)
           }}
         />
 
@@ -182,15 +164,19 @@ function UserProfilePage() {
         >
           ✕
         </button>
+
         <h2 id="mbti-dialog-title">¿Conoces tu tipo de personalidad?</h2>
+
         <p id="mbti-dialog-desc">
           Completa el test MBTI y descubre qué personajes comparten tu forma de ser.
           ¡Solo son 10 preguntas!
         </p>
+
         <div className="mbti-invite-banner__actions">
           <Link className="mbti-btn-primary" to="/test-personalidad" onClick={closeDialog}>
             Hacer el test
           </Link>
+
           <Link className="mbti-btn-secondary" to="/tipos-personalidad" onClick={closeDialog}>
             Ver los 16 tipos
           </Link>
@@ -198,11 +184,26 @@ function UserProfilePage() {
       </dialog>
 
       <nav className="profile-actions" aria-label="Acciones del perfil">
-        <Link className="profile-action" to="/perfil/favoritos">MIS FAVORITOS</Link>
-        <Link className="profile-action" to="/perfil/editar">EDITAR MIS DATOS</Link>
-        <button className="profile-action" type="button" onClick={openDialog}>MI MBTI</button>
-        <button className="profile-action" type="button">MIS FOTOS SUBIDAS</button>
-        <button className="profile-action" type="button" onClick={openLogoutDialog}>LOGOUT</button>
+        <Link className="profile-action" to="/perfil/favoritos">
+          MIS FAVORITOS
+        </Link>
+
+        <Link className="profile-action" to="/perfil/editar">
+          EDITAR MIS DATOS
+        </Link>
+
+        <button className="profile-action" type="button" onClick={openDialog}>
+          MI MBTI
+        </button>
+
+        <button className="profile-action" type="button">
+          MIS FOTOS SUBIDAS
+        </button>
+
+        <button className="profile-action" type="button" onClick={openLogoutDialog}>
+          LOGOUT
+        </button>
+
         <button
           className="profile-action profile-action--danger"
           type="button"
@@ -215,6 +216,7 @@ function UserProfilePage() {
       <dialog ref={logoutDialogRef} className="mbti-invite-dialog modal-baja-personalizado">
         <div className="modal-baja-content">
           <h2 className="modal-baja-titulo">¿SEGURO QUE QUIERES CERRAR SESIÓN?</h2>
+
           <div className="modal-baja-acciones">
             <button
               className="btn-confirm"
@@ -223,6 +225,7 @@ function UserProfilePage() {
             >
               {loadingLogout ? 'CERRANDO SESIÓN...' : 'ACEPTAR'}
             </button>
+
             <button
               className="btn-cancel"
               onClick={closeLogoutDialog}
@@ -239,6 +242,7 @@ function UserProfilePage() {
           {!isUnsubscribed ? (
             <>
               <h2 className="modal-baja-titulo">¿SEGURO QUE QUIERES DARTE DE BAJA?</h2>
+
               <div className="modal-baja-acciones">
                 <button
                   className="btn-confirm"
@@ -247,6 +251,7 @@ function UserProfilePage() {
                 >
                   {loadingUnsubscribe ? 'PROCESANDO...' : 'ACEPTAR'}
                 </button>
+
                 <button
                   className="btn-cancel"
                   onClick={() => unsubscribeDialogRef.current?.close()}
@@ -261,6 +266,7 @@ function UserProfilePage() {
               <h2 className="modal-baja-titulo">
                 HA SIDO DADO DE BAJA CORRECTAMENTE, SERÁ REDIRIGIDO A LA PÁGINA PRINCIPAL
               </h2>
+
               <button className="btn-confirm" onClick={handleFinalExit}>
                 SALIR
               </button>

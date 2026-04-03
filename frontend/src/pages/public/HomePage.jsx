@@ -3,10 +3,10 @@
 
 import { Link } from 'react-router-dom';
 import React, { useEffect, useMemo, useState } from 'react';
+import { supabase } from '../../lib/supabase';
 import '../../assets/styles/home.css';
 
 //--------------------
-import captainAmericaImg from '../../assets/images/captainAmerica.jpg';
 import maleficaImg from '../../assets/images/malefica.jpg';
 import spidermanImg from '../../assets/images/spiderman.jpg';
 import elsaImg from '../../assets/images/elsa.png';
@@ -15,12 +15,29 @@ import batmanImg from '../../assets/images/batman.jpg';
 import arquitectoIcono from '../../assets/images/bricks.svg';
 //---------------------
 
-const personajeDelDia = {
-  slug: "capitan-america",
-  nombre: "Capitán América",
-  universo: "Marvel",
-  mbti: "ISFJ",
-  imagen: captainAmericaImg,
+function getCharacterCoverUrl(coverPath) {
+  if (!coverPath) return null;
+
+  const { data } = supabase.storage
+    .from('character-covers')
+    .getPublicUrl(coverPath);
+
+  return data.publicUrl;
+}
+
+// Devuelve un número estable según la fecha de hoy
+function getDailyCharacterIndex(total) {
+  if (!total) return 0;
+
+  const today = new Date();
+  const dateKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+
+  let hash = 0;
+  for (let i = 0; i < dateKey.length; i++) {
+    hash = (hash * 31 + dateKey.charCodeAt(i)) % total;
+  }
+
+  return Math.abs(hash) % total;
 }
 
 const personajesPopulares = [
@@ -72,13 +89,15 @@ function agruparItems(items, size) {
 
 function HomePage() {
   const getItemsPerSlide = () => {
-  const width = window.innerWidth;
-  if (width >= 992) return 3; // lg
-  if (width >= 768) return 2; // md
-  return 1; // móvil
+    const width = window.innerWidth;
+    if (width >= 992) return 3; // lg
+    if (width >= 768) return 2; // md
+    return 1; // móvil
   };
 
   const [itemsPorSlide, setItemsPorSlide] = useState(getItemsPerSlide());
+  const [personajeDelDia, setPersonajeDelDia] = useState(null);
+  const [loadingPersonajeDelDia, setLoadingPersonajeDelDia] = useState(true);
 
   useEffect(() => {
     const handleResize = () => {
@@ -88,9 +107,65 @@ function HomePage() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    const loadPersonajeDelDia = async () => {
+      try {
+        setLoadingPersonajeDelDia(true);
+
+        const { data, error } = await supabase
+          .from('characters')
+          .select(`
+            name,
+            slug,
+            cover_path,
+            universes (
+              name
+            ),
+            mbti_types (
+              code
+            )
+          `)
+          .order('name', { ascending: true });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          setPersonajeDelDia(null);
+          return;
+        }
+
+        const index = getDailyCharacterIndex(data.length);
+        const selectedCharacter = data[index];
+
+        setPersonajeDelDia({
+          slug: selectedCharacter.slug,
+          nombre: selectedCharacter.name,
+          universo: selectedCharacter.universes?.name || 'Sin universo',
+          mbti: selectedCharacter.mbti_types?.code || '—',
+          imagen: getCharacterCoverUrl(selectedCharacter.cover_path) || maleficaImg,
+        });
+      } catch (error) {
+        console.error('Error cargando personaje del día:', error.message);
+
+        setPersonajeDelDia({
+          slug: "malefica",
+          nombre: "Maléfica",
+          universo: "Disney",
+          mbti: "INTJ",
+          imagen: maleficaImg,
+        });
+      } finally {
+        setLoadingPersonajeDelDia(false);
+      }
+    };
+
+    loadPersonajeDelDia();
+  }, []);
+
   const gruposPersonajes = useMemo(() => {
-      return agruparItems(personajesPopulares, itemsPorSlide);
-    }, [itemsPorSlide]);
+    return agruparItems(personajesPopulares, itemsPorSlide);
+  }, [itemsPorSlide]);
 
   return (
     <main className="container py-4 home-page">
@@ -99,34 +174,43 @@ function HomePage() {
         <div className="col-12">
           <h1 className="home-section-title mb-3 text-center">PERSONAJE DEL DÍA</h1>
 
-          <div className="card text-bg-dark card-personaje-del-dia">
-            <Link className="nav-link" to={`/personaje/${personajeDelDia.slug}`}>
-              <img src={personajeDelDia.imagen} className="card-img card-personaje-del-dia-img" alt={personajeDelDia.nombre}/>
-            </Link>
-            <div className="card-img-overlay d-flex flex-column justify-content-end personaje-del-dia-overlay">
-              <div className="d-flex justify-content-between align-items-end">
-                <div>
-                  <Link className="nav-link" to={`/personaje/${personajeDelDia.slug}`}>
-                  <h3 className="card-title mb-1 text-uppercase fw-bold nombre-del-dia">
-                    {personajeDelDia.nombre}
-                  </h3>
-                  </Link>
-                  <Link className="nav-link" to={`/categorias/${personajeDelDia.universo.toLowerCase().replace(/\s+/g, '-')}`}>
-                  <p className="card-text mb-0">
-                    Universo {personajeDelDia.universo}
-                  </p>
+          {loadingPersonajeDelDia ? (
+            <p className="text-center">Cargando personaje del día...</p>
+          ) : personajeDelDia ? (
+            <div className="card text-bg-dark card-personaje-del-dia">
+              <Link className="nav-link" to={`/personaje/${personajeDelDia.slug}`}>
+                <img
+                  src={personajeDelDia.imagen}
+                  className="card-img card-personaje-del-dia-img"
+                  alt={personajeDelDia.nombre}
+                />
+              </Link>
+              <div className="card-img-overlay d-flex flex-column justify-content-end personaje-del-dia-overlay">
+                <div className="d-flex justify-content-between align-items-end">
+                  <div>
+                    <Link className="nav-link" to={`/personaje/${personajeDelDia.slug}`}>
+                      <h3 className="card-title mb-1 text-uppercase fw-bold nombre-del-dia">
+                        {personajeDelDia.nombre}
+                      </h3>
+                    </Link>
+                    <Link className="nav-link" to={`/categorias/${personajeDelDia.universo.toLowerCase().replace(/\s+/g, '-')}`}>
+                      <p className="card-text mb-0">
+                        Universo {personajeDelDia.universo}
+                      </p>
+                    </Link>
+                  </div>
+
+                  <Link className="nav-link" to="/categorias/:id">
+                    <span className="badge rounded-pill home-mbti-badge mr-2">
+                      {personajeDelDia.mbti}
+                    </span>
                   </Link>
                 </div>
-                
-                <Link className="nav-link" to="/categorias/:id">
-                {/* Badge --> forma personalizada de Bootstrap, para hacer la etiqueta MBTI */}
-                  <span className="badge rounded-pill home-mbti-badge mr-2">
-                    {personajeDelDia.mbti}
-                  </span>
-                </Link>
               </div>
             </div>
-          </div>
+          ) : (
+            <p className="text-center">No hay personaje del día disponible.</p>
+          )}
         </div>
 
         {/* PERSONAJES MÁS POPULARES */}
@@ -217,7 +301,7 @@ function HomePage() {
             <div className="card personality-card" key={index}>
               <div className="card-body d-flex align-items-center gap-3">
                 <div className="personality-icon-wrapper">
-                  <img src={item.icono}  alt={item.tipo}  className="personality-icon"/>
+                  <img src={item.icono} alt={item.tipo} className="personality-icon" />
                 </div>
 
                 <div>

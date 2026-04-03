@@ -30,18 +30,22 @@ const userService = {
 
   //Actualiza el perfil del usuario actual.
   async updateProfile(values) {
-    //Primero obtenemos el usuario autenticado para saber su id, si no hay usuario autenticado lanzamos un error
     const { data: userData, error: userError } = await supabase.auth.getUser()
     if (userError) throw userError
 
-    //Luego obtenemos el perfil de la tabla profiles filtrando por el id del usuario, y devolvemos los datos del perfil
     const userId = userData?.user?.id
     if (!userId) throw new Error('No hay usuario autenticado')
 
-    //Actualizamos el perfil de la tabla profiles filtrando por el id del usuario, con los valores proporcionados, y devolvemos los datos actualizados del perfil
+    // Copiamos avatar -> avatar_path si llega avatar pero no avatar_path
+    const normalizedValues = { ...values }
+
+    if (normalizedValues.avatar && !normalizedValues.avatar_path) {
+      normalizedValues.avatar_path = normalizedValues.avatar
+    }
+
     const { data, error } = await supabase
       .from('profiles')
-      .update(values)
+      .update(normalizedValues)
       .eq('id', userId)
       .select()
       .single()

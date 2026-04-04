@@ -79,80 +79,80 @@ const userService = {
   },
 
   //Trae los favoritos del usuario actual.
-  async getFavorites() {
-    //Obtenemos el usuario autenticado para saber su id, si no hay usuario autenticado lanzamos un error
-    const { data: userData, error: userError } = await supabase.auth.getUser()
-    if (userError) throw userError
+  // async getFavorites() {
+  //   //Obtenemos el usuario autenticado para saber su id, si no hay usuario autenticado lanzamos un error
+  //   const { data: userData, error: userError } = await supabase.auth.getUser()
+  //   if (userError) throw userError
 
-    //Obtiene el id del usuario autenticado
-    const userId = userData?.user?.id
-    if (!userId) throw new Error('No hay usuario autenticado')
+  //   //Obtiene el id del usuario autenticado
+  //   const userId = userData?.user?.id
+  //   if (!userId) throw new Error('No hay usuario autenticado')
 
-    //Obtiene la lista de favoritos de la tabla favorites filtrando por el id del usuario, e incluyendo los datos relacionados del personaje, su tipo MBTI y su universo, ordenados por fecha de creación (los más nuevos primero)
-    const { data, error } = await supabase
-      .from('favorites')
-      .select(`
-        *,
-        characters (
-          id,
-          name,
-          slug,
-          cover_image,
-          mbti_types (
-            code
-          ),
-          universes (
-            name
-          )
-        )
-      `)
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+  //   //Obtiene la lista de favoritos de la tabla favorites filtrando por el id del usuario, e incluyendo los datos relacionados del personaje, su tipo MBTI y su universo, ordenados por fecha de creación (los más nuevos primero)
+  //   const { data, error } = await supabase
+  //     .from('favorites')
+  //     .select(`
+  //       *,
+  //       characters (
+  //         id,
+  //         name,
+  //         slug,
+  //         cover_path,
+  //         mbti_types (
+  //           code
+  //         ),
+  //         universes (
+  //           name
+  //         )
+  //       )
+  //     `)
+  //     .eq('user_id', userId)
+  //     .order('created_at', { ascending: false })
 
-    if (error) throw error
-    return data
-  },
+  //   if (error) throw error
+  //   return data
+  // },
 
-  //Añade un personaje a favoritos para el usuario actual.
-  async addFavorite(characterId) {
-    const { data: userData, error: userError } = await supabase.auth.getUser()
-    if (userError) throw userError
+  // //Añade un personaje a favoritos para el usuario actual.
+  // async addFavorite(characterId) {
+  //   const { data: userData, error: userError } = await supabase.auth.getUser()
+  //   if (userError) throw userError
 
-    const userId = userData?.user?.id
-    if (!userId) throw new Error('No hay usuario autenticado')
+  //   const userId = userData?.user?.id
+  //   if (!userId) throw new Error('No hay usuario autenticado')
 
-    //Inserta un nuevo registro en la tabla favorites con el user_id, character_id y la fecha de creación automática, y devuelve el nuevo favorito insertado
-    const { data, error } = await supabase
-      .from('favorites')
-      .insert({
-        user_id: userId,
-        character_id: characterId,
-      })
-      .select()
-      .single()
+  //   //Inserta un nuevo registro en la tabla favorites con el user_id, character_id y la fecha de creación automática, y devuelve el nuevo favorito insertado
+  //   const { data, error } = await supabase
+  //     .from('favorites')
+  //     .insert({
+  //       user_id: userId,
+  //       character_id: characterId,
+  //     })
+  //     .select()
+  //     .single()
 
-    if (error) throw error
-    return data
-  },
+  //   if (error) throw error
+  //   return data
+  // },
 
-  //Quitamos un personaje de favoritos para el usuario actual.
-  async removeFavorite(characterId) {
-    const { data: userData, error: userError } = await supabase.auth.getUser()
-    if (userError) throw userError
+  // //Quitamos un personaje de favoritos para el usuario actual.
+  // async removeFavorite(characterId) {
+  //   const { data: userData, error: userError } = await supabase.auth.getUser()
+  //   if (userError) throw userError
 
-    const userId = userData?.user?.id
-    if (!userId) throw new Error('No hay usuario autenticado')
+  //   const userId = userData?.user?.id
+  //   if (!userId) throw new Error('No hay usuario autenticado')
 
-    //Borra la fila de favorites que cumpla --> que pertece al usuario actual y correcponde a ese personaje
-    const { error } = await supabase
-      .from('favorites')
-      .delete()
-      .eq('user_id', userId)
-      .eq('character_id', characterId)
+  //   //Borra la fila de favorites que cumpla --> que pertece al usuario actual y correcponde a ese personaje
+  //   const { error } = await supabase
+  //     .from('favorites')
+  //     .delete()
+  //     .eq('user_id', userId)
+  //     .eq('character_id', characterId)
 
-    if (error) throw error
-    return true
-  },
+  //   if (error) throw error
+  //   return true
+  // },
 
   //Función para el admin --> Recupera todos los usuarios registrados, ordenados por fecha de creación (los más nuevos primero)
   async getAll() {

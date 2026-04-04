@@ -1,55 +1,68 @@
-import { useState } from 'react'
+//HECHO 
+
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { supabase } from '../../lib/supabase'
+import favoritesService from '../../services/favoritesService'
 import '../../assets/styles/profile.css'
 import '../../assets/styles/favorites.css'
-import luffyImg from '../../assets/images/luffy.jpg'
-import ascoImg from '../../assets/images/asco-intensamente-1.webp'
-import captainAmericaImg from '../../assets/images/captainAmerica.jpg'
-import remyImg from '../../assets/images/remy.jpg'
-import stitchImg from '../../assets/images/stitch.jpg'
-import elsaImg from '../../assets/images/elsa.png'
+import maleficaImg from '../../assets/images/malefica.jpg'
 
-const mockFavorites = [
-  {
-    id: 'luffy',
-    name: 'Luffy',
-    image: luffyImg
-  },
-  {
-    id: 'asco',
-    name: 'Desagrado',
-    image: ascoImg
-  },
-  {
-    id: 'captain-america',
-    name: 'Captain America',
-    image: captainAmericaImg
-  },
-  {
-    id: 'remy',
-    name: 'Remy',
-    image: remyImg
-  },
-  {
-    id: 'stitch',
-    name: 'Stitch',
-    image: stitchImg
-  },
-  {
-    id: 'elsa',
-    name: 'Elsa',
-    image: elsaImg
-  }
-]
+const DEFAULT_AVATAR = 'default-avatar.jpg'
 
-// Página de favoritos del usuario (datos provisionales sin backend)
+function getAvatarFile(profile) {
+  return profile?.avatar_path || profile?.avatar || DEFAULT_AVATAR
+}
+
+function getAvatarPublicUrl(filePath) {
+  const { data } = supabase.storage.from('avatars').getPublicUrl(filePath)
+  return data.publicUrl
+}
+
 function FavoritesPage() {
-  const { user } = useAuth()
-  const [favorites, setFavorites] = useState(mockFavorites)
+  const { profile } = useAuth()
 
-  const handleRemove = (id) => {
-    setFavorites((prev) => prev.filter((fav) => fav.id !== id))
+  const [favorites, setFavorites] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const avatarUrl = useMemo(() => {
+    const avatarFile = getAvatarFile(profile)
+    return getAvatarPublicUrl(avatarFile)
+  }, [profile?.avatar_path, profile?.avatar])
+
+  useEffect(() => {
+    const loadFavorites = async () => {
+      try {
+        setLoading(true)
+        setError('')
+
+        const data = await favoritesService.getFavorites()
+        setFavorites(data)
+      } catch (error) {
+        console.error('Error cargando favoritos:', error.message)
+        setError('No se pudieron cargar los favoritos')
+        setFavorites([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadFavorites()
+  }, [])
+
+  const handleRemove = async (characterId) => {
+    try {
+      await favoritesService.removeFavorite(characterId)
+
+      setFavorites((prev) =>
+        prev.filter((fav) => fav.characterId !== characterId)
+      )
+    } catch (error) {
+      console.error('Error eliminando favorito:', error.message)
+      setError('No se pudo eliminar el favorito')
+    }
   }
 
   return (
@@ -58,21 +71,24 @@ function FavoritesPage() {
         <article className="profile-card">
           <img
             className="profile-card__avatar"
-            src={user.avatar}
-            alt={`Avatar de ${user.name}`}
+            src={avatarUrl}
+            alt={`Avatar de ${profile?.name || 'usuario'}`}
+            onError={(e) => {
+              e.currentTarget.src = getAvatarPublicUrl(DEFAULT_AVATAR)
+            }}
           />
 
           <div className="profile-card__body">
-            <p className="profile-card__username">{user.username}</p>
+            <p className="profile-card__username">{profile?.username || 'Usuario'}</p>
 
             <dl className="profile-card__details" aria-label="Datos del perfil">
               <div className="profile-card__row">
                 <dt>Nombre:</dt>
-                <dd>{user.name}</dd>
+                <dd>{profile?.name || '—'}</dd>
               </div>
               <div className="profile-card__row">
                 <dt>Email:</dt>
-                <dd>{user.email}</dd>
+                <dd>{profile?.email || '—'}</dd>
               </div>
               <div className="profile-card__row">
                 <dt>Contraseña:</dt>
@@ -80,7 +96,7 @@ function FavoritesPage() {
               </div>
               <div className="profile-card__row">
                 <dt>Fecha de nacimiento:</dt>
-                <dd>{user.birthDate || '—'}</dd>
+                <dd>{profile?.birth_date || '—'}</dd>
               </div>
             </dl>
           </div>
@@ -90,30 +106,39 @@ function FavoritesPage() {
       <section className="favorites-section" aria-live="polite">
         <div className="favorites-section__title">MIS FAVORITOS</div>
 
-        <div className="favorites-grid">
-          {favorites.map((fav) => (
-            <article className="favorite-card" key={fav.id}>
-              <button
-                type="button"
-                className="favorite-card__remove"
-                aria-label={`Quitar ${fav.name} de favoritos`}
-                onClick={() => handleRemove(fav.id)}
-              >
-                ×
-              </button>
-
-              <span className="favorite-card__like" aria-hidden="true">❤</span>
-
-              <div className="favorite-card__avatar-wrapper">
-                <img src={fav.image} alt={fav.name} className="favorite-card__avatar" />
-              </div>
-              <p className="favorite-card__name">{fav.name}</p>
-            </article>
-          ))}
-        </div>
-
-        {favorites.length === 0 && (
+        {loading ? (
+          <p className="favorites-empty">Cargando favoritos...</p>
+        ) : error ? (
+          <p className="favorites-empty">{error}</p>
+        ) : favorites.length === 0 ? (
           <p className="favorites-empty">Aún no tienes personajes en favoritos.</p>
+        ) : (
+          <div className="favorites-grid">
+            {favorites.map((fav) => (
+              <article className="favorite-card" key={fav.favoriteId}>
+                <button
+                  type="button"
+                  className="favorite-card__remove"
+                  aria-label={`Quitar ${fav.name} de favoritos`}
+                  onClick={() => handleRemove(fav.characterId)}
+                >
+                  ×
+                </button>
+
+                <span className="favorite-card__like" aria-hidden="true">❤</span>
+
+                <Link to={`/personaje/${fav.slug}`} className="favorite-card__avatar-wrapper">
+                  <img
+                    src={fav.image || maleficaImg}
+                    alt={fav.name}
+                    className="favorite-card__avatar"
+                  />
+                </Link>
+
+                <p className="favorite-card__name">{fav.name}</p>
+              </article>
+            ))}
+          </div>
         )}
       </section>
 
@@ -121,7 +146,6 @@ function FavoritesPage() {
         <Link to="/perfil" className="favorites-back">
           ← Volver a mi perfil
         </Link>
-        <p className="favorites-hint">Contenido y personajes de ejemplo; la conexión al backend se activará más adelante.</p>
       </div>
     </section>
   )

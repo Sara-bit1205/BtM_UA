@@ -4,7 +4,7 @@
  darla de baja de forma segura marcando is_active = false y cerrando
  sesión después. */
 
-// MIGRADO
+//HECHO
 
 import { useRef, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -121,7 +121,7 @@ function UserProfilePage() {
           src={avatarUrl}
           alt={`Avatar de ${profile?.name || 'usuario'}`}
           onError={(e) => {
-            e.currentTarget.src = getAvatarPublicUrl(DEFAULT_AVATAR_PATH)
+            e.currentTarget.src = getAvatarPublicUrl(DEFAULT_AVATAR)
           }}
         />
 

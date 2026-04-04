@@ -1,344 +1,334 @@
 import { useParams } from 'react-router-dom'
-import React from 'react'
-import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase.js';
+import React, { useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabase.js'
+import favoritesService from '../../services/favoritesService'
+import maleficaImg from '../../assets/images/malefica.jpg'
 
-import batmanImg from '../../assets/images/batman.jpg';
-import captainAmericaImg from '../../assets/images/captainAmerica.jpg';
-import maleficaImg from '../../assets/images/malefica.jpg';
-import spidermanImg from '../../assets/images/spiderman.jpg';
-import elsaImg from '../../assets/images/elsa.png';
+import '../../assets/styles/home.css'
+import '../../assets/styles/individualCharacter.css'
 
-import '../../assets/styles/home.css';
-import '../../assets/styles/individualCharacter.css';
+// ---------- Helpers ----------
+function getRelationValue(relation, field) {
+  if (Array.isArray(relation)) {
+    return relation[0]?.[field]
+  }
+  return relation?.[field]
+}
 
-const charactersMock = [
-  {
-    id: "1",
-    slug: "capitan-america",
-    name: "Capitán América",
-    universe: "Marvel",
-    mbti: "ISFJ",
-    mbtiTitle: "Defensor",
-    image: captainAmericaImg,
-    description: "Steve Rogers representa el deber, la lealtad y el sacrificio.",
-    story: "Tras participar en un experimento, se convierte en el supersoldado Capitán América.",
-    creationDate: "1941",
-    firstAppearance: "Captain America Comics #1",
-    procedence: "Brooklyn",
-    biologicalOrigin: "Humano mejorado",
-    personalityTags: ["Leal", "Valiente", "Protector"],
-    filmography: [
-        {
-          title: "Captain America: The First Avenger",
-          year: 2011,
-          image: captainAmericaImg,
-        },
-        {
-          title: "The Avengers",
-          year: 2012,
-          image: captainAmericaImg,
-        },
-        {
-          title: "Endgame",
-          year: 2019,
-          image: captainAmericaImg,
-        },
-      ],
-    actors: [
-      "Chris Evans (2011-2019)",
-      "Reb Brown (1979, 1990)"
-    ],
-    psicologicalAnalisis: "Capitán América es un personaje que encarna los valores de la justicia, el honor y el sacrificio. Su personalidad ISFJ lo hace ser un héroe protector, leal y comprometido con su causa, pero también puede ser rígido y a veces inflexible. A lo largo de sus historias, Steve Rogers enfrenta dilemas morales y emocionales que reflejan su fuerte sentido del deber y su deseo de hacer lo correcto.",
-    sound: ["captain-america/voz-original.mp3"],
-  },
-  {
-    id: "2",
-    slug: "batman",
-    name: "Batman",
-    universe: "DC",
-    mbti: "INTJ",
-    mbtiTitle: "Arquitecto",
-    image: batmanImg,
-    description: "Bruce Wayne usa la inteligencia, la estrategia y la disciplina para combatir el crimen.",
-    story: "Tras el asesinato de sus padres, dedica su vida a proteger Gotham.",
-    creationDate: "1939",
-    firstAppearance: "Detective Comics #27",
-    procedence: "Gotham",
-    biologicalOrigin: "Humano",
-    personalityTags: ["Analítico", "Reservado", "Estratégico"],
-    filmography: [
-      {
-        title: "Batman Begins",
-        year: 2005,
-        image: batmanImg,
-      },
-      {
-        title: "The Dark Knight",
-        year: 2008,
-        image: batmanImg,
-      },
-      {
-        title: "The Batman",
-        year: 2022,
-        image: batmanImg,
-      },
-    ],
-    actors: [
-      "Michael Keaton (1989-1992)",
-      "Christian Bale (2005-2012)",
-    ],
-    psicologicalAnalisis: "Batman es un personaje que encarna la lucha entre la justicia y el deseo de vivir una vida normal. Su personalidad INTJ lo hace ser un héroe estratégico, analítico y reservado, pero también puede ser obsesivo y a veces distante. A lo largo de sus historias, Bruce Wayne enfrenta dilemas morales y emocionales que reflejan su compleja psicología.",
-    sound: ["batman/voz-original.mp3"],
+function getCharacterCoverUrl(coverPath) {
+  if (!coverPath) return null
 
-  },
-  {
-    id: "3",
-    slug: "malefica",
-    name: "Maléfica",
-    universe: "Disney",
-    mbti: "INTJ",
-    mbtiTitle: "Arquitecta",
-    image: maleficaImg,
-    description: "Maléfica destaca por su visión estratégica y su fortaleza emocional.",
-    story: "Es uno de los personajes más complejos del universo Disney.",
-    creationDate: "1959",
-    firstAppearance: "Sleeping Beauty",
-    procedence: "El Páramo",
-    biologicalOrigin: "Hada",
-    personalityTags: ["Intensa", "Independiente", "Visionaria"],
-    filmography: [
-      {
-        title: "Sleeping Beauty",
-        year: 1959,
-        image: maleficaImg,
-      },
-      {
-        title: "Maleficent",
-        year: 2014,
-        image: maleficaImg,
-      },
-      {
-        title: "Maleficent: Mistress of Evil",
-        year: 2019,
-        image: maleficaImg,
-      },
-    ],
-    actors: [
-      "Eleanor Audley (1959)",
-      "Angelina Jolie (2014-2019)"
-    ],
-    psicologicalAnalisis: "Maléfica es un personaje que encarna la lucha entre el bien y el mal. Su personalidad INTJ lo hace ser una villana compleja, estratégica y poderosa, pero también puede ser manipuladora y a veces cruel. A lo largo de sus historias, Maléfica enfrenta dilemas morales y emocionales que reflejan su compleja psicología.",
-    sound: ["malefica/voz-original.mp3"],
-  },
-  {
-    id: "4",
-    slug: "spiderman",
-    name: "Spiderman",
-    universe: "Marvel",
-    mbti: "ENFP",
-    mbtiTitle: "Activista",
-    image: spidermanImg,
-    description: "Peter Parker combina sensibilidad, humor e idealismo.",
-    story: "Tras la picadura de una araña radiactiva, obtiene poderes extraordinarios.",
-    creationDate: "1962",
-    firstAppearance: "Amazing Fantasy #15",
-    procedence: "New York",
-    biologicalOrigin: "Humano mutado",
-    personalityTags: ["Ingenioso", "Empático", "Valiente"],
-    filmography: [
-      {
-        title: "Spider-Man",
-        year: 2002,
-        image: spidermanImg,
-      },
-      {
-        title: "Homecoming",
-        year: 2017,
-        image: spidermanImg,
-      },
-      {
-        title: "No Way Home",
-        year: 2021,
-        image: spidermanImg,
-      },
-    ],
-    actors: [
-      "Tobey Maguire (2002-2007)",
-      "Andrew Garfield (2012-2014)",
-      "Tom Holland (2016-presente)"
-    ],
-    psicologicalAnalisis: "Spiderman es un personaje que encarna la lucha entre la responsabilidad y el deseo de vivir una vida normal. Su personalidad ENFP lo hace ser un héroe apasionado, creativo y empático, pero también puede ser impulsivo y a veces inseguro. A lo largo de sus historias, Peter Parker enfrenta dilemas morales y emocionales que reflejan su compleja psicología.",
-    sound: ["spiderman/voz-original.mp3"],
-  },
-  {
-    id: "5",
-    slug: "elsa",
-    name: "Elsa",
-    universe: "Disney",
-    mbti: "INFJ",
-    mbtiTitle: "Abogada",
-    image: elsaImg,
-    description: "Elsa es introspectiva, sensible y profundamente idealista.",
-    story: "Lucha por aceptar su identidad y controlar sus poderes.",
-    creationDate: "2013",
-    firstAppearance: "Frozen",
-    procedence: "Arendelle",
-    biologicalOrigin: "Humana con poderes mágicos",
-    personalityTags: ["Reservada", "Profunda", "Protectora"],
-    filmography: [
-      {
-        title: "Frozen",
-        year: 2013,
-        image: elsaImg,
-      },
-      {
-        title: "Frozen II",
-        year: 2019,
-        image: elsaImg,
-      },
-    ],
-    actors: [
-      "Idina Menzel (2013-2019)"
-    ],
-    psicologicalAnalisis: "Elsa es un personaje que encarna la lucha entre la introspección y la expresión emocional. Su personalidad INFJ la hace ser una persona profunda, empática y creativa, pero también puede ser reservada y a veces indecisa. A lo largo de sus historias, Elsa enfrenta dilemas morales y emocionales que reflejan su compleja psicología.",
-    sound: ["elsa/voz-original.mp3"],
-  },
-];
+  const { data } = supabase.storage
+    .from('character-covers')
+    .getPublicUrl(coverPath)
 
-const communityPhotosMock = [
-  { id: 1, image: maleficaImg, alt: 'Cosplay de Maléfica 1' },
-  { id: 2, image: elsaImg, alt: 'Fan art de Elsa' },
-  { id: 3, image: batmanImg, alt: 'Cosplay de Batman' },
-  { id: 4, image: spidermanImg, alt: 'Cosplay de Spiderman' },
-  { id: 5, image: captainAmericaImg, alt: 'Cosplay de Capitán América' },
-];
+  return data.publicUrl
+}
 
-const commentsMock = [
-  {
-    id: 1,
-    user: 'Usuario1',
-    avatar: batmanImg,
-    time: 'Hace 2 horas',
-    text: '¡Super chulo el cosplay!',
-  },
-  {
-    id: 2,
-    user: 'Usuario2',
-    avatar: maleficaImg,
-    time: 'Hace 1 min',
-    text: 'El mío es mejor',
-  },
-];
+function getFilmCoverUrl(coverPath) {
+  if (!coverPath) return null
+
+  const { data } = supabase.storage
+    .from('films-cover')
+    .getPublicUrl(coverPath)
+
+  return data.publicUrl
+}
+
+function getCharacterMediaUrl(filePath) {
+  if (!filePath) return null
+
+  const { data } = supabase.storage
+    .from('character-media')
+    .getPublicUrl(filePath)
+
+  return data.publicUrl
+}
 
 function CharacterDetailPage() {
   const { slug } = useParams()
-  const character = charactersMock.find((c) => c.slug === slug)
-  const ultimasFotos = communityPhotosMock.slice(-4).reverse();
-  const [isFavorite, setIsFavorite] = useState(false);
 
-  if (!character) {
-    return <main><h1>Personaje no encontrado</h1></main>
-  }
+  const [character, setCharacter] = useState(null)
+  const [filmography, setFilmography] = useState([])
+  const [actors, setActors] = useState([])
+  const [relatedImages, setRelatedImages] = useState([])
 
-  const handleFavorite = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+  const [isFavorite, setIsFavorite] = useState(false)
 
-    if (!user) {
-      alert("Debes iniciar sesión");
-      return;
-    }
-
-    if (isFavorite) {
-      // quitar favorito
-      await supabase
-        .from('favorites')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('character_id', character.id);
-
-      setIsFavorite(false);
-    } else {
-      // añadir favorito
-      await supabase.from('favorites').insert({
-        user_id: user.id,
-        character_id: character.id,
-      });
-
-      setIsFavorite(true);
-    }
-  };
+  const [loadingCharacter, setLoadingCharacter] = useState(true)
+  const [loadingFavorite, setLoadingFavorite] = useState(false)
 
   useEffect(() => {
-    const checkFavorite = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+    const loadCharacter = async () => {
+      try {
+        setLoadingCharacter(true)
 
-      const { data } = await supabase
-        .from('favorites')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('character_id', character.id)
-        .single();
+        // 1) personaje principal
+        const { data: characterData, error: characterError } = await supabase
+          .from('characters')
+          .select(`
+            id,
+            name,
+            slug,
+            description,
+            story,
+            creation_date,
+            first_appearance,
+            biological_origin,
+            place_of_origin,
+            psychological_analysis,
+            cover_path,
+            universes (
+              name
+            ),
+            mbti_types (
+              code,
+              title
+            )
+          `)
+          .eq('slug', slug)
+          .single()
 
-      if (data) setIsFavorite(true);
-    };
+        if (characterError) throw characterError
 
-    checkFavorite();
-  }, [character.id]);
+        if (!characterData) {
+          setCharacter(null)
+          return
+        }
+
+        const characterId = characterData.id
+
+        const formattedCharacter = {
+          id: characterData.id,
+          slug: characterData.slug,
+          name: characterData.name,
+          description: characterData.description,
+          story: characterData.story,
+          creationDate: characterData.creation_date,
+          firstAppearance: characterData.first_appearance,
+          procedence: characterData.place_of_origin,
+          biologicalOrigin: characterData.biological_origin,
+          psicologicalAnalisis: characterData.psychological_analysis,
+          universe: getRelationValue(characterData.universes, 'name') || 'Sin universo',
+          mbti: getRelationValue(characterData.mbti_types, 'code') || '—',
+          mbtiTitle: getRelationValue(characterData.mbti_types, 'title') || '',
+          image: getCharacterCoverUrl(characterData.cover_path) || maleficaImg,
+        }
+
+        setCharacter(formattedCharacter)
+
+        // 2) favoritos
+        const favoriteStatus = await favoritesService.isFavorite(characterId)
+        setIsFavorite(favoriteStatus)
+
+        // 3) filmografía
+        const { data: filmographyData, error: filmographyError } = await supabase
+          .from('filmography')
+          .select(`
+            id,
+            title,
+            year,
+            cover_path
+          `)
+          .eq('character_id', characterId)
+          .order('year', { ascending: true })
+
+        if (filmographyError) throw filmographyError
+
+        const formattedFilmography = (filmographyData || []).map((movie) => ({
+          id: movie.id,
+          title: movie.title,
+          year: movie.year,
+          image: getFilmCoverUrl(movie.cover_path) || maleficaImg,
+        }))
+
+        setFilmography(formattedFilmography)
+
+        // 4) actores
+        const { data: actorsData, error: actorsError } = await supabase
+          .from('character_actors')
+          .select(`
+            id,
+            actor_name,
+            role_description,
+            years_active,
+            sort_order
+          `)
+          .eq('character_id', characterId)
+          .order('sort_order', { ascending: true })
+
+        if (actorsError) throw actorsError
+
+        const formattedActors = (actorsData || []).map((actor) => {
+          let text = actor.actor_name
+
+          if (actor.role_description) {
+            text += ` — ${actor.role_description}`
+          }
+
+          if (actor.years_active) {
+            text += ` (${actor.years_active})`
+          }
+
+          return {
+            id: actor.id,
+            text,
+          }
+        })
+
+        setActors(formattedActors)
+
+        // 5) imágenes relacionadas
+        const { data: mediaData, error: mediaError } = await supabase
+          .from('character_media')
+          .select(`
+            id,
+            type,
+            title,
+            file_path,
+            sort_order,
+            created_at
+          `)
+          .eq('character_id', characterId)
+          .eq('type', 'image')
+          .order('sort_order', { ascending: true })
+          .order('created_at', { ascending: true })
+
+        if (mediaError) throw mediaError
+
+        const formattedImages = (mediaData || []).map((item) => ({
+          id: item.id,
+          title: item.title || characterData.name,
+          image: getCharacterMediaUrl(item.file_path) || maleficaImg,
+        }))
+
+        setRelatedImages(formattedImages)
+      } catch (error) {
+        console.error('Error cargando personaje:', error.message)
+        setCharacter(null)
+      } finally {
+        setLoadingCharacter(false)
+      }
+    }
+
+    loadCharacter()
+  }, [slug])
+
+  const handleFavorite = async () => {
+    if (!character) return
+
+    try {
+      setLoadingFavorite(true)
+
+      if (isFavorite) {
+        await favoritesService.removeFavorite(character.id)
+        setIsFavorite(false)
+      } else {
+        await favoritesService.addFavorite(character.id)
+        setIsFavorite(true)
+      }
+    } catch (error) {
+      console.error('Error actualizando favorito:', error.message)
+      alert('Debes iniciar sesión o hubo un error al actualizar favoritos')
+    } finally {
+      setLoadingFavorite(false)
+    }
+  }
+
+  if (loadingCharacter) {
+    return (
+      <main className="character-detail-page">
+        <h1>Cargando personaje...</h1>
+      </main>
+    )
+  }
+
+  if (!character) {
+    return (
+      <main className="character-detail-page">
+        <h1>Personaje no encontrado</h1>
+      </main>
+    )
+  }
 
   return (
-    <main className = "character-detail-page">
-        <div className="cardPersonajeIndividual">
-          <img src={character.image} className="card-img-top" alt={character.name} />
-          <div className="card-body">
-            <div className="card-header mb-3">
-              <h1 className="card-title">{character.name}</h1>
-              <i className={`bi ${isFavorite ? 'bi-heart-fill' : 'bi-heart'} favorite-icon`} onClick={handleFavorite}></i>
+    <main className="character-detail-page">
+      <div className="cardPersonajeIndividual">
+        <img src={character.image} className="card-img-top" alt={character.name} />
+
+        <div className="card-body">
+          <div className="card-header mb-3">
+            <h1 className="card-title">{character.name}</h1>
+
+            <i
+              className={`bi ${isFavorite ? 'bi-heart-fill' : 'bi-heart'} favorite-icon`}
+              onClick={handleFavorite}
+              style={{
+                cursor: loadingFavorite ? 'default' : 'pointer',
+                opacity: loadingFavorite ? 0.6 : 1,
+              }}
+            ></i>
+          </div>
+
+          <h3 className="card-subtitle mb-2">
+            Universo {character.universe}
+          </h3>
+
+          <section className="auxiliar mt-5 mb-3">
+            <div className="etiquetaMBTI text-center mb-2">
+              <span className="tituloMBTI">Personalidad</span>
+              <span className="mbti">{character.mbti} </span>
+              <span className="mbtiTitle">{character.mbtiTitle}</span>
             </div>
-            <h3 className="card-subtitle mb-2">Universo {character.universe} / Personalidad: {character.personalityTags.join(", ")}</h3>
-            
-            <section className="auxiliar mt-5 mb-3">
-              <div className="etiquetaMBTI text-center mb-2">
-                <span className = "tituloMBTI">Personalidad</span>
-                <span className="mbti">{character.mbti} </span>
-                <span className="mbtiTitle">{character.mbtiTitle}</span>
-              </div>
-            </section>
+          </section>
 
-            <section className = "history mb-3">
-                <div className = "historyParts mb-2">
-                  <i className="bi bi-feather featherIcon" style={{ color: 'var(--colorTexto)', fontSize: '1.8rem' }}></i>
-                  <h3 className = "historyTitle"> Historia: </h3>
-                </div> 
-                <p className="card-text">{character.story}</p>
-             
-                <div className = "historyParts mb-2">
-                  <h4 className = "hitoCreacion">Hito de creación: </h4>
-                  <p className="card-text">{character.creationDate}</p>
-                </div>
-                
-                <div className = "historyParts mb-2">
-                  <h4 className = "procedencia">Procedencia: </h4>
-                  <p className="card-text">{character.procedence}</p>
-                </div>
-                
-                <div className = "historyParts mb-2">
-                  <h4 className = "origenBiologico">Origen biológico: </h4>
-                  <p className="card-text">{character.biologicalOrigin}</p>
-                </div>
-            </section>
+          <section className="history mb-3">
+            <div className="historyParts mb-2">
+              <i
+                className="bi bi-feather featherIcon"
+                style={{ color: 'var(--colorTexto)', fontSize: '1.8rem' }}
+              ></i>
+              <h3 className="historyTitle">Historia:</h3>
+            </div>
 
-            <hr className="divider-thick mb-3" />
+            <p className="card-text">{character.story || 'Sin historia disponible.'}</p>
 
-            <section className="filmography mb-4">
-              <div className="d-flex justify-content-between align-items-end mb-3 px-2">
-                <h3 className="filmographyTitle m-0">Filmografía:</h3>
-              </div>
+            <div className="historyParts mb-2">
+              <h4 className="hitoCreacion">Hito de creación:</h4>
+              <p className="card-text">{character.creationDate || '—'}</p>
+            </div>
 
-              <div className="d-flex flex-nowrap overflow-x-auto gap-3 py-3 px-2 filmography-slider" style={{ scrollBehavior: 'smooth' }}>
-                {character.filmography.map((movie, index) => (
-                  <div key={index}
+            <div className="historyParts mb-2">
+              <h4 className="procedencia">Procedencia:</h4>
+              <p className="card-text">{character.procedence || '—'}</p>
+            </div>
+
+            <div className="historyParts mb-2">
+              <h4 className="origenBiologico">Origen biológico:</h4>
+              <p className="card-text">{character.biologicalOrigin || '—'}</p>
+            </div>
+
+            <div className="historyParts mb-2">
+              <h4 className="procedencia">Primera aparición:</h4>
+              <p className="card-text">{character.firstAppearance || '—'}</p>
+            </div>
+          </section>
+
+          <hr className="divider-thick mb-3" />
+
+          <section className="filmography mb-4">
+            <div className="d-flex justify-content-between align-items-end mb-3 px-2">
+              <h3 className="filmographyTitle m-0">Filmografía:</h3>
+            </div>
+
+            <div
+              className="d-flex flex-nowrap overflow-x-auto gap-3 py-3 px-2 filmography-slider"
+              style={{ scrollBehavior: 'smooth' }}
+            >
+              {filmography.length > 0 ? (
+                filmography.map((movie) => (
+                  <div
+                    key={movie.id}
                     className="card border-0 flex-shrink-0 filmography-card"
                     style={{
                       width: '240px',
@@ -348,24 +338,29 @@ function CharacterDetailPage() {
                       transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-4px)';
-                      e.currentTarget.style.boxShadow = '0 8px 15px rgba(0,0,0,0.2)';
+                      e.currentTarget.style.transform = 'translateY(-4px)'
+                      e.currentTarget.style.boxShadow = '0 8px 15px rgba(0,0,0,0.2)'
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = 'none';
+                      e.currentTarget.style.transform = 'translateY(0)'
+                      e.currentTarget.style.boxShadow = 'none'
                     }}
                   >
-                    <img
-                      src={movie.image}
-                      alt={movie.title}
-                      className="card-img-top p-3 filmography-card-img"
-                      style={{
-                        height: '200px',
-                        objectFit: 'cover',
-                        borderRadius: '20px',
-                      }}
-                    />
+                    <div className="related-image-item">
+                      <img
+                        src={movie.image}
+                        alt={movie.title}
+                        className="card-img-top p-3 filmography-card-img"
+                        style={{
+                          height: '200px',
+                          objectFit: 'cover',
+                          borderRadius: '20px',
+                        }}
+                      />
+                      <a href={movie.image} download className="download-btn">
+                        <i className="bi bi-download"></i>
+                      </a>
+                    </div>
 
                     <div className="card-body d-flex flex-column pt-0">
                       <span
@@ -378,7 +373,7 @@ function CharacterDetailPage() {
                           fontWeight: 'bold',
                         }}
                       >
-                        {movie.year}
+                        {movie.year || '—'}
                       </span>
 
                       <h4
@@ -392,212 +387,181 @@ function CharacterDetailPage() {
                       </h4>
                     </div>
                   </div>
-                ))}
-              </div>
-            </section>
+                ))
+              ) : (
+                <p>No hay filmografía disponible.</p>
+              )}
+            </div>
+          </section>
 
-            <section className = "accordion btmAccordion" id="acordeonPersonaje">
-              {/* --- DESPLEGABLE 1: Actores --- */}
-              <div className="accordion-item mb-3 bg-transparent border-0 btm-accordion-item">
-                <h2 className="accordion-header" id="headingActores">
-                  <button 
-                    className="accordion-button collapsed btm-accordion-btn" 
-                    type="button" 
-                    data-bs-toggle="collapse" 
-                    data-bs-target="#collapseActores" 
-                    aria-expanded="false" 
-                    aria-controls="collapseActores"
-                  >
-                    Actores/as que lo han interpretado:
-                  </button>
-                </h2>
-                <div id="collapseActores" className="accordion-collapse collapse" aria-labelledby="headingActores" data-bs-parent="#acordeonPersonaje">
-                  <div className="accordion-body custom-acordeon-body btm-accordion-body">
+          <section className="accordion btmAccordion" id="acordeonPersonaje">
+            <div className="accordion-item mb-3 bg-transparent border-0 btm-accordion-item">
+              <h2 className="accordion-header" id="headingActores">
+                <button
+                  className="accordion-button collapsed btm-accordion-btn"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseActores"
+                  aria-expanded="false"
+                  aria-controls="collapseActores"
+                >
+                  Actores/as que lo han interpretado:
+                </button>
+              </h2>
+
+              <div
+                id="collapseActores"
+                className="accordion-collapse collapse"
+                aria-labelledby="headingActores"
+                data-bs-parent="#acordeonPersonaje"
+              >
+                <div className="accordion-body custom-acordeon-body btm-accordion-body">
+                  {actors.length > 0 ? (
                     <ul className="actor-list">
-                      {character.actors.map((actor, index) => (
-                        <li key={index}>{actor}</li>
+                      {actors.map((actor) => (
+                        <li key={actor.id}>{actor.text}</li>
                       ))}
                     </ul>
-                  </div>
+                  ) : (
+                    <p>No hay actores registrados.</p>
+                  )}
                 </div>
               </div>
+            </div>
 
-              {/* --- DESPLEGABLE 2: Análisis MBTI --- */}
-              <div className="accordion-item mb-3 bg-transparent border-0 btm-accordion-item">
-                <h2 className="accordion-header" id="headingMBTI">
-                  <button 
-                    className="accordion-button collapsed btm-accordion-btn" 
-                    type="button" 
-                    data-bs-toggle="collapse" 
-                    data-bs-target="#collapseMBTI" 
-                    aria-expanded="false" 
-                    aria-controls="collapseMBTI"
-                  >
-                    Análisis de Personalidad (MBTI)
-                  </button>
-                </h2>
-                <div id="collapseMBTI" className="accordion-collapse collapse" aria-labelledby="headingMBTI" data-bs-parent="#acordeonPersonaje">
-                  <div className="accordion-body custom-acordeon-body btm-accordion-body">
-                    {character.psicologicalAnalisis}
-                  </div>
+            <div className="accordion-item mb-3 bg-transparent border-0 btm-accordion-item">
+              <h2 className="accordion-header" id="headingMBTI">
+                <button
+                  className="accordion-button collapsed btm-accordion-btn"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseMBTI"
+                  aria-expanded="false"
+                  aria-controls="collapseMBTI"
+                >
+                  Análisis de Personalidad (MBTI)
+                </button>
+              </h2>
+
+              <div
+                id="collapseMBTI"
+                className="accordion-collapse collapse"
+                aria-labelledby="headingMBTI"
+                data-bs-parent="#acordeonPersonaje"
+              >
+                <div className="accordion-body custom-acordeon-body btm-accordion-body">
+                  {character.psicologicalAnalisis || 'No hay análisis disponible.'}
                 </div>
               </div>
+            </div>
 
-              {/* --- DESPLEGABLE 3: Modelo 3D --- */}
-              {/* <div className="accordion-item mb-3 bg-transparent border-0 btm-accordion-item">
-                <h2 className="accordion-header" id="heading3D">
-                  <button
-                    className="accordion-button collapsed btm-accordion-btn"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#collapse3D"
-                    aria-expanded="false"
-                    aria-controls="collapse3D"
-                  >
-                    Modelo 3D interactivo
-                  </button>
-                </h2> */}
-                {/* Aquí faltaba la capa "collapse" de Bootstrap */}
-                {/* <div id="collapse3D" className="accordion-collapse collapse" aria-labelledby="heading3D" data-bs-parent="#acordeonPersonaje">
-                  <div className="accordion-body custom-acordeon-body p-2 text-center btm-accordion-body">
-                      <model-viewer 
-                          src="malefica/scene.gltf" 
-                          alt="Modelo 3D de Maléfica" 
-                          camera-controls="true" 
-                          auto-rotate="true" 
-                          // Corregido el style a formato React
-                          style={{ width: '100%', height: '250px', backgroundColor: '#2a2a2a', borderRadius: '8px' }}>
-                      </model-viewer>
-                  </div>
-                </div>
-              </div> */}
+            <div className="accordion-item mb-3 bg-transparent border-0 btm-accordion-item">
+              <h2 className="accordion-header" id="headingImgs">
+                <button
+                  className="accordion-button collapsed btm-accordion-btn"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseImgs"
+                  aria-expanded="false"
+                  aria-controls="collapseImgs"
+                >
+                  Imágenes relacionadas
+                </button>
+              </h2>
 
-              {/* --- DESPLEGABLE 3: Imágenes --- */}
-              <div className="accordion-item mb-3 bg-transparent border-0 btm-accordion-item">
-                <h2 className="accordion-header" id="headingImgs">
-                  <button 
-                    className="accordion-button collapsed btm-accordion-btn" 
-                    type="button" 
-                    data-bs-toggle="collapse" 
-                    data-bs-target="#collapseImgs" 
-                    aria-expanded="false" 
-                    aria-controls="collapseImgs"
-                  >
-                    Imágenes relacionadas
-                  </button>
-                </h2>
-                <div id="collapseImgs" className="accordion-collapse collapse" aria-labelledby="headingImgs" data-bs-parent="#acordeonPersonaje">
-                  <div className="accordion-body custom-acordeon-body btm-accordion-body">
-                    <div className="related-images-grid">
-                      {[character.image, character.image, character.image, character.image].map((img, index) => (
-                        
-                        <div key={index} className="related-image-item">
-
+              <div
+                id="collapseImgs"
+                className="accordion-collapse collapse"
+                aria-labelledby="headingImgs"
+                data-bs-parent="#acordeonPersonaje"
+              >
+                <div className="accordion-body custom-acordeon-body btm-accordion-body">
+                  <div className="related-images-grid">
+                    {relatedImages.length > 0 ? (
+                      relatedImages.map((img) => (
+                        <div key={img.id} className="related-image-item">
                           <img
-                            src={img}
-                            alt={`${character.name} ${index}`}
+                            src={img.image}
+                            alt={img.title}
                             className="related-image"
                           />
-                          {/* BOTÓN DESCARGA */}
-                          <a href={img} download className="download-btn">
+                          <a href={img.image} download className="download-btn">
                             <i className="bi bi-download"></i>
                           </a>
                         </div>
-                      ))}
-                    </div>
+                      ))
+                    ) : (
+                      <p>No hay imágenes relacionadas.</p>
+                    )}
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* --- DESPLEGABLE 4: Audio --- */}
-              <div className="accordion-item mb-3 bg-transparent border-0 btm-accordion-item">
-                <h2 className="accordion-header" id="headingAudio">
-                  <button
-                    className="accordion-button collapsed btm-accordion-btn"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#collapseAudio"
-                    aria-expanded="false"
-                    aria-controls="collapseAudio"
-                  >
-                    Bandas sonoras y audios relacionados
+            <div className="accordion-item mb-3 bg-transparent border-0 btm-accordion-item">
+              <h2 className="accordion-header" id="headingAudio">
+                <button
+                  className="accordion-button collapsed btm-accordion-btn"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseAudio"
+                  aria-expanded="false"
+                  aria-controls="collapseAudio"
+                >
+                  Bandas sonoras y audios relacionados
+                </button>
+              </h2>
+
+              <div
+                id="collapseAudio"
+                className="accordion-collapse collapse"
+                aria-labelledby="headingAudio"
+                data-bs-parent="#acordeonPersonaje"
+              >
+                <div className="accordion-body custom-acordeon-body text-center btm-accordion-body">
+                  <p>De momento no hay audios disponibles.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="galeriaComunidad mb-4">
+            <div className="auxGaleria mb-3">
+              <h3 className="galeriaTitle">Galería de la comunidad</h3>
+              <button className="btn-sm buttonImg mr-2 ml-2">+ Subir imagen</button>
+            </div>
+
+            <div className="community-gallery-grid">
+              <p>De momento no hay fotos de la comunidad.</p>
+            </div>
+
+            <section className="community-comments mt-4">
+              <div className="comments-header mb-3">
+                <i className="bi bi-chat-left-text comments-icon"></i>
+                <h3 className="commentsTitle mb-0">Comentarios</h3>
+              </div>
+
+              <div className="comment-form-box mb-4">
+                <textarea
+                  className="form-control community-textarea"
+                  placeholder="Escribe un comentario..."
+                  rows={4}
+                ></textarea>
+
+                <div className="d-flex justify-content-end mt-3">
+                  <button type="button" className="btn btn-primary comment-button">
+                    Publicar
                   </button>
-                </h2>
-                {/* Aquí faltaba la capa "collapse" de Bootstrap y tenías un ID repetido */}
-                <div id="collapseAudio" className="accordion-collapse collapse" aria-labelledby="headingAudio" data-bs-parent="#acordeonPersonaje">
-                  <div className="accordion-body custom-acordeon-body text-center btm-accordion-body">
-                      {/* Corregido el style a formato React */}
-                      <audio controls style={{ width: '100%', marginTop: '10px' }}>
-                        {/* Corregida la etiqueta source para que se cierre con /> */}
-                        <source src={character.sound[0]} type="audio/mpeg" />
-                        Tu navegador no soporta el elemento de audio.
-                      </audio>
-                  </div>
                 </div>
+              </div>
+
+              <div className="comments-list">
+                <p>De momento no hay comentarios.</p>
               </div>
             </section>
-
-            <section className = "galeriaComunidad mb-4">
-              <div className = "auxGaleria mb-3">
-                <h3 className = "galeriaTitle">Galería de la comunidad </h3>
-                <button className=" btn-sm buttonImg mr-2 ml-2"> + Subir imagen</button>
-              </div>
-              <div className="community-gallery-grid">
-                {ultimasFotos.map((foto) => (
-                  <div key={foto.id} className="community-gallery-item">
-                    <img
-                      src={foto.image}
-                      alt={foto.alt}
-                      className="community-gallery-image"
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <section className="community-comments mt-4">
-                <div className="comments-header mb-3">
-                  <i className="bi bi-chat-left-text comments-icon"></i>
-                  <h3 className="commentsTitle mb-0">Comentarios</h3>
-                </div>
-
-                <div className="comment-form-box mb-4">
-                  <textarea
-                    className="form-control community-textarea"
-                    placeholder="Escribe un comentario..."
-                    rows={4}></textarea>
-
-                  <div className="d-flex justify-content-end mt-3">
-                    <button type="button" className="btn btn-primary comment-button">
-                      Publicar
-                    </button>
-                  </div>
-                </div>
-
-                <div className="comments-list">
-                  {commentsMock.map((comment) => (
-                    <article key={comment.id} className="comment-item">
-                      <div className="comment-main">
-                        <div className="comment-avatar">
-                          <img src={comment.avatar} alt={comment.user} />
-                        </div>
-
-                        <div className="comment-content">
-                          <div className="comment-meta">
-                            <span className="comment-user">{comment.user}</span>
-                            <span className="comment-time">{comment.time}</span>
-                          </div>
-
-                          <p className="comment-text mb-0">{comment.text}</p>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
-
-            </section>
-          </div>
+          </section>
         </div>
+      </div>
     </main>
   )
 }

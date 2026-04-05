@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import '../../assets/styles/SearchPage.css';
@@ -43,6 +43,7 @@ function SearchPage() {
         .select(`
           id,
           name,
+          slug,
           cover_path,
           universes ( name ),
           mbti_types ( code ),
@@ -55,6 +56,7 @@ function SearchPage() {
         const adaptados = data.map(c => ({
           id: c.id,
           nombre: c.name,
+          slug: c.slug,
           tipo: c.mbti_types?.code || 'N/A',
           universo: c.universes?.name || 'Desconocido',
           img: c.cover_path,
@@ -84,10 +86,42 @@ function SearchPage() {
 
   const toggleSubMenu = (menu) => setMenuAbierto(menuAbierto === menu ? null : menu);
 
-  // Datos para los listados (basados en tus Inserts)
-  const universos = ['Marvel', 'DC', 'Disney', 'Dreamworks'];
-  const mbtis = ['INTJ', 'INTP', 'ENTJ', 'ENTP', 'INFJ', 'INFP', 'ENFJ', 'ENFP', 'ISTJ', 'ISFJ', 'ESTJ', 'ESFJ', 'ISTP', 'ISFP', 'ESTP', 'ESFP'];
-  const tags = ['Alegre', 'Melancólico', 'Agresivo', 'Misterioso', 'Valiente', 'Sabio', 'Noble', 'Astuto', 'Leal', 'Juguetón', 'Manipuladora', 'Vengativa', 'Orgullosa', 'Dominante', 'Ambiciosa', 'Sarcástica', 'Calculadora', 'Envidioso'];
+  const [universos, setUniversos] = useState([]);
+  const [mbtis, setMbtis] = useState([]);
+  const [tags, setTags] = useState([]);
+
+  useEffect(() => {
+    const fetchFiltros = async () => {
+      // Universos
+      const { data: universosData } = await supabase
+        .from('universes')
+        .select('name');
+
+      // MBTI
+      const { data: mbtiData } = await supabase
+        .from('mbti_types')
+        .select('code');
+
+      // Tags
+      const { data: tagsData } = await supabase
+        .from('personality_tags')
+        .select('name');
+
+      if (universosData) {
+        setUniversos(universosData.map(u => u.name));
+      }
+
+      if (mbtiData) {
+        setMbtis(mbtiData.map(m => m.code));
+      }
+
+      if (tagsData) {
+        setTags(tagsData.map(t => t.name));
+      }
+    };
+
+    fetchFiltros();
+  }, []);
 
   return (
     <main className="search-container">
@@ -171,18 +205,20 @@ function SearchPage() {
             {personajesFiltrados.length > 0 ? (
               personajesFiltrados.map((p) => (
                 <div key={p.id} className="col-12 col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center">
-                  <div className="card character-card h-100">
-                    <div className="card-img-wrapper">
-                      <img src={p.img} className="card-img-top" alt={p.nombre} loading="lazy" />
-                    </div>
-                    <div className="card-body">
-                      <div className="d-flex justify-content-between align-items-start mb-2">
-                        <h5 className="character-name m-0">{p.nombre}</h5>
-                        <span className="badge bg-primary character-type">{p.tipo}</span>
+                  <Link to={`/personaje/${p.slug}`} className="character-link-card d-flex w-100" >
+                    <div className="card character-card h-100">
+                      <div className="card-img-wrapper">
+                        <img src={p.img} className="card-img-top" alt={p.nombre} loading="lazy" />
                       </div>
-                      <p className="character-universe text-secondary small mb-0">{p.universo}</p>
+                      <div className="card-body">
+                        <div className="d-flex justify-content-between align-items-start mb-2">
+                          <h5 className="character-name m-0">{p.nombre}</h5>
+                          <span className="character-type">{p.tipo}</span>
+                        </div>
+                        <p className="character-universe mb-0">{p.universo}</p>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </div>
               ))
             ) : (

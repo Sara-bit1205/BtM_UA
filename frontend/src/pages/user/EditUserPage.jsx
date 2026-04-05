@@ -41,18 +41,18 @@ function EditUserPage() {
   }, [profile])
 
   const currentAvatarUrl = useMemo(() => {
-    if (!profile?.avatar) {
+    if (!profile?.avatar_path) {
       const { data } = supabase.storage.from('avatars').getPublicUrl('default-avatar.jpg')
       return data.publicUrl
     }
 
-    if (profile.avatar.startsWith('http://') || profile.avatar.startsWith('https://')) {
-      return profile.avatar
+    if (profile.avatar_path.startsWith('http://') || profile.avatar_path.startsWith('https://')) {
+      return profile.avatar_path
     }
 
-    const { data } = supabase.storage.from('avatars').getPublicUrl(profile.avatar)
+    const { data } = supabase.storage.from('avatars').getPublicUrl(profile.avatar_path)
     return data.publicUrl
-  }, [profile?.avatar])
+  }, [profile?.avatar_path])
 
   const handleChange = (e) => {
     const { name, value, files, type } = e.target
@@ -88,7 +88,7 @@ function EditUserPage() {
       const cleanUsername = formData.username.trim()
       const cleanEmail = formData.email.trim().toLowerCase()
 
-      let avatarValue = profile.avatar || null
+      let avatarValue = profile.avatar_path || null
 
       if (formData.profileImage) {
         const fileExt = formData.profileImage.name.split('.').pop()
@@ -112,7 +112,7 @@ function EditUserPage() {
         username: cleanUsername,
         email: cleanEmail,
         birth_date: formData.birth_date || null,
-        avatar: avatarValue,
+        avatar_path: avatarValue,
       }
 
       await userService.updateProfile(profileUpdates)

@@ -127,7 +127,7 @@ function AdminProfilePage() {
           <Link className="profile-action" to="/admin/usuarios">
             Listado de Usuarios
           </Link>
-          <button className="profile-action" type="button" onClick={openLogoutDialog}>LOGOUT</button>
+          <button className="profile-action profile-action--danger" type="button" onClick={openLogoutDialog}>LOGOUT</button>
         </nav>
 
         <dialog ref={logoutDialogRef} className="mbti-invite-dialog modal-baja-personalizado">

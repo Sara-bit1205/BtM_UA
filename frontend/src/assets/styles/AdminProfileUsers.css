@@ -1,38 +1,71 @@
 .users-list-page h1{
-    color: var(--color1);
+    color: var(--color1) !important;
     font-family: var(--texto-encabezados);
     font-size: clamp(20px, 3vw, 30px) !important;
     transition: font-size 0.3s ease;
 }
 
-.users-list-page .user-list {
-    background-color: var(--color-grisOscuro);
-}
-
-.users-list-page .user-list:hover {
-    background-color: var(--color3);
-}
-
-.users-list-page .user-table {
+.users-list-page .users-table {
+  flex-wrap: wrap !important;
   table-layout: fixed;
   width: 100%;
   font-family: var(--texto-normal);
-  color: var(--colorTexto);
-  font-size: clamp(10px, 4vw, 20px);
+  color: var(--colorTexto)!important;
+  font-size: clamp(10px, 4vw, 20px)!important;
   transition: font-size 0.3s ease;
-  background-color: var(--color-grisOscuro);
+  background-color: var(--color-grisOscuro) !important;
 }
 
-.users-list-page .user-table th,
-.users-list-page .user-table td {
+.users-list-page .users-table thead {
+  background-color: var(--color-grisOscuro) !important;
+}
+
+.users-list-page .users-table th {
+  color: var(--color3);
+  background-color: var(--color-grisOscuro) !important;
+}
+
+.users-list-page .users-table tbody tr,
+.users-list-page .users-table tbody td,
+.users-list-page .users-table tbody th {
+  background-color: var(--color-grisOscuro) !important;
+  color: var(--colorTexto) !important;
   word-wrap: break-word;
   overflow-wrap: break-word;
   white-space: normal;
 }
 
+.users-list-page .users-table tbody tr:hover{
+  background-color: var(--color2) !important;
+  color: var(--color-principal) !important;
+}
+/* Romper Bootstrap striped */
+.users-list-page .users-table.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: var(--color-grisOscuro) !important;
+}
+
+.users-list-page .favorites-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--color4);
+  color: var(--color-grisOscuro);
+  text-decoration: none;
+  font-weight: 800;
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.users-list-page .favorites-back:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
 @media (max-width: 768px) {
-  .users-list-page .user-table th,
-  .users-list-page .user-table td {
+  .users-list-page .users-table th,
+  .users-list-page .users-table td {
     font-size: 0.85rem;
     padding: 6px;
   }

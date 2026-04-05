@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import '../../assets/styles/AdminProfileUsers.css'
@@ -41,7 +42,7 @@ function UsersListPage() {
       <h1 className="mb-4 ">Usuarios Registrados</h1>
 
       <section className="user-list ">
-        <table className="table table-striped users-table">
+        <table className="table users-table">
           <thead>
             <tr>
               <th>#</th>
@@ -70,6 +71,12 @@ function UsersListPage() {
           <p>No hay usuarios registrados.</p>
         )}
       </section>
+
+      <div className="favorites-actions mt-4">
+          <Link to="/admin" className="favorites-back ">
+            ← Volver a mi perfil
+          </Link>
+      </div>
     </main>
   )
 }

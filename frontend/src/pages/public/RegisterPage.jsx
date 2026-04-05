@@ -106,7 +106,7 @@ function RegisterPage() {
 
         const { error: avatarUpdateError } = await supabase
           .from('profiles')
-          .update({ avatar: publicUrlData.publicUrl })
+          .update({ avatar_path: publicUrlData.publicUrl })
           .eq('id', user.id)
 
         if (avatarUpdateError) throw avatarUpdateError

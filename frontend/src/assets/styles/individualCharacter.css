@@ -7,7 +7,7 @@
 
 .character-detail-page .card-img-top{
     width: 100%;
-    /* height: clamp(300px, 70vw, 400px);; */
+    height: clamp(300px, 70vw, 400px);
     object-fit: cover;
 }
 

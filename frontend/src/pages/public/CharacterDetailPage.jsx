@@ -1,8 +1,9 @@
+//HECHO
 import { useParams } from 'react-router-dom'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { supabase } from '../../lib/supabase.js'
 import favoritesService from '../../services/favoritesService'
-import maleficaImg from '../../assets/images/malefica.jpg'
+// import maleficaImg from '../../assets/images/malefica.jpg'
 
 import '../../assets/styles/home.css'
 import '../../assets/styles/individualCharacter.css'
@@ -45,6 +46,16 @@ function getCharacterMediaUrl(filePath) {
   return data.publicUrl
 }
 
+function getGalleryImageUrl(filePath) {
+  if (!filePath) return null
+
+  const { data } = supabase.storage
+    .from('gallery')
+    .getPublicUrl(filePath)
+
+  return data.publicUrl
+}
+
 function CharacterDetailPage() {
   const { slug } = useParams()
 
@@ -57,6 +68,15 @@ function CharacterDetailPage() {
 
   const [loadingCharacter, setLoadingCharacter] = useState(true)
   const [loadingFavorite, setLoadingFavorite] = useState(false)
+
+  const fileInputRef = useRef(null)
+  const [uploadDescription, setUploadDescription] = useState('')
+  const [communityPhotos, setCommunityPhotos] = useState([])
+  const [comments, setComments] = useState([])
+  const [newComment, setNewComment] = useState('')
+
+  const [loadingComment, setLoadingComment] = useState(false)
+  const [loadingCommunityPhoto, setLoadingCommunityPhoto] = useState(false)
 
   useEffect(() => {
     const loadCharacter = async () => {
@@ -112,7 +132,7 @@ function CharacterDetailPage() {
           universe: getRelationValue(characterData.universes, 'name') || 'Sin universo',
           mbti: getRelationValue(characterData.mbti_types, 'code') || '—',
           mbtiTitle: getRelationValue(characterData.mbti_types, 'title') || '',
-          image: getCharacterCoverUrl(characterData.cover_path) || maleficaImg,
+          image: getCharacterCoverUrl(characterData.cover_path),
         }
 
         setCharacter(formattedCharacter)
@@ -139,7 +159,8 @@ function CharacterDetailPage() {
           id: movie.id,
           title: movie.title,
           year: movie.year,
-          image: getFilmCoverUrl(movie.cover_path) || maleficaImg,
+          coverPath: movie.cover_path,
+          image: getFilmCoverUrl(movie.cover_path),
         }))
 
         setFilmography(formattedFilmography)
@@ -199,10 +220,76 @@ function CharacterDetailPage() {
         const formattedImages = (mediaData || []).map((item) => ({
           id: item.id,
           title: item.title || characterData.name,
-          image: getCharacterMediaUrl(item.file_path) || maleficaImg,
+          filePath: item.file_path,
+          image: getCharacterMediaUrl(item.file_path),
         }))
 
         setRelatedImages(formattedImages)
+
+        // 6) fotos de la comunidad
+        const { data: communityPhotosData, error: communityPhotosError } = await supabase
+          .from('community_photos')
+          .select(`
+            id,
+            image_path,
+            description,
+            created_at,
+            profiles ( username )
+          `)
+          .eq('character_id', characterId)
+          .order('created_at', { ascending: false })
+
+        if (communityPhotosError) throw communityPhotosError
+
+        const formattedCommunityPhotos = (communityPhotosData || []).map((photo) => ({
+          id: photo.id,
+          description: photo.description || 'Foto de la comunidad',
+          image: getGalleryImageUrl(photo.image_path),
+          user: photo.profiles?.username || 'Usuario',
+          date: new Date(photo.created_at).toLocaleDateString('es-ES'),
+        }))
+
+        setCommunityPhotos(formattedCommunityPhotos)
+
+        // 7) comentarios
+        const { data: commentsData, error: commentsError } = await supabase
+          .from('comments')
+          .select(`
+            id,
+            comment,
+            created_at,
+            user_id,
+            profiles (
+              username,
+              avatar_path
+            )
+          `)
+          .eq('character_id', characterId)
+          .order('created_at', { ascending: false })
+
+        if (commentsError) throw commentsError
+
+        const { data: authData } = await supabase.auth.getUser()
+        const currentUserId = authData?.user?.id
+
+        const formattedComments = (commentsData || []).map((comment) => ({
+          id: comment.id,
+          user:
+            comment.user_id === currentUserId
+              ? 'Tú'
+              : comment.profiles?.username || 'Usuario',
+          avatar: comment.profiles?.avatar_path
+            ? supabase
+                .storage
+                .from('avatars')
+                .getPublicUrl(comment.profiles.avatar_path).data.publicUrl
+            : null,
+          time: new Date(comment.created_at).toLocaleDateString('es-ES'),
+          text: comment.comment,
+        }))
+
+        setComments(formattedComments)
+
       } catch (error) {
         console.error('Error cargando personaje:', error.message)
         setCharacter(null)
@@ -213,6 +300,136 @@ function CharacterDetailPage() {
 
     loadCharacter()
   }, [slug])
+
+  const handlePublishComment = async () => {
+    try {
+      if (!newComment.trim()) {
+        alert('Escribe un comentario antes de publicar')
+        return
+      }
+
+      if (!character) return
+
+      const { data: authData, error: authError } = await supabase.auth.getUser()
+      if (authError) throw authError
+
+      const user = authData?.user
+      if (!user) {
+        alert('Debes iniciar sesión para comentar')
+        return
+      }
+
+      setLoadingComment(true)
+
+      const { data, error } = await supabase
+        .from('comments')
+        .insert({
+          character_id: character.id,
+          user_id: user.id,
+          comment: newComment.trim(),
+        })
+        .select(`
+          id,
+          comment,
+          created_at
+        `)
+        .single()
+
+      if (error) throw error
+
+      const avatarUrl = authData?.user?.user_metadata?.avatar_path
+      ? supabase.storage
+          .from('avatars')
+          .getPublicUrl(authData.user.user_metadata.avatar_path).data.publicUrl
+      : null
+      
+      const newFormattedComment = {
+        id: data.id,
+        user: 'Tú',
+        avatar: avatarUrl,
+        time: new Date(data.created_at).toLocaleDateString('es-ES'),
+        text: data.comment,
+      }
+
+      setComments((prev) => [newFormattedComment, ...prev])
+      setNewComment('')
+    } catch (error) {
+      console.error('Error publicando comentario:', error.message)
+      alert('No se pudo publicar el comentario')
+    } finally {
+      setLoadingComment(false)
+    }
+  }
+
+  const handleUploadImage = async (event) => {
+    try {
+      const file = event.target.files[0]
+
+      if (!file) return
+
+      if (!character) return
+
+      const { data: authData, error: authError } = await supabase.auth.getUser()
+      if (authError) throw authError
+
+      const user = authData?.user
+
+      if (!user) {
+        alert('Debes iniciar sesión para subir una imagen')
+        return
+      }
+
+      setLoadingCommunityPhoto(true)
+
+      // nombre único para que no choque con otros archivos
+      const fileName = `${Date.now()}-${file.name}`
+
+      // 1) subir archivo al bucket gallery
+      const { error: uploadError } = await supabase.storage
+        .from('gallery')
+        .upload(fileName, file)
+
+      if (uploadError) throw uploadError
+
+      // 2) guardar registro en la tabla community_photos
+      const { data, error: insertError } = await supabase
+        .from('community_photos')
+        .insert({
+          character_id: character.id,
+          user_id: user.id,
+          image_path: fileName,
+          description: uploadDescription || 'Foto de la comunidad',
+        })
+        .select()
+        .single()
+
+      if (insertError) throw insertError
+
+      // 3) añadir la nueva foto a la galería en pantalla
+      const newPhoto = {
+        id: data.id,
+        description: data.description || 'Foto de la comunidad',
+        image: getGalleryImageUrl(data.image_path) || null,
+        user: user.user_metadata?.username || user.email || 'Tú',
+        date: new Date().toLocaleDateString('es-ES'),
+      }
+
+      setCommunityPhotos((prev) => [newPhoto, ...prev])
+      setUploadDescription('')
+
+      // limpiar input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+
+      alert('Imagen subida correctamente')
+    } catch (error) {
+      console.error('Error subiendo imagen:', error.message)
+      alert('No se pudo subir la imagen')
+    } finally {
+      setLoadingCommunityPhoto(false)
+    }
+  }
 
   const handleFavorite = async () => {
     if (!character) return
@@ -233,6 +450,31 @@ function CharacterDetailPage() {
     } finally {
       setLoadingFavorite(false)
     }
+  }
+
+  async function downloadStorageFile(bucket, path, filename) {
+    try{
+      const { data, error } = await supabase.storage.from(bucket).download(path)
+
+      if(error) throw error
+
+      const url = window.URL.createObjectURL(data)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = filename || 'archivo'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch(error) {
+      console.error('Error descargando archivo: ', error.message)
+      alert('Error al descargar el archivo')
+    }
+  }
+
+  function getFileExtension(path) {
+    if (!path) return 'jpg'
+    return path.split('.').pop()
   }
 
   if (loadingCharacter) {
@@ -357,9 +599,20 @@ function CharacterDetailPage() {
                           borderRadius: '20px',
                         }}
                       />
-                      <a href={movie.image} download className="download-btn">
+                      <button
+                        type="button"
+                        className="download-btn"
+                        disabled={!movie.coverPath}
+                        onClick={() =>
+                          downloadStorageFile(
+                            'films-cover',
+                            movie.coverPath,
+                            `${movie.title}.${getFileExtension(movie.coverPath)}`
+                          )
+                        }
+                      >
                         <i className="bi bi-download"></i>
-                      </a>
+                      </button>
                     </div>
 
                     <div className="card-body d-flex flex-column pt-0">
@@ -485,9 +738,20 @@ function CharacterDetailPage() {
                             alt={img.title}
                             className="related-image"
                           />
-                          <a href={img.image} download className="download-btn">
+                          <button
+                            type="button"
+                            className="download-btn"
+                            disabled={!img.filePath}
+                            onClick={() =>
+                              downloadStorageFile(
+                                'character-media',
+                                img.filePath,
+                                `${img.title}.${getFileExtension(img.filePath)}`
+                              )
+                            }
+                          >
                             <i className="bi bi-download"></i>
-                          </a>
+                          </button>
                         </div>
                       ))
                     ) : (
@@ -528,11 +792,43 @@ function CharacterDetailPage() {
           <section className="galeriaComunidad mb-4">
             <div className="auxGaleria mb-3">
               <h3 className="galeriaTitle">Galería de la comunidad</h3>
-              <button className="btn-sm buttonImg mr-2 ml-2">+ Subir imagen</button>
+              <button
+                className="btn-sm buttonImg mr-2 ml-2"
+                type="button"
+                onClick={() => fileInputRef.current.click()}
+                disabled={loadingCommunityPhoto}
+              >
+                {loadingCommunityPhoto ? 'Subiendo...' : '+ Subir imagen'}
+              </button>
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleUploadImage}
+                style={{ display: 'none' }}
+              />
             </div>
 
             <div className="community-gallery-grid">
-              <p>De momento no hay fotos de la comunidad.</p>
+              {communityPhotos.length > 0 ? (
+                communityPhotos.map((photo) => (
+                  <div key={photo.id} className="card border-0 community-gallery-item">
+                    <img
+                      src={photo.image}
+                      alt={photo.description}
+                      className="card-img-top community-gallery-image"
+                    />
+
+                    <div className="card-body infoCommunity">
+                      <p className="mb-1 fw-bold">{photo.user}</p>
+                      <p className="mb-1">{photo.date}</p>
+                      <p className="mb-0">{photo.description}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>De momento no hay fotos de la comunidad.</p>
+              )}
             </div>
 
             <section className="community-comments mt-4">
@@ -546,17 +842,45 @@ function CharacterDetailPage() {
                   className="form-control community-textarea"
                   placeholder="Escribe un comentario..."
                   rows={4}
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
                 ></textarea>
 
                 <div className="d-flex justify-content-end mt-3">
-                  <button type="button" className="btn btn-primary comment-button">
-                    Publicar
+                  <button
+                    type="button"
+                    className="btn btn-primary comment-button"
+                    onClick={handlePublishComment}
+                    disabled={loadingComment}
+                  >
+                    {loadingComment ? 'Publicando...' : 'Publicar'}
                   </button>
                 </div>
               </div>
 
               <div className="comments-list">
-                <p>De momento no hay comentarios.</p>
+                {comments.length > 0 ? (
+                  comments.map((comment) => (
+                    <article key={comment.id} className="comment-item">
+                      <div className="comment-main">
+                        <div className="comment-avatar">
+                          <img src={comment.avatar} alt={comment.user} />
+                        </div>
+
+                        <div className="comment-content">
+                          <div className="comment-meta">
+                            <span className="comment-user">{comment.user}</span>
+                            <span className="comment-time">{comment.time}</span>
+                          </div>
+
+                          <p className="comment-text mb-0">{comment.text}</p>
+                        </div>
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <p>De momento no hay comentarios.</p>
+                )}
               </div>
             </section>
           </section>
@@ -567,3 +891,4 @@ function CharacterDetailPage() {
 }
 
 export default CharacterDetailPage
+

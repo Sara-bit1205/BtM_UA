@@ -7,7 +7,7 @@
 
 .character-detail-page .card-img-top{
     width: 100%;
-    height: clamp(300px, 70vw, 400px);;
+    /* height: clamp(300px, 70vw, 400px);; */
     object-fit: cover;
 }
 
@@ -21,6 +21,14 @@
     color: var(--color3) !important;
     font-size: clamp(30px, 8vw, 60px);
     transition: font-size 0.3s ease;
+}
+
+.character-detail-page .card-text{
+  font-family: var(--texto-normal);
+  color: var(--colorTexto);
+  font-size: clamp(10px, 4vw, 30px);
+  transition: font-size 0.3s ease;
+  justify-content: center;
 }
 
 .character-detail-page .favorite-icon {
@@ -277,8 +285,6 @@
   color:var(--colorTexto);
 }
 
-
-/* móvil: 2x2 */
 .character-detail-page .community-gallery-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -293,7 +299,7 @@
 
 .character-detail-page .community-gallery-image {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1/1;
   object-fit: cover;
   display: block;
   transition: transform 0.3s ease;
@@ -301,6 +307,13 @@
 
 .character-detail-page .community-gallery-item:hover .community-gallery-image {
   transform: scale(1.03);
+}
+
+.character-detail-page .infoCommunity {
+  color:var(--colorTexto);
+  font-family: var(--texto-normal);
+  font-size: clamp(10px, 4vw, 30px);
+  transition: font-size 0.3s ease;
 }
 
 /*comentarios*/
@@ -334,8 +347,8 @@
 
 .character-detail-page .community-textarea {
   background: transparent  !important;
-  border: 1px solid var(--color-grisClarito) !important;
-  color: var(--colorTexto);
+  border: 1px solid var(--color-grisClarito);
+  color: var(--colorTexto) !important;
   border-radius: 14px !important;
   resize: none;
   min-height: 110px;

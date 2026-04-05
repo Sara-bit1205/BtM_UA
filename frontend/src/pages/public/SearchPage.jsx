@@ -59,7 +59,11 @@ function SearchPage() {
           slug: c.slug,
           tipo: c.mbti_types?.code || 'N/A',
           universo: c.universes?.name || 'Desconocido',
-          img: c.cover_path,
+          img: c.cover_path
+            ? supabase.storage
+                .from('character-covers')
+                .getPublicUrl(c.cover_path).data.publicUrl
+            : null,
           tags: c.character_personality_tags?.map(t => t.personality_tags.name) || []
         }));
         setPersonajes(adaptados);

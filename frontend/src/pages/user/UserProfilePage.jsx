@@ -33,16 +33,15 @@ function UserProfilePage() {
   const unsubscribeDialogRef = useRef(null)
   const logoutDialogRef = useRef(null)
 
-  const [isUnsubscribed, setIsUnsubscribed] = useState(false)
   const [loadingUnsubscribe, setLoadingUnsubscribe] = useState(false)
   const [loadingLogout, setLoadingLogout] = useState(false)
 
   const avatarUrl = useMemo(() => {
     const avatarFile = getAvatarFile(profile)
 
-    console.log('avatar_path:', profile?.avatar_path)
-    console.log('avatar:', profile?.avatar)
-    console.log('avatar final usado:', avatarFile)
+    // console.log('avatar_path:', profile?.avatar_path)
+    // console.log('avatar:', profile?.avatar)
+    // console.log('avatar final usado:', avatarFile)
 
     return getAvatarPublicUrl(avatarFile)
   }, [profile?.avatar_path, profile?.avatar])
@@ -51,7 +50,6 @@ function UserProfilePage() {
   const closeDialog = () => dialogRef.current?.close()
 
   const openUnsubscribe = () => {
-    setIsUnsubscribed(false)
     unsubscribeDialogRef.current?.showModal()
   }
 
@@ -59,18 +57,14 @@ function UserProfilePage() {
     try {
       setLoadingUnsubscribe(true)
       await userService.deleteAccount()
-      setIsUnsubscribed(true)
+      await logout()
+      navigate('/')
     } catch (error) {
       console.error('Error al dar de baja:', error.message)
       alert('No hemos podido procesar la baja. Inténtalo de nuevo.')
     } finally {
       setLoadingUnsubscribe(false)
     }
-  }
-
-  const handleFinalExit = async () => {
-    unsubscribeDialogRef.current?.close()
-    navigate('/')
   }
 
   const openLogoutDialog = () => logoutDialogRef.current?.showModal()
@@ -109,7 +103,6 @@ function UserProfilePage() {
       </section>
     )
   }
-
 
   return (
     <section className="profile-page">
@@ -239,39 +232,25 @@ function UserProfilePage() {
 
       <dialog ref={unsubscribeDialogRef} className="mbti-invite-dialog modal-baja-personalizado">
         <div className="modal-baja-content">
-          {!isUnsubscribed ? (
-            <>
-              <h2 className="modal-baja-titulo">¿SEGURO QUE QUIERES DARTE DE BAJA?</h2>
+          <h2 className="modal-baja-titulo">¿SEGURO QUE QUIERES DARTE DE BAJA?</h2>
 
-              <div className="modal-baja-acciones">
-                <button
-                  className="btn-confirm"
-                  onClick={handleConfirmBaja}
-                  disabled={loadingUnsubscribe}
-                >
-                  {loadingUnsubscribe ? 'PROCESANDO...' : 'ACEPTAR'}
-                </button>
+          <div className="modal-baja-acciones">
+            <button
+              className="btn-confirm"
+              onClick={handleConfirmBaja}
+              disabled={loadingUnsubscribe}
+            >
+              {loadingUnsubscribe ? 'PROCESANDO...' : 'ACEPTAR'}
+            </button>
 
-                <button
-                  className="btn-cancel"
-                  onClick={() => unsubscribeDialogRef.current?.close()}
-                  disabled={loadingUnsubscribe}
-                >
-                  CANCELAR
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <h2 className="modal-baja-titulo">
-                HA SIDO DADO DE BAJA CORRECTAMENTE, SERÁ REDIRIGIDO A LA PÁGINA PRINCIPAL
-              </h2>
-
-              <button className="btn-confirm" onClick={handleFinalExit}>
-                SALIR
-              </button>
-            </>
-          )}
+            <button
+              className="btn-cancel"
+              onClick={() => unsubscribeDialogRef.current?.close()}
+              disabled={loadingUnsubscribe}
+            >
+              CANCELAR
+            </button>
+          </div>
         </div>
       </dialog>
     </section>

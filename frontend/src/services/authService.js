@@ -36,15 +36,36 @@ const authService = {
   /*Comprueba email + contraseña
   Si son correctos → devuelve sesión + usuario*/
 
-  async login({ email, password }) {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+   async login({ email, password }) {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
 
-    if (error) throw error
-    return data
-  },
+      if (error) throw error
+
+      const userId = data?.user?.id
+      if (!userId) throw new Error('No se ha podido obtener el usuario autenticado')
+
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, is_active')
+        .eq('id', userId)
+        .single()
+
+      if (profileError) {
+        await supabase.auth.signOut()
+        throw profileError
+      }
+
+      if (!profile?.is_active) {
+        await supabase.auth.signOut()
+        throw new Error('Esta cuenta ha sido dada de baja y no puede iniciar sesión.')
+      }
+
+      return data
+    },
+
 
   //Cierra la sesión del usuario actual
   async logout() {

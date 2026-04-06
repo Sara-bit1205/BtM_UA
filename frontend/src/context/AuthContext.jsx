@@ -29,8 +29,21 @@ export function AuthProvider({ children }) {
       setRole(null)
       return
     }
+    
+    if (!data || data.is_active === false) {
+      console.warn('Usuario inactivo → cerrando sesión')
 
-    setProfile(data ?? null)
+      await supabase.auth.signOut()
+
+      setProfile(null)
+      setRole(null)
+      setSession(null)
+      setAuthUser(null)
+
+      return
+    }
+
+    setProfile(data)
     setRole(data?.role ?? null)
   }
 

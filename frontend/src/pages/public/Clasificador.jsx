@@ -99,7 +99,7 @@ function Clasificador() {
           });
           
           // Una vez tengamos el objeto lo guardamos en nuestra variable de estado para mostrarlo en la página
-          setData(clasificacion);
+          setData(Object.entries(clasificacion).map(([categoria, personajes]) => ({ categoria, personajes })));
 
       } catch (error) {
         console.error('Error al cargar de los datos', error);
@@ -111,109 +111,123 @@ function Clasificador() {
 
       loadingData();
 
-  } , []);
+  } , [categoria]);
   return (
     <div className="container mt-5 pt-4 mb-5">
-      {/* Título principal de la página */}
-      {/* Aquí vamos a transformar el objeto para poder manipularlo y mostrarlo en la página, mapemaos los elementos*/}
+  <div className="mb-5">
+    <h1 className="home-section-title">
+      {categoria === 'universos' ? 'Universos' : categoria === 'personalidades' ? 'Personalidades' : 'Psicología'}
+    </h1>
+  </div>
 
-      {/* Ahora con el objeto mapeado tenemos que mostrarlo  */}
-      <div className="mb-5">
-        <h1 className="home-section-title">{categoria === 'universos' ? 'Universos' : categoria === 'personalidades' ? 'Personalidades' : 'Psicología'}</h1>
+  {loadingData ? (
+    <div className="d-flex justify-content-center align-items-center" style={{ height: '200px' }}>
+      <div className="spinner-border text-primary" role="status">
+        <span className="visually-hidden">Cargando...</span>
       </div>
-
-      {Object.entries(Data).map(([categoria, personajes]) => (
-        <div key={categoria} className="mb-5">
-          
-          {/* Cabecera de la fila (estilo tienda: Título a la izquierda, "Ver más" a la derecha) */}
-          <div className="d-flex justify-content-between align-items-end mb-3 px-2">
-            <h3 className="m-0" style={{ color: 'var(--color4)', fontFamily: 'var(--texto-encabezados)', fontWeight: 'bold' }}>
-              {categoria}
-            </h3>
-            <Link 
-                to="/categorias"
-                className="text-decoration-none d-flex align-items-center gap-1" 
-                style={{ color: 'var(--colorTexto)', fontSize: '0.9rem' }}
-              >
-                Ver más <i className="bi bi-arrow-right"></i>
-              </Link>
-          </div>
-
-          {/* Fila deslizable horizontalmente (El equivalente a tu captura) */}
-          <div 
-            className="d-flex flex-nowrap overflow-x-auto gap-3 py-3 px-2"
-            style={{ scrollBehavior: 'smooth' }}
-          >
-            {personajes.map((personaje) => (
-              
-              /* Tarjeta individual (Ancho fijo para que se vean en fila) */
-              <div 
-                key={personaje.id} 
-                className="card border-0 flex-shrink-0" 
-                style={{ 
-                  width: '240px', /* Ancho de la tarjeta estilo e-commerce */
-                  backgroundColor: 'var(--color-principal)',
-                  border: '2px solid var(--color-grisOscuro) !important',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s ease, box-shadow 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = `0 8px 15px rgba(0,0,0,0.2)`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                
-                {/* Imagen del personaje */}
-                <img 
-                  src={personaje.imagen} 
-                  alt={personaje.nombre}
-                  className="card-img-top p-3"
-                  style={{ 
-                    height: '200px', 
-                    objectFit: 'cover', 
-                    borderRadius: '20px' // Redondeamos la imagen un poco por dentro
-                  }} 
-                />
-
-                {/* Cuerpo de la tarjeta (Textos) */}
-                <div className="card-body d-flex flex-column pt-0">
-                  
-                  {/* Etiqueta MBTI (Como si fuera la etiqueta naranja de "Trending" en tu foto) */}
-                  <span 
-                    className="align-self-start mb-2 px-2 py-1 rounded-1" 
-                    style={{ 
-                      backgroundColor: 'var(--color5)', 
-                      color: 'var(--color-principal)', 
-                      fontSize: '0.8rem',
-                      fontWeight: 'bold' 
-                    }}
-                  >
-                    {personaje.mbti}
-                  </span>
-
-                  {/* Nombre del personaje */}
-                  <h5 className="card-title m-0" style={{ color: 'var(--color3)', fontFamily: 'var(--texto-encabezados)' }}>
-                    {personaje.nombre}
-                  </h5>
-
-                  {/* Un pequeño extra para imitar las opiniones de la foto */}
-                  <div className="mt-2 text-muted" style={{ fontSize: '0.8rem' }}>
-                    <i className="bi bi-star-fill text-warning"></i> 4,8/5
-                  </div>
-                </div>
-
-              </div>
-            ))}
-          </div>
-
-        </div>
-      ))}
     </div>
+  ) : Data && Data.length > 0 ? (
+    
+    /* 1. PRIMER MAP: Recorremos los grupos (Ej: Marvel, Disney) */
+    Data.map((grupo) => (
+      <div key={grupo.categoria} className="mb-5">
+        
+        {/* Cabecera de la fila */}
+        <div className="d-flex justify-content-between align-items-end mb-3 px-2">
+          <h3 className="m-0" style={{ color: 'var(--color4)', fontFamily: 'var(--texto-encabezados)', fontWeight: 'bold' }}>
+            {grupo.categoria} {/* <-- Usamos grupo.categoria */}
+          </h3>
+          <Link 
+            to="/categorias"
+            className="text-decoration-none d-flex align-items-center gap-1" 
+            style={{ color: 'var(--colorTexto)', fontSize: '0.9rem' }}
+          >
+            Ver más <i className="bi bi-arrow-right"></i>
+          </Link>
+        </div>
+
+        {/* Contenedor Fila deslizable */}
+        <div 
+          className="d-flex flex-nowrap overflow-x-auto gap-3 py-3 px-2"
+          style={{ scrollBehavior: 'smooth' }}
+        >
+            
+          
+          {grupo.personajes.map((personaje) => (
+            <Link to={`/personaje/${personaje.id}`} className="text-decoration-none" key={personaje.id}>
+              <div 
+              key={personaje.id} 
+              className="card border-0 flex-shrink-0" 
+              style={{ 
+                width: '240px',
+                backgroundColor: 'var(--color-principal)',
+                border: '2px solid var(--color-grisOscuro) !important',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.boxShadow = `0 8px 15px rgba(0,0,0,0.2)`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              
+              {/* Imagen del personaje */}
+              <img 
+                src={personaje.imagen} /* <-- Usamos personaje.imagen */
+                alt={personaje.nombre}
+                className="card-img-top p-3"
+                style={{ 
+                  height: '200px', 
+                  objectFit: 'cover', 
+                  borderRadius: '20px' 
+                }} 
+              />
+
+              {/* Cuerpo de la tarjeta */}
+              <div className="card-body d-flex flex-column pt-0">
+                
+                {/* Etiqueta MBTI */}
+                <span 
+                  className="align-self-start mb-2 px-2 py-1 rounded-1" 
+                  style={{ 
+                    backgroundColor: 'var(--color5)', 
+                    color: 'var(--color-principal)', 
+                    fontSize: '0.8rem',
+                    fontWeight: 'bold' 
+                  }}
+                >
+                  {personaje.mbti} {/* <-- Usamos personaje.mbti */}
+                </span>
+
+                {/* Nombre del personaje */}
+                <h5 className="card-title m-0" style={{ color: 'var(--color3)', fontFamily: 'var(--texto-encabezados)' }}>
+                  {personaje.nombre} {/* <-- Usamos personaje.nombre */}
+                </h5>
+
+                {/* Valoración */}
+                <div className="mt-2 text-muted" style={{ fontSize: '0.8rem' }}>
+                  <i className="bi bi-star-fill text-warning"></i> 4,8/5
+                </div>
+              </div>
+
+            </div>
+            </Link>
+            
+          ))} {/* <-- Cierre del map de personajes */}
+            
+        </div>
+      </div>
+    )) /* <-- Cierre del map de grupos */
+    
+  ) : (
+    <p>No hay personajes disponibles.</p>
+  )}
+</div>
   );
 }
 

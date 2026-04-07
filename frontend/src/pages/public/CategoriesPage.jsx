@@ -2,12 +2,16 @@
 // Cada categoría incluye descripción, personajes populares y listado completoç
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { supabase } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase';
 
 
 
 // 1. El estado que controla qué número de personaje estamos viendo (empezamos en el 0)
 function CategoriesPage() {
+
+  useEffect ( () => {
+    
+  })
 
   return (
     // Contenedor principal oscuro

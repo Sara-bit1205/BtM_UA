@@ -209,7 +209,7 @@ function Navbar() {
                   key={cat.id}
                   onClick={() => {
                     setActiveCategory(cat.id)
-                    navigate(`/${cat.id}`)
+                    navigate(`/clasificador/${cat.id}`)
                   }}
                   data-bs-dismiss="offcanvas"
                   className={`btn btn-categoria d-flex align-items-center w-100 text-start border-0 px-3 py-3 ${

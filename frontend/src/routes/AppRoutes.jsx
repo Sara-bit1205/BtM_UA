@@ -13,9 +13,7 @@ import CharacterDetailPage from '../pages/public/CharacterDetailPage'
 import SearchPage from '../pages/public/SearchPage'
 import AboutUsPage from '../pages/public/AboutUsPage'
 import PrivacyPolicyPage from '../pages/public/PrivacyPolicyPage'
-import Universos from '../pages/public/Universos'
-import Personalidades from '../pages/public/Personalidades'
-import Psicologia from '../pages/public/Psicologia'
+import Clasificador from '../pages/public/Clasificador'
 import Politica_Privacidad from '../pages/public/Politica_privacidad'
 import MBTITypesPage from '../pages/public/MBTITypesPage'
 import HowMBTIWorksPage from '../pages/public/HowMBTIWorksPage'
@@ -57,9 +55,9 @@ function AppRoutes() {
         <Route path="/busqueda" element={<SearchPage />} />
         <Route path="/sobre-nosotros" element={<AboutUsPage />} />
         <Route path="/politica-privacidad" element={<PrivacyPolicyPage />} />
-        <Route path="/universos" element={<Universos />} />
-        <Route path="/personalidades" element={<Personalidades />} />
-        <Route path="/psicologia" element={<Psicologia />} />
+        <Route path="/clasificador/:categoria" element={<Clasificador />} />
+        <Route path="/clasificador/:categoria" element={<Clasificador />} />
+        <Route path="/clasificador/:categoria" element={<Clasificador />} />
         <Route path="/lista-personajes" element={<ListaPersonajes />} />
         <Route path="/formulario-personaje" element={<FormularioPersonaje />} />
         <Route path="/politica_privacidad" element={<Politica_Privacidad />} />

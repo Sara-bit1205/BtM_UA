@@ -2,66 +2,12 @@
 // Cada categoría incluye descripción, personajes populares y listado completoç
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+// import { supabase } from '../../lib/supabase';
 
-// Datos de prueba (Luego vendrán de Supabase)
-const MARVEL_DATA = {
-  titulo: 'MARVEL',
-  descripcion: 'Marvel es un reconocido universo de ficción que tiene sus raíces en 1939. Impulsado por la inigualable creatividad de figuras como Stan Lee, sus historias de superhéroes lograron conquistar los corazones de jóvenes y adultos por igual, enseñándonos que un gran poder conlleva una gran responsabilidad. En este universo te encontrarás con héroes legendarios como Spider-Man, el Capitán América y muchos otros que han marcado la historia del cine y el cómic.',
-  imagenPrincipal: 'https://picsum.photos/seed/marvel/400/400',
-  personajesExplorar: [
-    {
-      id: 1,
-      nombre: 'VENOM',
-      descripcion: 'La oscura y brutal unión entre Eddie Brock y un simbionte alienígena. Fuerza sobrehumana y una moral retorcida.',
-      mbti: 'ISFP',
-      colorMbti: '#FFD700', // Amarillo
-      imagen: 'https://picsum.photos/seed/venom/150/200'
-    },
-    {
-      id: 2,
-      nombre: 'DOCTOR STRANGE',
-      descripcion: 'Un neurocirujano brillante pero arrogante que pierde su carrera en un trágico accidente automovilístico.',
-      mbti: 'INTJ',
-      colorMbti: '#00FA9A', // Verde
-      imagen: 'https://picsum.photos/seed/strange/150/200'
-    }
-  ]
-};
+
 
 // 1. El estado que controla qué número de personaje estamos viendo (empezamos en el 0)
 function CategoriesPage() {
-  const navigate = useNavigate();
-  const [personajeActual, setPersonajeActual] = useState(0);
-
-  // 2. Nuestra lista de personajes populares
-  const personajesPopulares = [
-    { id: 1, nombre: 'CAPITÁN AMÉRICA', img: 'https://picsum.photos/seed/cap/200/250' },
-    { id: 2, nombre: 'IRON MAN', img: 'https://picsum.photos/seed/ironman/200/250' },
-    { id: 3, nombre: 'SPIDER-MAN', img: 'https://picsum.photos/seed/spidey/200/250' }
-  ];
-
-  // 3. Funciones para los botones de las flechas
-  const irAlSiguiente = () => {
-    setPersonajeActual((prev) => (prev === personajesPopulares.length - 1 ? 0 : prev + 1));
-  };
-
-  const irAlAnterior = () => {
-    setPersonajeActual((prev) => (prev === 0 ? personajesPopulares.length - 1 : prev - 1));
-  };
-
-  // --- TEMPORIZADOR AUTOMÁTICO ---
-  useEffect(() => {
-    // Configuramos un intervalo que ejecuta 'irAlSiguiente' cada 3000 milisegundos (3 segundos)
-    const temporizador = setInterval(() => {
-      irAlSiguiente();
-    }, 3000);
-
-    // Esta función de "limpieza" es vital en React. 
-    // Destruye el reloj si el usuario cambia de página o hace clic manual, 
-    // para evitar que el carrusel se vuelva loco.
-    return () => clearInterval(temporizador);
-    
-  }, [personajeActual]); // <- Al poner 'personajeActual' aquí, el reloj se reinicia cada vez que cambias de personaje
 
   return (
     // Contenedor principal oscuro

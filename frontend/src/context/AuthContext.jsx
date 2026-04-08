@@ -11,41 +11,45 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   const fetchProfile = async (userId) => {
-    if (!userId) {
-      setProfile(null)
-      setRole(null)
-      return
-    }
-
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .maybeSingle()
-
-    if (error) {
-      console.error('Error al cargar el perfil:', error.message)
-      setProfile(null)
-      setRole(null)
-      return
-    }
-    
-    if (!data || data.is_active === false) {
-      console.warn('Usuario inactivo → cerrando sesión')
-
-      await supabase.auth.signOut()
-
-      setProfile(null)
-      setRole(null)
-      setSession(null)
-      setAuthUser(null)
-
-      return
-    }
-
-    setProfile(data)
-    setRole(data?.role ?? null)
+  if (!userId) {
+    setProfile(null)
+    setRole(null)
+    return
   }
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .maybeSingle()
+
+  if (error) {
+    console.error('Error al cargar el perfil:', error.message)
+
+    const message = error.message?.toLowerCase?.() || ''
+
+    if (message.includes('jwt expired') || message.includes('invalid jwt')) {
+      await supabase.auth.signOut()
+      clearAuthState()
+      return
+    }
+
+    setProfile(null)
+    setRole(null)
+    return
+  }
+
+  if (!data || data.is_active === false) {
+    console.warn('Usuario inactivo → cerrando sesión')
+
+    await supabase.auth.signOut()
+    clearAuthState()
+    return
+  }
+
+  setProfile(data)
+  setRole(data?.role ?? null)
+}
 
   const applySession = async (session) => {
     setSession(session)
@@ -84,6 +88,8 @@ export function AuthProvider({ children }) {
 
         if (error) {
           console.error('Error al obtener la sesión:', error.message)
+          clearAuthState()
+          return
         }
 
         if (!isMounted) return
@@ -145,11 +151,18 @@ export function AuthProvider({ children }) {
       loading,
       logout,
       refreshProfile,
-      isAuthenticated: !!session,
+      isAuthenticated: !!authUser,
       isAdmin: role === 'admin',
     }),
     [session, authUser, profile, role, loading]
   )
+  
+  const clearAuthState = () => {
+  setSession(null)
+  setAuthUser(null)
+  setProfile(null)
+  setRole(null)
+}
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

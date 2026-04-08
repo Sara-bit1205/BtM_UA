@@ -157,7 +157,7 @@
 }
 
 .card-text {
-  font-size: clamp(0.9rem, 2vw, 1rem);
+  font-size: clamp(10px, 5vw, 20px);
   transition: font-size 0.3s ease;
 }
 

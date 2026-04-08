@@ -78,70 +78,88 @@ function CharacterDetailPage() {
   const [loadingComment, setLoadingComment] = useState(false)
   const [loadingCommunityPhoto, setLoadingCommunityPhoto] = useState(false)
 
-  useEffect(() => {
-    const loadCharacter = async () => {
+  const [currentUser, setCurrentUser] = useState(null)
+
+useEffect(() => {
+  const loadCharacter = async () => {
+    setLoadingCharacter(true)
+
+    try {
+      const { data: authData } = await supabase.auth.getUser()
+      const currentUser = authData?.user ?? null
+      const currentUserId = currentUser?.id ?? null
+
+      setCurrentUser(currentUser)
+
+      // 1) personaje principal
+      const { data: characterData, error: characterError } = await supabase
+        .from('characters')
+        .select(`
+          id,
+          name,
+          slug,
+          description,
+          story,
+          creation_date,
+          first_appearance,
+          biological_origin,
+          place_of_origin,
+          psychological_analysis,
+          cover_path,
+          universes (
+            name
+          ),
+          mbti_types (
+            code,
+            title
+          )
+        `)
+        .eq('slug', slug)
+        .maybeSingle()
+
+      if (characterError) throw characterError
+
+      if (!characterData) {
+        setCharacter(null)
+        return
+      }
+
+      const characterId = characterData.id
+
+      const formattedCharacter = {
+        id: characterData.id,
+        slug: characterData.slug,
+        name: characterData.name,
+        description: characterData.description,
+        story: characterData.story,
+        creationDate: characterData.creation_date,
+        firstAppearance: characterData.first_appearance,
+        procedence: characterData.place_of_origin,
+        biologicalOrigin: characterData.biological_origin,
+        psicologicalAnalisis: characterData.psychological_analysis,
+        universe: getRelationValue(characterData.universes, 'name') || 'Sin universo',
+        mbti: getRelationValue(characterData.mbti_types, 'code') || '—',
+        mbtiTitle: getRelationValue(characterData.mbti_types, 'title') || '',
+        image: getCharacterCoverUrl(characterData.cover_path),
+      }
+
+      setCharacter(formattedCharacter)
+
+      // 2) favoritos SOLO si hay usuario
+      if (currentUserId) {
+        try {
+          const favoriteStatus = await favoritesService.isFavorite(characterId)
+          setIsFavorite(favoriteStatus)
+        } catch (error) {
+          console.error('Error cargando favorito:', error.message)
+          setIsFavorite(false)
+        }
+      } else {
+        setIsFavorite(false)
+      }
+
+      // 3) filmografía
       try {
-        setLoadingCharacter(true)
-
-        // 1) personaje principal
-        const { data: characterData, error: characterError } = await supabase
-          .from('characters')
-          .select(`
-            id,
-            name,
-            slug,
-            description,
-            story,
-            creation_date,
-            first_appearance,
-            biological_origin,
-            place_of_origin,
-            psychological_analysis,
-            cover_path,
-            universes (
-              name
-            ),
-            mbti_types (
-              code,
-              title
-            )
-          `)
-          .eq('slug', slug)
-          .single()
-
-        if (characterError) throw characterError
-
-        if (!characterData) {
-          setCharacter(null)
-          return
-        }
-
-        const characterId = characterData.id
-
-        const formattedCharacter = {
-          id: characterData.id,
-          slug: characterData.slug,
-          name: characterData.name,
-          description: characterData.description,
-          story: characterData.story,
-          creationDate: characterData.creation_date,
-          firstAppearance: characterData.first_appearance,
-          procedence: characterData.place_of_origin,
-          biologicalOrigin: characterData.biological_origin,
-          psicologicalAnalisis: characterData.psychological_analysis,
-          universe: getRelationValue(characterData.universes, 'name') || 'Sin universo',
-          mbti: getRelationValue(characterData.mbti_types, 'code') || '—',
-          mbtiTitle: getRelationValue(characterData.mbti_types, 'title') || '',
-          image: getCharacterCoverUrl(characterData.cover_path),
-        }
-
-        setCharacter(formattedCharacter)
-
-        // 2) favoritos
-        const favoriteStatus = await favoritesService.isFavorite(characterId)
-        setIsFavorite(favoriteStatus)
-
-        // 3) filmografía
         const { data: filmographyData, error: filmographyError } = await supabase
           .from('filmography')
           .select(`
@@ -164,8 +182,13 @@ function CharacterDetailPage() {
         }))
 
         setFilmography(formattedFilmography)
+      } catch (error) {
+        console.error('Error cargando filmografía:', error.message)
+        setFilmography([])
+      }
 
-        // 4) actores
+      // 4) actores
+      try {
         const { data: actorsData, error: actorsError } = await supabase
           .from('character_actors')
           .select(`
@@ -183,13 +206,8 @@ function CharacterDetailPage() {
         const formattedActors = (actorsData || []).map((actor) => {
           let text = actor.actor_name
 
-          if (actor.role_description) {
-            text += ` — ${actor.role_description}`
-          }
-
-          if (actor.years_active) {
-            text += ` (${actor.years_active})`
-          }
+          if (actor.role_description) text += ` — ${actor.role_description}`
+          if (actor.years_active) text += ` (${actor.years_active})`
 
           return {
             id: actor.id,
@@ -198,8 +216,13 @@ function CharacterDetailPage() {
         })
 
         setActors(formattedActors)
+      } catch (error) {
+        console.error('Error cargando actores:', error.message)
+        setActors([])
+      }
 
-        // 5) imágenes relacionadas
+      // 5) imágenes relacionadas
+      try {
         const { data: mediaData, error: mediaError } = await supabase
           .from('character_media')
           .select(`
@@ -225,8 +248,13 @@ function CharacterDetailPage() {
         }))
 
         setRelatedImages(formattedImages)
+      } catch (error) {
+        console.error('Error cargando imágenes relacionadas:', error.message)
+        setRelatedImages([])
+      }
 
-        // 6) fotos de la comunidad
+      // 6) fotos comunidad
+      try {
         const { data: communityPhotosData, error: communityPhotosError } = await supabase
           .from('community_photos')
           .select(`
@@ -250,8 +278,13 @@ function CharacterDetailPage() {
         }))
 
         setCommunityPhotos(formattedCommunityPhotos)
+      } catch (error) {
+        console.error('Error cargando fotos comunidad:', error.message)
+        setCommunityPhotos([])
+      }
 
-        // 7) comentarios
+      // 7) comentarios
+      try {
         const { data: commentsData, error: commentsError } = await supabase
           .from('comments')
           .select(`
@@ -269,9 +302,6 @@ function CharacterDetailPage() {
 
         if (commentsError) throw commentsError
 
-        const { data: authData } = await supabase.auth.getUser()
-        const currentUserId = authData?.user?.id
-
         const formattedComments = (commentsData || []).map((comment) => ({
           id: comment.id,
           user:
@@ -279,8 +309,7 @@ function CharacterDetailPage() {
               ? 'Tú'
               : comment.profiles?.username || 'Usuario',
           avatar: comment.profiles?.avatar_path
-            ? supabase
-                .storage
+            ? supabase.storage
                 .from('avatars')
                 .getPublicUrl(comment.profiles.avatar_path).data.publicUrl
             : null,
@@ -289,17 +318,21 @@ function CharacterDetailPage() {
         }))
 
         setComments(formattedComments)
-
       } catch (error) {
-        console.error('Error cargando personaje:', error.message)
-        setCharacter(null)
-      } finally {
-        setLoadingCharacter(false)
+        console.error('Error cargando comentarios:', error.message)
+        setComments([])
       }
-    }
 
-    loadCharacter()
-  }, [slug])
+    } catch (error) {
+      console.error('Error cargando personaje:', error.message)
+      setCharacter(null)
+    } finally {
+      setLoadingCharacter(false)
+    }
+  }
+
+  loadCharacter()
+}, [slug])
 
   const handlePublishComment = async () => {
     try {
@@ -503,12 +536,13 @@ function CharacterDetailPage() {
             <h1 className="card-title">{character.name}</h1>
 
             <i
-              className={`bi ${isFavorite ? 'bi-heart-fill' : 'bi-heart'} favorite-icon`}
-              onClick={handleFavorite}
+              className={`bi ${isFavorite ? 'bi-heart-fill' : 'bi-heart'} favorite-icon ${!currentUser ? 'disabled' : ''}`}
+              onClick={currentUser && !loadingFavorite ? handleFavorite : undefined}
               style={{
-                cursor: loadingFavorite ? 'default' : 'pointer',
-                opacity: loadingFavorite ? 0.6 : 1,
+                cursor: !currentUser || loadingFavorite ? 'not-allowed' : 'pointer',
+                opacity: !currentUser || loadingFavorite ? 0.6 : 1,
               }}
+              title={!currentUser ? 'Inicia sesión para añadir a favoritos' : 'Añadir a favoritos'}
             ></i>
           </div>
 

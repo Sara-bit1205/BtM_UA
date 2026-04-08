@@ -8,7 +8,6 @@ import RegisterPage from '../pages/public/RegisterPage'
 import AboutBTMPage from '../pages/public/AboutBTMPage'
 import PersonalityTestPage from '../pages/public/PersonalityTestPage'
 import CategoriesPage from '../pages/public/CategoriesPage'
-import CategoryDetailPage from '../pages/public/CategoryDetailPage'
 import CharacterDetailPage from '../pages/public/CharacterDetailPage'
 import SearchPage from '../pages/public/SearchPage'
 import AboutUsPage from '../pages/public/AboutUsPage'
@@ -49,8 +48,7 @@ function AppRoutes() {
         <Route path="/test-personalidad" element={<PersonalityTestPage />} />
         <Route path="/tipos-personalidad" element={<MBTITypesPage />} />
         <Route path="/como-se-calcula" element={<HowMBTIWorksPage />} />
-        <Route path="/categorias" element={<CategoriesPage />} />
-        <Route path="/categorias/:id" element={<CategoryDetailPage />} />
+        <Route path="/categorias/:universo" element={<CategoriesPage />} />
         <Route path="/personaje/:slug" element={<CharacterDetailPage />} />
         <Route path="/busqueda" element={<SearchPage />} />
         <Route path="/sobre-nosotros" element={<AboutUsPage />} />

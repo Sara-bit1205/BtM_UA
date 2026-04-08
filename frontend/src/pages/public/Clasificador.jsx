@@ -138,7 +138,7 @@ function Clasificador() {
             {grupo.categoria} {/* <-- Usamos grupo.categoria */}
           </h3>
           <Link 
-            to="/categorias"
+            to={`/categorias/${grupo.categoria}`}
             className="text-decoration-none d-flex align-items-center gap-1" 
             style={{ color: 'var(--colorTexto)', fontSize: '0.9rem' }}
           >

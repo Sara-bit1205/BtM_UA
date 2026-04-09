@@ -208,11 +208,7 @@ function Clasificador() {
                 <h5 className="card-title m-0" style={{ color: 'var(--color3)', fontFamily: 'var(--texto-encabezados)' }}>
                   {personaje.nombre} {/* <-- Usamos personaje.nombre */}
                 </h5>
-
-                {/* Valoración */}
-                <div className="mt-2 text-muted" style={{ fontSize: '0.8rem' }}>
-                  <i className="bi bi-star-fill text-warning"></i> 4,8/5
-                </div>
+                
               </div>
 
             </div>

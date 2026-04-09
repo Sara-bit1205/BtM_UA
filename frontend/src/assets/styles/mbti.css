@@ -211,7 +211,7 @@
   padding: 0.4rem 1.5rem;
   display: inline-block;
   letter-spacing: 4px;
-  box-shadow: 0 0 28px rgba(207, 241, 153, 0.3);
+  box-shadow: 0 0 15px rgba(207, 241, 153, 0.2);
 }
 
 .mbti-result-type-name {

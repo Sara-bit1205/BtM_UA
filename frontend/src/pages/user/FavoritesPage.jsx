@@ -11,12 +11,21 @@ import maleficaImg from '../../assets/images/malefica.jpg'
 
 const DEFAULT_AVATAR = 'default-avatar.jpg'
 
-function getAvatarFile(profile) {
+function getAvatarValue(profile) {
   return profile?.avatar_path || profile?.avatar || DEFAULT_AVATAR
 }
 
-function getAvatarPublicUrl(filePath) {
-  const { data } = supabase.storage.from('avatars').getPublicUrl(filePath)
+function resolveAvatarUrl(value) {
+  if (!value) {
+    const { data } = supabase.storage.from('avatars').getPublicUrl(DEFAULT_AVATAR)
+    return data.publicUrl
+  }
+
+  if (value.startsWith('http://') || value.startsWith('https://')) {
+    return value
+  }
+
+  const { data } = supabase.storage.from('avatars').getPublicUrl(value)
   return data.publicUrl
 }
 
@@ -28,8 +37,8 @@ function FavoritesPage() {
   const [error, setError] = useState('')
 
   const avatarUrl = useMemo(() => {
-    const avatarFile = getAvatarFile(profile)
-    return getAvatarPublicUrl(avatarFile)
+    const avatarValue = getAvatarValue(profile)
+    return resolveAvatarUrl(avatarValue)
   }, [profile?.avatar_path, profile?.avatar])
 
   useEffect(() => {
@@ -74,7 +83,7 @@ function FavoritesPage() {
             src={avatarUrl}
             alt={`Avatar de ${profile?.name || 'usuario'}`}
             onError={(e) => {
-              e.currentTarget.src = getAvatarPublicUrl(DEFAULT_AVATAR)
+              e.currentTarget.src = resolveAvatarUrl(DEFAULT_AVATAR)
             }}
           />
 

@@ -17,12 +17,21 @@ import '../../assets/styles/mbti.css'
 
 const DEFAULT_AVATAR = 'default-avatar.jpg'
 
-function getAvatarFile(profile) {
+function getAvatarValue(profile) {
   return profile?.avatar_path || profile?.avatar || DEFAULT_AVATAR
 }
 
-function getAvatarPublicUrl(filePath) {
-  const { data } = supabase.storage.from('avatars').getPublicUrl(filePath)
+function resolveAvatarUrl(value) {
+  if (!value) {
+    const { data } = supabase.storage.from('avatars').getPublicUrl(DEFAULT_AVATAR)
+    return data.publicUrl
+  }
+
+  if (value.startsWith('http://') || value.startsWith('https://')) {
+    return value
+  }
+
+  const { data } = supabase.storage.from('avatars').getPublicUrl(value)
   return data.publicUrl
 }
 
@@ -45,13 +54,8 @@ function UserProfilePage() {
   }, [])
 
   const avatarUrl = useMemo(() => {
-    const avatarFile = getAvatarFile(profile)
-
-    // console.log('avatar_path:', profile?.avatar_path)
-    // console.log('avatar:', profile?.avatar)
-    // console.log('avatar final usado:', avatarFile)
-
-    return getAvatarPublicUrl(avatarFile)
+    const avatarValue = getAvatarValue(profile)
+    return resolveAvatarUrl(avatarValue)
   }, [profile?.avatar_path, profile?.avatar])
 
   const openDialog = () => dialogRef.current?.showModal()
@@ -122,7 +126,7 @@ function UserProfilePage() {
           src={avatarUrl}
           alt={`Avatar de ${profile?.name || 'usuario'}`}
           onError={(e) => {
-            e.currentTarget.src = getAvatarPublicUrl(DEFAULT_AVATAR)
+            e.currentTarget.src = resolveAvatarUrl(DEFAULT_AVATAR)
           }}
         />
 

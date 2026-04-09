@@ -10,46 +10,56 @@ export function AuthProvider({ children }) {
   const [role, setRole] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  const fetchProfile = async (userId) => {
-  if (!userId) {
-    setProfile(null)
-    setRole(null)
-    return
-  }
-
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .maybeSingle()
-
-  if (error) {
-    console.error('Error al cargar el perfil:', error.message)
-
-    const message = error.message?.toLowerCase?.() || ''
-
-    if (message.includes('jwt expired') || message.includes('invalid jwt')) {
-      await supabase.auth.signOut()
-      clearAuthState()
+  const fetchProfile = async (userId, retries = 8, delay = 300) => {
+    if (!userId) {
+      setProfile(null)
+      setRole(null)
       return
+    }
+
+    for (let i = 0; i < retries; i++) {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle()
+
+      if (error) {
+        console.error('Error al cargar el perfil:', error.message)
+
+        const message = error.message?.toLowerCase?.() || ''
+
+        if (message.includes('jwt expired') || message.includes('invalid jwt')) {
+          await supabase.auth.signOut()
+          clearAuthState()
+          return
+        }
+
+        setProfile(null)
+        setRole(null)
+        return
+      }
+
+      if (data) {
+        if (data.is_active === false) {
+          console.warn('Usuario inactivo → cerrando sesión')
+
+          await supabase.auth.signOut()
+          clearAuthState()
+          return
+        }
+
+        setProfile(data)
+        setRole(data?.role ?? null)
+        return
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, delay))
     }
 
     setProfile(null)
     setRole(null)
-    return
   }
-
-  if (!data || data.is_active === false) {
-    console.warn('Usuario inactivo → cerrando sesión')
-
-    await supabase.auth.signOut()
-    clearAuthState()
-    return
-  }
-
-  setProfile(data)
-  setRole(data?.role ?? null)
-}
 
   const applySession = async (session) => {
     setSession(session)

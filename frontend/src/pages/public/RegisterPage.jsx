@@ -26,6 +26,26 @@ function RegisterPage() {
 
   const navigate = useNavigate()
 
+  const updateProfileWithRetry = async (userId, updates, retries = 10, delay = 300) => {
+    for (let i = 0; i < retries; i++) {
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', userId)
+        .select()
+
+      if (error) throw error
+
+      if (data && data.length > 0) {
+        return data[0]
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, delay))
+    }
+
+    throw new Error('No se pudo completar el perfil del usuario')
+  }
+
   const handleChange = (e) => {
     const { name, value, files, type } = e.target
 
@@ -77,16 +97,11 @@ function RegisterPage() {
         throw new Error('No se pudo crear el usuario')
       }
 
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          username: cleanUsername,
-          name: cleanName,
-          birth_date: form.birth_date || null,
-        })
-        .eq('id', user.id)
-
-      if (profileError) throw profileError
+      await updateProfileWithRetry(user.id, {
+        username: cleanUsername,
+        name: cleanName,
+        birth_date: form.birth_date || null,
+      })
 
       if (form.profileImage) {
         const fileExt = form.profileImage.name.split('.').pop()
@@ -100,16 +115,9 @@ function RegisterPage() {
 
         if (uploadError) throw uploadError
 
-        const { data: publicUrlData } = supabase.storage
-          .from('avatars')
-          .getPublicUrl(fileName)
-
-        const { error: avatarUpdateError } = await supabase
-          .from('profiles')
-          .update({ avatar_path: publicUrlData.publicUrl })
-          .eq('id', user.id)
-
-        if (avatarUpdateError) throw avatarUpdateError
+        await updateProfileWithRetry(user.id, {
+          avatar_path: fileName,
+        })
       }
 
       navigate('/login')

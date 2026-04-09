@@ -6,11 +6,12 @@
 
 //HECHO
 
-import { useRef, useMemo, useState } from 'react'
+import { useRef, useMemo, useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase.js'
 import userService from '../../services/userService'
+import mbtiService from '../../services/mbtiService'
 import '../../assets/styles/profile.css'
 import '../../assets/styles/mbti.css'
 
@@ -35,6 +36,13 @@ function UserProfilePage() {
 
   const [loadingUnsubscribe, setLoadingUnsubscribe] = useState(false)
   const [loadingLogout, setLoadingLogout] = useState(false)
+  const [mbtiResult, setMbtiResult] = useState(null)
+
+  useEffect(() => {
+    mbtiService.getMyResults()
+      .then((results) => setMbtiResult(results?.[0] ?? null))
+      .catch(() => setMbtiResult(null))
+  }, [])
 
   const avatarUrl = useMemo(() => {
     const avatarFile = getAvatarFile(profile)
@@ -138,6 +146,20 @@ function UserProfilePage() {
               <dt>Fecha de nacimiento:</dt>
               <dd>{profile.birth_date || '—'}</dd>
             </div>
+            <div className="profile-card__row">
+              <dt>Tipo MBTI:</dt>
+              <dd>
+                {mbtiResult ? (
+                  <Link to="/perfil/mi-mbti" style={{ textDecoration: 'none' }}>
+                    <span className="mbti-type-badge" style={{ fontSize: '0.8rem', padding: '0.2rem 0.6rem' }}>
+                      {mbtiResult.mbti_types?.code}
+                    </span>
+                    {' '}
+                    <span style={{ color: 'var(--colorTexto)' }}>{mbtiResult.mbti_types?.title}</span>
+                  </Link>
+                ) : '—'}
+              </dd>
+            </div>
           </dl>
         </div>
       </article>
@@ -185,9 +207,15 @@ function UserProfilePage() {
           EDITAR MIS DATOS
         </Link>
 
-        <button className="profile-action" type="button" onClick={openDialog}>
-          MI MBTI
-        </button>
+        {mbtiResult ? (
+          <Link className="profile-action" to="/perfil/mi-mbti">
+            MI MBTI
+          </Link>
+        ) : (
+          <button className="profile-action" type="button" onClick={openDialog}>
+            MI MBTI
+          </button>
+        )}
 
         <button className="profile-action" type="button">
           MIS FOTOS SUBIDAS

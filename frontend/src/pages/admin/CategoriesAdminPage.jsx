@@ -1,62 +1,69 @@
-/**
+﻿/**
  * CategoriesAdminPage — Panel de gestión de categorías (admin)
  *
- * VISTAS disponibles (controladas por `view`):
- *   'list'   → Listado de categorías con acordeón de subcategorías
- *   'create' → Formulario para crear una nueva categoría
- *   'edit'   → Formulario para editar una categoría existente
- *   'delete' → Selector múltiple + confirmación para borrar categorías
+ * VISTAS:
+ *   'list'   → Listado con acordeón
+ *   'create' → Formulario crear
+ *   'edit'   → Formulario editar
+ *   'delete' → Multi-select borrar
  *
- * DATOS: todos locales (prototipo). Las llamadas reales a la API
- * están escritas pero comentadas justo al lado de la lógica que sustituyen.
+ * DATOS: Supabase via categoryService
+ *   Grupo "Universo"                → tabla universes
+ *   Grupo "Personalidad"            → tabla personality_tags
+ *   Grupo "Tipo de Personalidad"    → tabla mbti_types
  */
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
+import categoryService from '../../services/categoryService'
 import '../../assets/styles/adminCategories.css'
 
-// ── Datos de prototipo ──────────────────────────────────────────────────────
-// En producción estos datos vendrían de:
-//   GET /api/categories  →  [{ id, group, name, characters: [] }]
-const MOCK_GROUPS = [
+// ── Configuración estática de los 3 grupos ──────────────────────────────────────
+// Cada grupo mapea a una tabla real + sus campos de formulario
+const GROUPS_CONFIG = [
   {
-    id: 'g1',
+    id: 'universes',
     name: 'Universo',
-    categories: [
-      { id: 'c1', name: 'Marvel',     characters: [] },
-      { id: 'c2', name: 'Disney',     characters: [] },
-      { id: 'c3', name: 'DC',         characters: [] },
-      { id: 'c4', name: 'DreamWorks', characters: [] },
+    fields: [
+      { key: 'name',        label: 'Nombre',      required: true  },
+      { key: 'description', label: 'Descripción', required: false },
     ],
   },
   {
-    id: 'g2',
+    id: 'personality_tags',
     name: 'Personalidad',
-    categories: [
-      { id: 'c5', name: 'Introvertido', characters: [] },
-      { id: 'c6', name: 'Emocional',    characters: [] },
-      { id: 'c7', name: 'Líder',        characters: [] },
-      { id: 'c8', name: 'Caótico',      characters: [] },
+    fields: [
+      { key: 'name',        label: 'Nombre',      required: true  },
+      { key: 'description', label: 'Descripción', required: false },
     ],
   },
   {
-    id: 'g3',
+    id: 'mbti_types',
     name: 'Tipo de Personalidad (MBTI)',
-    categories: [],
+    fields: [
+      { key: 'code',        label: 'Código (ej: INFJ)', required: true, maxLength: 4 },
+      { key: 'title',       label: 'Título',            required: true  },
+      { key: 'description', label: 'Descripción',       required: false },
+    ],
   },
 ]
 
-const MOCK_CHARS = [
-  { id: 'ch1', name: 'Riley',    img: 'https://placehold.co/70x70/1a1a2e/cff199?text=R', categoryId: 'c2' }, // Disney
-  { id: 'ch2', name: 'Luffy',    img: 'https://placehold.co/70x70/1a1a2e/cff199?text=L', categoryId: null  }, // Anime
-  { id: 'ch3', name: 'Shrek',    img: 'https://placehold.co/70x70/1a1a2e/cff199?text=S', categoryId: 'c4' }, // DreamWorks
-  { id: 'ch4', name: 'Harry',    img: 'https://placehold.co/70x70/1a1a2e/cff199?text=H', categoryId: null  }, // HP
-  { id: 'ch5', name: 'Batman',   img: 'https://placehold.co/70x70/1a1a2e/cff199?text=B', categoryId: 'c3' }, // DC
-  { id: 'ch6', name: 'Maléfica', img: 'https://placehold.co/70x70/1a1a2e/cff199?text=M', categoryId: 'c2' }, // Disney
-]
-// ───────────────────────────────────────────────────────────────────────────
+// Nombre legible para una fila de cualquier grupo
+function catLabel(groupId, cat) {
+  if (groupId === 'mbti_types') return `${cat.code} — ${cat.title}`
+  return cat.name ?? ''
+}
 
-// ── Subcomponente: dropdown personalizado ──────────────────────────────────
+// Construye el array de grupos para la UI a partir de la respuesta de categoryService.getAll()
+function buildGroups(data) {
+  return [
+    { ...GROUPS_CONFIG[0], categories: data.universes      ?? [] },
+    { ...GROUPS_CONFIG[1], categories: data.personalityTags ?? [] },
+    { ...GROUPS_CONFIG[2], categories: data.mbtiTypes       ?? [] },
+  ]
+}
+
+// ── Subcomponente: dropdown personalizado ───────────────────────────────────────
 function Dropdown({ placeholder, options, selected, onSelect }) {
   const [open, setOpen] = useState(false)
   const label = selected ? options.find(o => o.id === selected)?.name : placeholder
@@ -72,10 +79,7 @@ function Dropdown({ placeholder, options, selected, onSelect }) {
         {label}
         <span className="chevron">▼</span>
       </button>
-      <ul
-        role="listbox"
-        className={`admin-cat-dropdown-list ${open ? 'open' : ''}`}
-      >
+      <ul role="listbox" className={`admin-cat-dropdown-list ${open ? 'open' : ''}`}>
         {options.map(opt => (
           <li
             key={opt.id}
@@ -92,7 +96,7 @@ function Dropdown({ placeholder, options, selected, onSelect }) {
   )
 }
 
-// ── Subcomponente: botón de retroceso ──────────────────────────────────────
+// ── Subcomponente: botón de retroceso ──────────────────────────────────────────
 // Renderiza un <Link> hacia una ruta o un <button> para cambio de vista interna.
 function BackBtn({ onClick, to }) {
   const icon = (
@@ -111,75 +115,15 @@ function BackBtn({ onClick, to }) {
   )
 }
 
-// ── Subcomponente: modal de selección de personajes ──────────────────────────
-function CharPickerModal({ chars, selected, onConfirm, onClose }) {
-  const [localSelected, setLocalSelected] = useState(selected)
-
-  const toggle = char =>
-    setLocalSelected(prev =>
-      prev.find(c => c.id === char.id)
-        ? prev.filter(c => c.id !== char.id)
-        : [...prev, char]
-    )
-
-  return (
-    <div className="admin-char-modal-overlay" onClick={onClose}>
-      <div className="admin-char-modal" onClick={e => e.stopPropagation()}>
-        <div className="admin-char-modal-header">
-          <h2 className="admin-char-modal-title">Seleccionar Personajes</h2>
-          <button className="admin-char-modal-close" onClick={onClose} aria-label="Cerrar">✕</button>
-        </div>
-
-        {chars.length === 0 ? (
-          <p className="admin-char-modal-empty">No hay personajes disponibles para esta categoría.</p>
-        ) : (
-          <div className="admin-char-modal-grid">
-            {chars.map(ch => {
-              const sel = !!localSelected.find(c => c.id === ch.id)
-              return (
-                <div
-                  key={ch.id}
-                  className={`admin-char-modal-item ${sel ? 'selected' : ''}`}
-                  onClick={() => toggle(ch)}
-                  role="checkbox"
-                  aria-checked={sel}
-                  tabIndex={0}
-                  onKeyDown={e => e.key === 'Enter' && toggle(ch)}
-                >
-                  <img src={ch.img} alt={ch.name} className="admin-char-modal-img" />
-                  <span className="admin-char-modal-name">{ch.name}</span>
-                  {sel && <div className="admin-char-modal-check">✓</div>}
-                </div>
-              )
-            })}
-          </div>
-        )}
-
-        <div className="admin-cat-btn-row" style={{ marginTop: '1rem' }}>
-          <button
-            className="admin-cat-btn-accept"
-            onClick={() => { onConfirm(localSelected); onClose() }}
-          >
-            Confirmar ({localSelected.length})
-          </button>
-          <button className="admin-cat-btn-cancel" onClick={onClose}>Cancelar</button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ── Vista: Listado ─────────────────────────────────────────────────────────
-function ListView({ groups, onView }) {
-  const [open, setOpen] = useState({})   // { groupId: bool }
-
+// ── Vista: Listado ─────────────────────────────────────────────────────────────
+function ListView({ groups, loading, error, onView }) {
+  const [open, setOpen] = useState({})
   const toggle = id => setOpen(s => ({ ...s, [id]: !s[id] }))
 
   return (
     <div className="admin-cat-page">
       <h1 className="admin-cat-title">Listado de Categorías</h1>
 
-      {/* Acciones principales */}
       <div className="admin-cat-actions" role="toolbar" aria-label="Acciones de categorías">
         <button
           className="admin-cat-action-btn"
@@ -207,88 +151,98 @@ function ListView({ groups, onView }) {
         </button>
       </div>
 
-      {/* Lista de grupos con acordeón */}
-      <div className="d-flex flex-column gap-2">
-        {groups.map(group => (
-          <div key={group.id} className={`admin-cat-item ${open[group.id] ? 'open' : ''}`}>
-            <div
-              className="admin-cat-item-header"
-              onClick={() => toggle(group.id)}
-              role="button"
-              aria-expanded={!!open[group.id]}
-              tabIndex={0}
-              onKeyDown={e => e.key === 'Enter' && toggle(group.id)}
-            >
-              <h2 className="admin-cat-item-name">{group.name}</h2>
-              {/* Chevron animado por CSS — rota 180° cuando open */}
-              <span className={`admin-cat-chevron ${open[group.id] ? 'open' : ''}`}>▼</span>
-            </div>
+      {loading && (
+        <p style={{ opacity: 0.6, textAlign: 'center', padding: '2rem 0' }}>Cargando…</p>
+      )}
+      {error && (
+        <p style={{ color: 'var(--color3)', textAlign: 'center', padding: '1rem 0' }}>{error}</p>
+      )}
 
-            {/* Subcategorías — wrapper interno separa el estilo de la animación de altura */}
-            <ul className={`admin-cat-sublist ${open[group.id] ? 'open' : ''}`}>
-              <div className="admin-cat-sublist-inner">
-                {group.categories.length === 0
-                  ? <li style={{ listStyle: 'none', opacity: 0.6 }}>Sin categorías</li>
-                  : group.categories.map(cat => (
-                      <li key={cat.id}>{cat.name}</li>
-                    ))
-                }
+      {!loading && !error && (
+        <div className="d-flex flex-column gap-2">
+          {groups.map(group => (
+            <div key={group.id} className={`admin-cat-item ${open[group.id] ? 'open' : ''}`}>
+              <div
+                className="admin-cat-item-header"
+                onClick={() => toggle(group.id)}
+                role="button"
+                aria-expanded={!!open[group.id]}
+                tabIndex={0}
+                onKeyDown={e => e.key === 'Enter' && toggle(group.id)}
+              >
+                <h2 className="admin-cat-item-name">{group.name}</h2>
+                <span className={`admin-cat-chevron ${open[group.id] ? 'open' : ''}`}>▼</span>
               </div>
-            </ul>
-          </div>
-        ))}
-      </div>
+              <ul className={`admin-cat-sublist ${open[group.id] ? 'open' : ''}`}>
+                <div className="admin-cat-sublist-inner">
+                  {group.categories.length === 0
+                    ? <li style={{ listStyle: 'none', opacity: 0.6 }}>Sin categorías</li>
+                    : group.categories.map(cat => (
+                        <li key={cat.id}>{catLabel(group.id, cat)}</li>
+                      ))
+                  }
+                </div>
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+
       <BackBtn to="/admin" />
     </div>
   )
 }
 
-// ── Vista: Crear ───────────────────────────────────────────────────────────
-function CreateView({ groups, onView, onSave }) {
-  const [groupId,       setGroupId]       = useState('')
-  const [name,          setName]          = useState('')
-  const [nameError,     setNameError]     = useState('')
-  const [groupError,    setGroupError]    = useState('')
-  const [selectedChars, setSelectedChars] = useState([])
-  const [charModalOpen, setCharModalOpen] = useState(false)
+// ── Vista: Crear ───────────────────────────────────────────────────────────────
+function CreateView({ onView, onDone }) {
+  const [groupId, setGroupId] = useState('')
+  const [fields,  setFields]  = useState({})
+  const [errors,  setErrors]  = useState({})
+  const [saving,  setSaving]  = useState(false)
+  const [saveErr, setSaveErr] = useState('')
 
-  const toggleChar = char => {
-    setSelectedChars(prev =>
-      prev.find(c => c.id === char.id)
-        ? prev.filter(c => c.id !== char.id)
-        : [...prev, char]
-    )
+  const groupConfig = GROUPS_CONFIG.find(g => g.id === groupId)
+
+  const handleGroupChange = (id) => {
+    setGroupId(id)
+    setFields({})
+    setErrors({})
+    setSaveErr('')
+  }
+
+  const setField = (key, value) => {
+    setFields(s => ({ ...s, [key]: value }))
+    setErrors(s => ({ ...s, [key]: '' }))
   }
 
   const validate = () => {
-    let valid = true
-    if (!groupId) { setGroupError('Elige un grupo'); valid = false } else setGroupError('')
-    if (!name.trim()) { setNameError('El nombre es obligatorio'); valid = false } else setNameError('')
-    return valid
+    const next = {}
+    if (!groupId) { next._group = 'Elige un grupo' }
+    groupConfig?.fields.forEach(f => {
+      if (f.required && !fields[f.key]?.trim()) {
+        next[f.key] = `${f.label} es obligatorio`
+      }
+    })
+    setErrors(next)
+    return Object.keys(next).length === 0
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return
-
-    // ── Integración real (comentada) ─────────────────────────────────────
-    // const payload = {
-    //   groupId,
-    //   name: name.trim(),
-    //   characters: selectedChars.map(c => c.id),
-    // }
-    // try {
-    //   // POST /api/categories
-    //   const res = await categoryService.create(payload)
-    //   // Redirigir al listado tras crear
-    //   onSave(res.data)
-    // } catch (err) {
-    //   console.error('Error al crear categoría:', err)
-    // }
-    // ─────────────────────────────────────────────────────────────────────
-
-    // Prototipo: simular guardado y volver al listado
-    alert(`✅ Categoría "${name}" creada en el grupo seleccionado (prototipo)`)
-    onView('list')
+    setSaving(true)
+    setSaveErr('')
+    try {
+      const vals = {}
+      groupConfig.fields.forEach(f => {
+        vals[f.key] = fields[f.key]?.trim() || null
+      })
+      await categoryService.create(groupId, vals)
+      onDone()
+    } catch (err) {
+      setSaveErr(err.message ?? 'Error al guardar')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -296,138 +250,123 @@ function CreateView({ groups, onView, onSave }) {
       <div className="admin-cat-form">
         <h1 className="admin-cat-form-title">Crear Categoría</h1>
 
-        {/* Selector de grupo */}
         <div>
           <Dropdown
             placeholder="Elegir grupo"
-            options={groups.map(g => ({ id: g.id, name: g.name }))}
+            options={GROUPS_CONFIG.map(g => ({ id: g.id, name: g.name }))}
             selected={groupId}
-            onSelect={id => { setGroupId(id); setGroupError('') }}
+            onSelect={handleGroupChange}
           />
-          {groupError && <p className="admin-cat-error">{groupError}</p>}
+          {errors._group && <p className="admin-cat-error">{errors._group}</p>}
         </div>
 
-        {/* Nombre */}
-        <div>
-          <label className="admin-cat-label" htmlFor="cat-name-create">Nombre</label>
-          <input
-            id="cat-name-create"
-            className={`admin-cat-input ${nameError ? 'error' : ''}`}
-            type="text"
-            value={name}
-            placeholder="Ej: Warner"
-            onChange={e => { setName(e.target.value); setNameError('') }}
-          />
-          {nameError && <p className="admin-cat-error">{nameError}</p>}
-        </div>
+        {groupConfig?.fields.map(f => (
+          <div key={f.key}>
+            <label className="admin-cat-label" htmlFor={`create-${f.key}`}>{f.label}</label>
+            <input
+              id={`create-${f.key}`}
+              className={`admin-cat-input ${errors[f.key] ? 'error' : ''}`}
+              type="text"
+              value={fields[f.key] ?? ''}
+              maxLength={f.maxLength}
+              onChange={e => setField(f.key, e.target.value)}
+            />
+            {errors[f.key] && <p className="admin-cat-error">{errors[f.key]}</p>}
+          </div>
+        ))}
 
-        {/* Añadir personajes */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'center' }}>
-          <button
-            className="admin-cat-chars-btn"
-            type="button"
-            onClick={() => setCharModalOpen(true)}
-          >
-            Añadir Personajes 🔍
-          </button>
-
-          {/* Grid: solo visible cuando hay personajes seleccionados */}
-          {selectedChars.length > 0 && (
-            <div className="admin-cat-chars-grid">
-              {selectedChars.map(ch => (
-                <div key={ch.id} className="admin-cat-char-thumb">
-                  <img src={ch.img} alt={ch.name} />
-                  <button
-                    className="admin-cat-char-remove"
-                    onClick={() => toggleChar(ch)}
-                    aria-label={`Quitar ${ch.name}`}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        {saveErr && <p className="admin-cat-error">{saveErr}</p>}
 
         <div className="admin-cat-btn-row">
-          <button className="admin-cat-btn-accept" onClick={handleSubmit}>Aceptar</button>
-          <button className="admin-cat-btn-cancel" onClick={() => onView('list')}>Cancelar</button>
+          <button
+            className="admin-cat-btn-accept"
+            onClick={handleSubmit}
+            disabled={saving}
+          >
+            {saving ? 'Guardando…' : 'Aceptar'}
+          </button>
+          <button
+            className="admin-cat-btn-cancel"
+            onClick={() => onView('list')}
+            disabled={saving}
+          >
+            Cancelar
+          </button>
         </div>
       </div>
-
-      {charModalOpen && (
-        <CharPickerModal
-          chars={MOCK_CHARS}
-          selected={selectedChars}
-          onConfirm={setSelectedChars}
-          onClose={() => setCharModalOpen(false)}
-        />
-      )}
       <BackBtn onClick={() => onView('list')} />
     </div>
   )
 }
 
-// ── Vista: Editar ──────────────────────────────────────────────────────────
-function EditView({ groups, onView }) {
-  const [groupId,       setGroupId]       = useState('')
-  const [categoryId,    setCategoryId]    = useState('')
-  const [name,          setName]          = useState('')
-  const [nameError,     setNameError]     = useState('')
-  const [selectedChars, setSelectedChars] = useState([])
-  const [charModalOpen, setCharModalOpen] = useState(false)
+// ── Vista: Editar ──────────────────────────────────────────────────────────────
+function EditView({ groups, onView, onDone }) {
+  const [groupId, setGroupId] = useState('')
+  const [catId,   setCatId]   = useState('')
+  const [fields,  setFields]  = useState({})
+  const [errors,  setErrors]  = useState({})
+  const [saving,  setSaving]  = useState(false)
+  const [saveErr, setSaveErr] = useState('')
 
-  // Opciones de categoría según el grupo elegido
-  const catOptions = groupId
-    ? (groups.find(g => g.id === groupId)?.categories ?? [])
-    : []
+  const groupConfig = GROUPS_CONFIG.find(g => g.id === groupId)
+  const groupData   = groups.find(g => g.id === groupId)
+  const catOptions  = groupData?.categories.map(c => ({
+    id:   c.id,
+    name: catLabel(groupId, c),
+  })) ?? []
 
-  // Personajes disponibles en el modal: filtrados por categoría seleccionada (prototipo)
-  const availableChars = categoryId
-    ? MOCK_CHARS.filter(c => !c.categoryId || c.categoryId === categoryId)
-    : MOCK_CHARS
-
-  // Al seleccionar categoría, precargar su nombre
-  const handleSelectCat = id => {
-    setCategoryId(id)
-    const cat = catOptions.find(c => c.id === id)
-    setName(cat?.name ?? '')
-    setNameError('')
-    // Precarga de personajes — integración real (comentada):
-    // const res = await categoryService.getById(id)
-    // setSelectedChars(res.data.characters)
-    setSelectedChars(MOCK_CHARS.slice(0, 2)) // prototipo: precarga 2 personajes
+  const handleGroupChange = (id) => {
+    setGroupId(id)
+    setCatId('')
+    setFields({})
+    setErrors({})
+    setSaveErr('')
   }
 
-  const toggleChar = char => {
-    setSelectedChars(prev =>
-      prev.find(c => c.id === char.id)
-        ? prev.filter(c => c.id !== char.id)
-        : [...prev, char]
-    )
+  const handleCatChange = (id) => {
+    setCatId(id)
+    setErrors({})
+    setSaveErr('')
+    const cat = groupData?.categories.find(c => c.id === id)
+    if (cat && groupConfig) {
+      const preloaded = {}
+      groupConfig.fields.forEach(f => { preloaded[f.key] = cat[f.key] ?? '' })
+      setFields(preloaded)
+    }
   }
 
-  const handleSubmit = () => {
-    if (!name.trim()) { setNameError('El nombre es obligatorio'); return }
+  const setField = (key, value) => {
+    setFields(s => ({ ...s, [key]: value }))
+    setErrors(s => ({ ...s, [key]: '' }))
+  }
 
-    // ── Integración real (comentada) ─────────────────────────────────────
-    // const payload = {
-    //   groupId,
-    //   name: name.trim(),
-    //   characters: selectedChars.map(c => c.id),
-    // }
-    // try {
-    //   // PUT /api/categories/:id
-    //   await categoryService.update(categoryId, payload)
-    //   onView('list')
-    // } catch (err) {
-    //   console.error('Error al actualizar categoría:', err)
-    // }
-    // ─────────────────────────────────────────────────────────────────────
+  const validate = () => {
+    const next = {}
+    groupConfig?.fields.forEach(f => {
+      if (f.required && !fields[f.key]?.trim()) {
+        next[f.key] = `${f.label} es obligatorio`
+      }
+    })
+    setErrors(next)
+    return Object.keys(next).length === 0
+  }
 
-    alert(`✅ Categoría actualizada a "${name}" (prototipo)`)
-    onView('list')
+  const handleSubmit = async () => {
+    if (!catId || !validate()) return
+    setSaving(true)
+    setSaveErr('')
+    try {
+      const vals = {}
+      groupConfig.fields.forEach(f => {
+        vals[f.key] = fields[f.key]?.trim() || null
+      })
+      await categoryService.update(groupId, catId, vals)
+      onDone()
+    } catch (err) {
+      setSaveErr(err.message ?? 'Error al guardar')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -435,129 +374,96 @@ function EditView({ groups, onView }) {
       <div className="admin-cat-form">
         <h1 className="admin-cat-form-title">Editar Categoría</h1>
 
-        {/* Selector de grupo */}
         <Dropdown
           placeholder="Elegir grupo"
-          options={groups.map(g => ({ id: g.id, name: g.name }))}
+          options={GROUPS_CONFIG.map(g => ({ id: g.id, name: g.name }))}
           selected={groupId}
-          onSelect={id => { setGroupId(id); setCategoryId(''); setName('') }}
+          onSelect={handleGroupChange}
         />
 
-        {/* Selector de categoría */}
         {groupId && (
           <Dropdown
             placeholder="Elegir categoría"
-            options={catOptions.map(c => ({ id: c.id, name: c.name }))}
-            selected={categoryId}
-            onSelect={handleSelectCat}
+            options={catOptions}
+            selected={catId}
+            onSelect={handleCatChange}
           />
         )}
 
-        {/* Nombre editable */}
-        {categoryId && (
-          <>
-            <div>
-              <label className="admin-cat-label" htmlFor="cat-name-edit">Cambiar el nombre</label>
-              <input
-                id="cat-name-edit"
-                className={`admin-cat-input ${nameError ? 'error' : ''}`}
-                type="text"
-                value={name}
-                onChange={e => { setName(e.target.value); setNameError('') }}
-              />
-              {nameError && <p className="admin-cat-error">{nameError}</p>}
-            </div>
+        {catId && groupConfig?.fields.map(f => (
+          <div key={f.key}>
+            <label className="admin-cat-label" htmlFor={`edit-${f.key}`}>{f.label}</label>
+            <input
+              id={`edit-${f.key}`}
+              className={`admin-cat-input ${errors[f.key] ? 'error' : ''}`}
+              type="text"
+              value={fields[f.key] ?? ''}
+              maxLength={f.maxLength}
+              onChange={e => setField(f.key, e.target.value)}
+            />
+            {errors[f.key] && <p className="admin-cat-error">{errors[f.key]}</p>}
+          </div>
+        ))}
 
-            {/* Personajes */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'center' }}>
-              <button
-                className="admin-cat-chars-btn"
-                type="button"
-                onClick={() => setCharModalOpen(true)}
-              >
-                Añadir Personajes 🔍
-              </button>
-
-              {/* Grid: solo visible cuando hay personajes seleccionados */}
-              {selectedChars.length > 0 && (
-                <div className="admin-cat-chars-grid">
-                  {selectedChars.map(ch => (
-                    <div key={ch.id} className="admin-cat-char-thumb">
-                      <img src={ch.img} alt={ch.name} />
-                      <button
-                        className="admin-cat-char-remove"
-                        onClick={() => toggleChar(ch)}
-                        aria-label={`Quitar ${ch.name}`}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </>
-        )}
+        {saveErr && <p className="admin-cat-error">{saveErr}</p>}
 
         <div className="admin-cat-btn-row">
           <button
             className="admin-cat-btn-accept"
             onClick={handleSubmit}
-            disabled={!categoryId}
+            disabled={!catId || saving}
           >
-            Aceptar
+            {saving ? 'Guardando…' : 'Aceptar'}
           </button>
-          <button className="admin-cat-btn-cancel" onClick={() => onView('list')}>Cancelar</button>
+          <button
+            className="admin-cat-btn-cancel"
+            onClick={() => onView('list')}
+            disabled={saving}
+          >
+            Cancelar
+          </button>
         </div>
       </div>
-
-      {charModalOpen && (
-        <CharPickerModal
-          chars={availableChars}
-          selected={selectedChars}
-          onConfirm={setSelectedChars}
-          onClose={() => setCharModalOpen(false)}
-        />
-      )}
       <BackBtn onClick={() => onView('list')} />
     </div>
   )
 }
 
-// ── Vista: Borrar ──────────────────────────────────────────────────────────
-function DeleteView({ groups, onView }) {
-  // { catId: bool } — tracking de qué categorías están seleccionadas
-  const [selected,      setSelected]      = useState({})
-  const [treeOpen,      setTreeOpen]      = useState({})   // { groupId: bool }
+// ── Vista: Borrar ──────────────────────────────────────────────────────────────
+function DeleteView({ groups, onView, onDone }) {
+  // key = `${groupId}:${catId}` → valor = { ...cat, _groupId }
+  const [selected,  setSelected]  = useState({})
+  const [treeOpen,  setTreeOpen]  = useState({})
+  const [deleting,  setDeleting]  = useState(false)
+  const [deleteErr, setDeleteErr] = useState('')
 
   const toggleTree = id => setTreeOpen(s => ({ ...s, [id]: !s[id] }))
-  const toggleCat  = id => setSelected(s => ({ ...s, [id]: !s[id] }))
 
-  // Categorías marcadas (para mostrar confirmación)
-  const toDelete = groups
-    .flatMap(g => g.categories)
-    .filter(c => selected[c.id])
+  const toggleCat = (groupId, cat) => {
+    const key = `${groupId}:${cat.id}`
+    setSelected(s => {
+      const next = { ...s }
+      if (next[key]) delete next[key]
+      else next[key] = { ...cat, _groupId: groupId }
+      return next
+    })
+  }
 
-  const handleDelete = () => {
+  const toDelete = Object.values(selected)
+
+  const handleDelete = async () => {
     if (toDelete.length === 0) return
-
-    // ── Integración real (comentada) ─────────────────────────────────────
-    // try {
-    //   await Promise.all(
-    //     toDelete.map(cat =>
-    //       // DELETE /api/categories/:id
-    //       categoryService.delete(cat.id)
-    //     )
-    //   )
-    //   onView('list')
-    // } catch (err) {
-    //   console.error('Error al borrar categorías:', err)
-    // }
-    // ─────────────────────────────────────────────────────────────────────
-
-    const names = toDelete.map(c => c.name).join(', ')
-    alert(`🗑 Categorías eliminadas: ${names} (prototipo)`)
-    onView('list')
+    setDeleting(true)
+    setDeleteErr('')
+    try {
+      await Promise.all(
+        toDelete.map(cat => categoryService.remove(cat._groupId, cat.id))
+      )
+      onDone()
+    } catch (err) {
+      setDeleteErr(err.message ?? 'Error al borrar')
+      setDeleting(false)
+    }
   }
 
   return (
@@ -565,11 +471,9 @@ function DeleteView({ groups, onView }) {
       <div className="admin-cat-form">
         <h1 className="admin-cat-form-title">Borrar Categoría</h1>
 
-        {/* Árbol de selección siempre visible — sin dropdown externo para mayor claridad */}
         <div className="admin-cat-tree">
           {groups.map(group => (
             <div key={group.id} className={`admin-cat-tree-section ${treeOpen[group.id] ? 'open' : ''}`}>
-              {/* Cabecera del grupo: clic sobre toda la fila para expandir/colapsar */}
               <div
                 className={`admin-cat-tree-group ${group.categories.length > 0 ? 'clickable' : ''}`}
                 onClick={() => group.categories.length > 0 && toggleTree(group.id)}
@@ -579,58 +483,71 @@ function DeleteView({ groups, onView }) {
                 onKeyDown={e => group.categories.length > 0 && e.key === 'Enter' && toggleTree(group.id)}
               >
                 <span className="admin-cat-tree-group-name">{group.name}</span>
-                {group.categories.length > 0 ? (
-                  <span className={`admin-cat-chevron ${treeOpen[group.id] ? 'open' : ''}`}>▼</span>
-                ) : (
-                  <span className="admin-cat-tree-empty-hint">Sin categorías</span>
-                )}
+                {group.categories.length > 0
+                  ? <span className={`admin-cat-chevron ${treeOpen[group.id] ? 'open' : ''}`}>▼</span>
+                  : <span className="admin-cat-tree-empty-hint">Sin categorías</span>
+                }
               </div>
 
-              {/* Categorías hijas con checkboxes */}
               <ul className={`admin-cat-tree-children ${treeOpen[group.id] ? 'open' : ''}`}>
-                {group.categories.map(cat => (
-                  <li key={cat.id} className="admin-cat-tree-child">
-                    <input
-                      type="checkbox"
-                      id={`del-${cat.id}`}
-                      className="admin-cat-item-check"
-                      checked={!!selected[cat.id]}
-                      onChange={() => toggleCat(cat.id)}
-                    />
-                    <label
-                      htmlFor={`del-${cat.id}`}
-                      className={`admin-cat-tree-child-name ${selected[cat.id] ? 'selected' : ''}`}
-                    >
-                      {cat.name}
-                    </label>
-                  </li>
-                ))}
+                {group.categories.map(cat => {
+                  const key = `${group.id}:${cat.id}`
+                  const isChecked = !!selected[key]
+                  return (
+                    <li key={cat.id} className="admin-cat-tree-child">
+                      <input
+                        type="checkbox"
+                        id={`del-${key}`}
+                        className="admin-cat-item-check"
+                        checked={isChecked}
+                        onChange={() => toggleCat(group.id, cat)}
+                      />
+                      <label
+                        htmlFor={`del-${key}`}
+                        className={`admin-cat-tree-child-name ${isChecked ? 'selected' : ''}`}
+                      >
+                        {catLabel(group.id, cat)}
+                      </label>
+                    </li>
+                  )
+                })}
               </ul>
             </div>
           ))}
         </div>
 
-        {/* Confirmación */}
         {toDelete.length > 0 && (
           <div className="admin-cat-confirm-box">
             <p>¿Estás seguro de que deseas borrar lo siguiente?</p>
             <ul>
               {toDelete.map(c => (
-                <li key={c.id}>{c.name} (Categoría)</li>
+                <li key={`${c._groupId}:${c.id}`}>
+                  {catLabel(c._groupId, c)}
+                  {' — '}
+                  {GROUPS_CONFIG.find(g => g.id === c._groupId)?.name}
+                </li>
               ))}
             </ul>
           </div>
         )}
 
+        {deleteErr && <p className="admin-cat-error">{deleteErr}</p>}
+
         <div className="admin-cat-btn-row">
           <button
             className="admin-cat-btn-accept"
             onClick={handleDelete}
-            disabled={toDelete.length === 0}
+            disabled={toDelete.length === 0 || deleting}
           >
-            Aceptar
+            {deleting ? 'Borrando…' : 'Aceptar'}
           </button>
-          <button className="admin-cat-btn-cancel" onClick={() => onView('list')}>Cancelar</button>
+          <button
+            className="admin-cat-btn-cancel"
+            onClick={() => onView('list')}
+            disabled={deleting}
+          >
+            Cancelar
+          </button>
         </div>
       </div>
       <BackBtn onClick={() => onView('list')} />
@@ -638,33 +555,42 @@ function DeleteView({ groups, onView }) {
   )
 }
 
-// ── Componente principal ───────────────────────────────────────────────────
+// ── Componente principal ───────────────────────────────────────────────────────
 function CategoriesAdminPage() {
-  // Estado de navegación interna entre vistas
-  const [view,   setView]   = useState('list')
-  // Estado local de grupos (en producción vendría del backend)
-  const [groups, setGroups] = useState(MOCK_GROUPS)
+  const [view,    setView]    = useState('list')
+  const [groups,  setGroups]  = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error,   setError]   = useState('')
 
-  // Callback tras crear — añade la categoría localmente (prototipo)
-  const handleSave = newCat => {
-    // En producción: recargar grupos con GET /api/categories
-    setGroups(prev => prev.map(g =>
-      g.id === newCat.groupId
-        ? { ...g, categories: [...g.categories, newCat] }
-        : g
-    ))
+  const loadGroups = useCallback(async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const data = await categoryService.getAll()
+      setGroups(buildGroups(data))
+    } catch (err) {
+      setError(err.message ?? 'Error al cargar categorías')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { loadGroups() }, [loadGroups])
+
+  // Tras cualquier mutación: recarga datos y vuelve al listado
+  const done = useCallback(() => {
+    loadGroups()
     setView('list')
-  }
+  }, [loadGroups])
 
   return (
     <>
-      {view === 'list'   && <ListView   groups={groups} onView={setView} />}
-      {view === 'create' && <CreateView groups={groups} onView={setView} onSave={handleSave} />}
-      {view === 'edit'   && <EditView   groups={groups} onView={setView} />}
-      {view === 'delete' && <DeleteView groups={groups} onView={setView} />}
+      {view === 'list'   && <ListView   groups={groups} loading={loading} error={error} onView={setView} />}
+      {view === 'create' && <CreateView onView={setView} onDone={done} />}
+      {view === 'edit'   && <EditView   groups={groups} onView={setView} onDone={done} />}
+      {view === 'delete' && <DeleteView groups={groups} onView={setView} onDone={done} />}
     </>
   )
 }
 
 export default CategoriesAdminPage
-

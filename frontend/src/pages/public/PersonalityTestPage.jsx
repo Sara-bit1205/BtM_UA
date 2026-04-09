@@ -1,9 +1,17 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import characterService from '../../services/characterService'
+import mbtiService from '../../services/mbtiService'
 import '../../assets/styles/mbti.css'
 import '../../assets/styles/home.css'
+
+function getCharacterCoverUrl(coverPath) {
+  if (!coverPath) return null
+  const { data } = supabase.storage.from('character-covers').getPublicUrl(coverPath)
+  return data.publicUrl
+}
 
 // ── Static test data ────────────────────────────────────────
 const QUESTIONS = [
@@ -222,7 +230,7 @@ function Result({ mbtiType, characters, loadingChars, onRetake }) {
                 <div className="card popular-card">
                   <Link className="nav-link" to={`/personaje/${ch.slug ?? ch.id}`}>
                     <img
-                      src={ch.cover_image}
+                      src={getCharacterCoverUrl(ch.cover_path)}
                       className="card-img-top popular-card-img"
                       alt={ch.name}
                     />
@@ -234,7 +242,7 @@ function Result({ mbtiType, characters, loadingChars, onRetake }) {
                           <h3 className="card-title popular-card-title text-truncate">{ch.name}</h3>
                         </Link>
                         <p className="card-text mb-0 text-truncate">
-                          {ch.character_universe_categories?.[0]?.universe_categories?.name ?? ''}
+                          {ch.universes?.name ?? ''}
                         </p>
                       </div>
                       <span className="badge rounded-pill home-mbti-badge-small">
@@ -254,7 +262,7 @@ function Result({ mbtiType, characters, loadingChars, onRetake }) {
 
 // ── Main page ────────────────────────────────────────────────
 function PersonalityTestPage() {
-  const { user, updateUser } = useAuth()
+  const { isAuthenticated } = useAuth()
   const [phase, setPhase] = useState('intro')   // 'intro' | 'test' | 'result'
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState([])
@@ -281,9 +289,9 @@ function PersonalityTestPage() {
       setMbtiType(type)
       setPhase('result')
 
-      // Save to user profile if authenticated
-      if (user && updateUser) {
-        updateUser({ mbtiType: type })
+      // Persist result to database if authenticated
+      if (isAuthenticated) {
+        mbtiService.submitResult(newAnswers).catch(console.error)
       }
 
       // Fetch related characters

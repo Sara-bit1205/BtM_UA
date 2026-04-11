@@ -18,12 +18,12 @@
 /* Contenedor principal */
 .login-container {
   background-color: var(--color-principal);
-  min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: self-start;
   justify-content: center;
   padding: 20px; /* Evita que el contenido pegue a los bordes en móviles */
   box-sizing: border-box;
+  padding-top: 80px;
 }
 
 .login-box {

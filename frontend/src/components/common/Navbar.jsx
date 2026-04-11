@@ -63,7 +63,7 @@ function Navbar() {
           </div>
 
           <form className="navBarSearch flex-grow-1" onSubmit={handleSubmit}>
-            <div className="input-group">
+            <div className="input-group buscarPersonaje">
               <Link className="nav-link" to="/busqueda">
                 <span className="input-group-text navBar__search-icon">
                   <i className="bi bi-search"></i>
@@ -232,14 +232,6 @@ function Navbar() {
               <Link className="nav-link" to="/descargas">
                 Descargas
               </Link>
-            </li>
-
-            <li><hr className="divider-thick" /></li>
-
-            <li className="menu-section">IDIOMA</li>
-
-            <li className="nav-item">
-              <div className="d-flex align-items-center gap-4 px-2 py-2"></div>
             </li>
 
             <li><hr className="divider-thick" /></li>

@@ -220,6 +220,31 @@ main {
   padding: 1rem;
 }
 
+.buscarPersonaje {
+  height: 28px;
+}
+
+.navBar__input {
+  height: 28px !important;
+  min-height: unset !important;
+  padding: 2px 8px !important;
+  font-size: 0.8rem;
+}
+
+.navBar__search-icon {
+  height: 28px;
+  padding: 0 6px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Ajuste fino del contenedor Bootstrap */
+.input-group > .form-control,
+.input-group > .input-group-text {
+  height: 28px;
+}
+
 .footer {
   background-color: var(--color-piePagina);
   border-top: 3px solid var(--color2);

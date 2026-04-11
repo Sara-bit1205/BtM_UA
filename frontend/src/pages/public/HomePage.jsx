@@ -417,7 +417,7 @@ function HomePage() {
 
         {/* PERSONALIDADES MÁS POPULARES */}
         <div className="col-12">
-          <h1 className="home-section-title2 mb-3">PERSONALIDADES POPULARES</h1>
+          <h1 className="home-section-title2 mb-3">PERSONALIDADES MBTI POPULARES</h1>
 
           {loadingPersonalidades ? (
             <p>Cargando personalidades populares...</p>

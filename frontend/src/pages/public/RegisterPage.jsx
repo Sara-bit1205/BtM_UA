@@ -74,6 +74,8 @@ function RegisterPage() {
       return
     }
 
+    setValidated(true)
+
     try {
       const cleanEmail = form.email.trim().toLowerCase()
       const cleanUsername = form.username.trim()
@@ -120,13 +122,12 @@ function RegisterPage() {
         })
       }
 
-      navigate('/login')
+      await supabase.auth.signOut()
+      navigate('/login', { replace: true })
     } catch (err) {
       console.error(err)
       setError(err.message || 'Error al registrarse')
     }
-
-    setValidated(true)
   }
 
   return (

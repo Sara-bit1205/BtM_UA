@@ -20,7 +20,7 @@
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: self-start;
   padding: 20px;
   color: var(--colorTexto);
 }
@@ -30,7 +30,7 @@
   border-radius: 30px;
   padding: clamp(1.5rem, 5vw, 3rem); /* Padding fluido */
   width: 100%;
-  max-width: 800px; /* Tamaño máximo para lectura cómoda en PC */
+  max-width: 1000px; /* Tamaño máximo para lectura cómoda en PC */
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }

@@ -56,6 +56,16 @@ function getGalleryImageUrl(filePath) {
   return data.publicUrl
 }
 
+function getAudioUrl(filePath) {
+  if (!filePath) return null
+
+  const { data } = supabase.storage
+    .from('audio-files')
+    .getPublicUrl(filePath)
+
+  return data.publicUrl
+}
+
 function CharacterDetailPage() {
   const { slug } = useParams()
 
@@ -79,6 +89,8 @@ function CharacterDetailPage() {
   const [loadingCommunityPhoto, setLoadingCommunityPhoto] = useState(false)
 
   const [currentUser, setCurrentUser] = useState(null)
+
+  const [audios, setAudios] = useState([])
 
 useEffect(() => {
   const loadCharacter = async () => {
@@ -253,6 +265,42 @@ useEffect(() => {
         setRelatedImages([])
       }
 
+       // 6) audios relacionados
+      try {
+        const { data: audiosData, error: audiosError } = await supabase
+          .from('audios')
+          .select(`
+            id,
+            title,
+            type,
+            audio_path,
+            created_at
+          `)
+          .eq('character_id', characterId)
+          .order('created_at', { ascending: true })
+
+        if (audiosError) throw audiosError
+
+        const formattedAudios = (audiosData || []).map((audio) => {
+        const url = getAudioUrl(audio.audio_path)
+        console.log('AUDIO DB:', audio.audio_path)
+        console.log('AUDIO URL:', url)
+
+        return {
+          id: audio.id,
+          title: audio.title || 'Audio sin título',
+          type: audio.type || 'soundtrack',
+          audioPath: audio.audio_path,
+          url,
+        }
+      })
+
+        setAudios(formattedAudios)
+      } catch (error) {
+        console.error('Error cargando audios:', error.message)
+        setAudios([])
+      }
+
       // 6) fotos comunidad
       try {
         const { data: communityPhotosData, error: communityPhotosError } = await supabase
@@ -322,6 +370,8 @@ useEffect(() => {
         console.error('Error cargando comentarios:', error.message)
         setComments([])
       }
+
+      
 
     } catch (error) {
       console.error('Error cargando personaje:', error.message)
@@ -816,8 +866,45 @@ useEffect(() => {
                 aria-labelledby="headingAudio"
                 data-bs-parent="#acordeonPersonaje"
               >
-                <div className="accordion-body custom-acordeon-body text-center btm-accordion-body">
-                  <p>De momento no hay audios disponibles.</p>
+                <div className="accordion-body custom-acordeon-body btm-accordion-body">
+                  {audios.length > 0 ? (
+                    <div className="audio-list">
+                      {audios.map((audio) => (
+                        <div key={audio.id} className="audio-item">
+                          <div className="audio-item-header">
+                            <div>
+                              <h4 className="audio-title mb-1">{audio.title}</h4>
+                              <p className="audio-type mb-2">
+                                {audio.type === 'song' ? 'Canción' : 'Banda sonora'}
+                              </p>
+                            </div>
+
+                            <button
+                              type="button"
+                              className="audio-download-btn"
+                              disabled={!audio.audioPath}
+                              onClick={() =>
+                                downloadStorageFile(
+                                  'audio-files',
+                                  audio.audioPath,
+                                  `${audio.title}.${getFileExtension(audio.audioPath)}`
+                                )
+                              }
+                            >
+                              <i className="bi bi-download"></i>
+                            </button>
+                          </div>
+
+                          <audio controls className="character-audio-player">
+                            <source src={audio.url} type="audio/mpeg" />
+                            Tu navegador no soporta audio HTML5.
+                          </audio>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p>De momento no hay audios disponibles.</p>
+                  )}
                 </div>
               </div>
             </div>

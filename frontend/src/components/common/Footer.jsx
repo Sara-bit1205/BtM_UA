@@ -23,9 +23,9 @@ function Footer() {
         <div className="footer-links d-none d-sm-flex">
           <div className="footer-col">
             <h4 className="footer-col-title">Explorar</h4>
-            <Link to="/categorias" className="footer-link">Categorías</Link>
+            <Link to="/clasificador/universos" className="footer-link">Universos</Link>
+            <Link to="/clasificador/personalidades" className="footer-link">Personalidades MBT</Link>
             <Link to="/tipos-personalidad" className="footer-link">Tipos de personalidad</Link>
-            <Link to="/test-personalidad" className="footer-link">Test MBTI</Link>
           </div>
           <div className="footer-col">
             <h4 className="footer-col-title">Información</h4>
@@ -53,9 +53,9 @@ function Footer() {
             </h2>
             <div id="footerCollapse1" className="accordion-collapse collapse" aria-labelledby="footerHeading1" data-bs-parent="#footerAccordion">
               <div className="accordion-body d-flex flex-column gap-2">
-                <Link to="/categorias" className="footer-link">Categorías</Link>
+                <Link to="/clasificador/universos" className="footer-link">Universos</Link>
+                <Link to="/clasificador/personalidades" className="footer-link">Personalidades MBT</Link>
                 <Link to="/tipos-personalidad" className="footer-link">Tipos de personalidad</Link>
-                <Link to="/test-personalidad" className="footer-link">Test MBTI</Link>
               </div>
             </div>
           </div>

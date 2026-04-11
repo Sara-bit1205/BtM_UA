@@ -183,7 +183,7 @@ function SearchPage() {
 
             {/* PSICOLOGÍA TAGS */}
             <div className="filter-item border-0" onClick={() => toggleSubMenu('psicologia')}>
-              <p>Por psicología</p>
+              <p>Por carácter</p>
               <i className={`bi bi-chevron-${menuAbierto === 'psicologia' ? 'up' : 'down'}`}></i>
             </div>
             {menuAbierto === 'psicologia' && (

@@ -9,6 +9,7 @@
     width: 100%;
     height: clamp(300px, 70vw, 400px);
     object-fit: cover;
+    object-position: top center;
 }
 
 .character-detail-page .card-header{
@@ -155,6 +156,7 @@
 
 .character-detail-page .filmography-card-img {
   width: 100%;
+  object-position: top center;
 }
 
 .character-detail-page .filmography-card .card-body{
@@ -188,6 +190,68 @@
   background-color: var(--color-principal) !important;
   border: 3px solid var(--color4) !important; 
   border-radius: 12px !important;
+}
+
+/* =========================
+   AUDIOS
+========================= */
+
+.character-detail-page .audio-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.character-detail-page .audio-item {
+  background: var(--color-principal);
+  border: 2px solid var(--color4);
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.character-detail-page .audio-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.character-detail-page .audio-title {
+  font-family: var(--texto-normal);
+  color: var(--color3);
+  font-weight: bold;
+  font-size: clamp(18px, 4vw, 24px);
+}
+
+.character-detail-page .audio-type {
+  font-family: var(--texto-normal);
+  color: var(--colorTexto);
+  opacity: 0.8;
+  font-size: 0.95rem;
+}
+
+.character-detail-page .character-audio-player {
+  width: 100%;
+}
+
+.character-detail-page .audio-download-btn {
+  background: transparent;
+  border: 2px solid var(--color5);
+  color: var(--color5);
+  border-radius: 999px;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.character-detail-page .audio-download-btn:hover {
+  background: var(--color5);
+  color: var(--color-principal);
 }
 
 /* =========================
@@ -301,6 +365,7 @@
   width: 100%;
   aspect-ratio: 1/1;
   object-fit: cover;
+  object-position: top center;
   display: block;
   transition: transform 0.3s ease;
 }
@@ -457,6 +522,7 @@
 
   .character-detail-page .community-gallery-image {
     aspect-ratio: 0.95 / 1;
+    object-position: top center;
   }
   .character-detail-page .related-images-grid {
     grid-template-columns: repeat(3, 1fr);

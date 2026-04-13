@@ -141,8 +141,8 @@ function Clasificador() {
     loadingData();
   }, [categoria]);
   return (
-    <div className="container mt-5 pt-4 mb-5">
-      <div className="mb-5">
+    <div className="container mt-3 ">
+      <div className="mb-4">
         <h1 className="home-section-title">
           {categoria === "universos"
             ? "Universos"
@@ -173,7 +173,7 @@ function Clasificador() {
 
           // 2. Aquí devolvemos el HTML con el 'return'
           return (
-            <div key={grupo.categoria} className="mb-5">
+            <div key={grupo.categoria} className="mb-4">
               {/* --- CABECERAS DINÁMICAS --- */}
               {categoria === "universos" ? (
                 /* DISEÑO A: UNIVERSOS */
@@ -237,7 +237,7 @@ function Clasificador() {
                       className="card border-0 flex-shrink-0"
                       style={{
                         width: "240px",
-                        backgroundColor: "var(--color-grisClaro)",
+                        backgroundColor: "var(--color-grisOscuro)",
                         /* Quitamos el !important para que React lo lea bien */
                         border:
                           categoria === "personalidades"

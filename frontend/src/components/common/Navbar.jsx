@@ -16,8 +16,7 @@ import StylePanel from './StylePanel'
 
 const CATEGORIES = [
   { id: 'universos', name: 'Universos', icon: 'bi-globe' },
-  { id: 'personalidades', name: 'Personalidades', icon: 'bi-people-fill' },
-  { id: 'psicologia', name: 'Psicología', icon: 'bi-puzzle-fill' },
+  { id: 'personalidades', name: 'Personalidades MBTI', icon: 'bi-people-fill' },
 ]
 
 function Navbar() {
@@ -213,13 +212,13 @@ function Navbar() {
                   }}
                   data-bs-dismiss="offcanvas"
                   className={`btn btn-categoria d-flex align-items-center w-100 text-start border-0 px-3 py-3 ${
-                    activeCategory === cat.id ? 'bg-secondary bg-opacity-25' : 'bg-transparent'
+                    activeCategory === cat.id ? 'bg-secondary bg-opacity-25' : 'bg-transparent nav-item'
                   }`}
                   style={{ color: 'inherit' }}
                 >
-                  <i className={`bi ${cat.icon} me-3 fs-4 icono-cat`}></i>
-                  <span className="fs-6 fw-semibold flex-grow-1">{cat.name}</span>
-                  <i className="bi bi-chevron-right text-secondary opacity-50 fs-5 flecha-cat"></i>
+                  <i className={`bi ${cat.icon} me-3 fs-4 icono-cat nav-item`}></i>
+                  <span className="nav-item">{cat.name}</span>
+                  <i className="bi bi-chevron-right nav-item justify-content-end center"></i>
                 </button>
               ))}
             </div>

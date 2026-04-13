@@ -27,6 +27,7 @@ import UserProfilePage from '../pages/user/UserProfilePage'
 import FavoritesPage from '../pages/user/FavoritesPage'
 import EditUserPage from '../pages/user/EditUserPage'
 import MyMBTIPage from '../pages/user/MyMBTIPage'
+import GaleriaUsuario from '../pages/public/galeriaUsuario'
 
 // Páginas de administrador
 import AdminProfilePage from '../pages/admin/AdminProfilePage'
@@ -66,6 +67,7 @@ function AppRoutes() {
           <Route path="/perfil/favoritos" element={<FavoritesPage />} />
           <Route path="/perfil/editar" element={<EditUserPage />} />
           <Route path="/perfil/mi-mbti" element={<MyMBTIPage />} />
+          <Route path="/perfil/galeria" element={<GaleriaUsuario />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>

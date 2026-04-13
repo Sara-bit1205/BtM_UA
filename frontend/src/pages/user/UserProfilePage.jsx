@@ -221,9 +221,9 @@ function UserProfilePage() {
           </button>
         )}
 
-        <button className="profile-action" type="button">
+        <Link className="profile-action" to="/perfil/galeria">
           MIS FOTOS SUBIDAS
-        </button>
+        </Link>
 
         <button className="profile-action" type="button" onClick={openLogoutDialog}>
           LOGOUT

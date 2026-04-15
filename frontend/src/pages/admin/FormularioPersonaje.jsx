@@ -30,14 +30,14 @@ function FormularioPersonaje() {
     useEffect(() => {
     if (personajeAEditar) {
       setFormData({
-        nombre: personajeAEditar.nombre || '',
-        historia: personajeAEditar.descripcion || '', // Mapeando descripción a historia
-        hito: '', // Añadimos aquí los demás mapeos cuando los tengas en tu BD
-        procedencia: '',
-        origen: '',
-        universo: '',
-        personalidad: '',
-        mbti: '',
+        nombre: personajeAEditar.name || '',
+        historia: personajeAEditar.story || '', // Mapeando story a historia
+        hito: personajeAEditar.first_appearance || '', // Añadimos aquí los demás mapeos cuando los tengas en tu BD
+        procedencia: personajeAEditar.biological_origin || '',
+        origen: personajeAEditar.place_of_origin || '',
+        universo: personajeAEditar.universe || '',
+        personalidad: personajeAEditar.personality || '',
+        mbti: personajeAEditar.mbti || '',
         interpretaciones: '',
         filmografia: '',
         psicologia: ''

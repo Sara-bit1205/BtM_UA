@@ -14,3 +14,32 @@
 .galeria-card:hover {
   filter: brightness(1.05);
 }
+
+/* --- ESTILOS BASE --- */
+.galeria-imagen {
+  width: 100%;
+  object-fit: cover;
+  display: block; /* Quita un micro-espacio invisible que a veces dejan las imágenes en HTML */
+  
+  /* EL TRUCO: Forzamos a que las esquinas de ABAJO sean totalmente cuadradas (0px) */
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  
+  /* Si el móvil necesita altura fija: */
+  height: 180px; 
+}
+
+/* --- ESTILOS PARA PC --- */
+@media (min-width: 768px) {
+  .galeria-imagen {
+    height: auto; 
+    aspect-ratio: 4 / 3; 
+  }
+}
+
+/* Si en pantallas GIGANTES (1200px+) quieres que se vean aún más altas, puedes añadir esto: */
+@media (min-width: 1200px) {
+  .galeria-imagen {
+    aspect-ratio: 1 / 1; /* Las hace totalmente cuadradas (estilo Instagram) */
+  }
+}

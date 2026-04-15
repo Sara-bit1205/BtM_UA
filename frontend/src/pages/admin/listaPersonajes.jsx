@@ -47,10 +47,23 @@ function listaPersonajes() {
         const { data: personajesData, error } = await supabase.from(
           "characters",
         ).select(`id,
-                name, 
-                slug, 
-                cover_path, 
-                mbti_types (code)`);
+          name,
+          slug,
+          description,
+          story,
+          creation_date,
+          first_appearance,
+          biological_origin,
+          place_of_origin,
+          psychological_analysis,
+          cover_path,
+          universes (
+            name
+          ),
+          mbti_types (
+            code,
+            title
+          )`);
 
         // Si hay un error
         if (error) throw error;
@@ -62,6 +75,15 @@ function listaPersonajes() {
           slug: personaje.slug,
           descripcion:
             getRelationValue(personaje.mbti_types, "code") || "Desconocido",
+          story: personaje.story,
+          creation_date: personaje.creation_date,
+          first_appearance: personaje.first_appearance,
+          biological_origin: personaje.biological_origin,
+          place_of_origin: personaje.place_of_origin,
+          psychological_analysis: personaje.psychological_analysis,
+          universe: getRelationValue(personaje.universes, "name") || "Desconocido",
+          mbti: getRelationValue(personaje.mbti_types, "code") || "Desconocido",
+          mbti_title: getRelationValue(personaje.mbti_types, "title") || "Desconocido",
           imagen:
             getCharacterCoverUrl(personaje.cover_path) ||
             "https://via.placeholder.com/150", // URL de una imagen por defecto si no hay cover
@@ -110,7 +132,7 @@ function listaPersonajes() {
                 color: "#000",
                 border: "2px solid #4a9e9c",
               }} // Ese verde azulado de tu captura
-              onClick={() => navigate("/formulario-personaje")}
+              onClick={() => navigate("/admin/formulario-personaje")}
             >
               CREAR NUEVO <i className="bi bi-plus-circle fs-5"></i>
             </button>

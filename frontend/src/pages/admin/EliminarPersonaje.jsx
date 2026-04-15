@@ -20,7 +20,7 @@ function EliminarPersonaje() {
 
     // Función para borrar realmente (Aquí irá tu lógica de Supabase)
     const handleBorrar = () => {
-        console.log(`Borrando a ${personaje.nombre} de la base de datos...`);
+        console.log(`Borrando a ${personaje.name} de la base de datos...`);
         // TODO: Supabase DELETE request
         
         // Después de borrar, volvemos a la lista
@@ -42,14 +42,14 @@ function EliminarPersonaje() {
 
                 {/* Nombre del personaje */}
                 <h2 className="mb-3 text-uppercase" style={{ fontFamily: 'var(--texto-encabezados)', color: '#5bc0be' }}>
-                {personaje.nombre}
+                {personaje.name}
                 </h2>
 
                 {/* Imagen centrada */}
                 <div className="text-center mb-4">
                 <img 
                     src={personaje.imagen} 
-                    alt={personaje.nombre}
+                    alt={personaje.name}
                     className="bg-white" // Fondo blanco por si es PNG transparente
                     style={{ 
                     width: '180px', 

@@ -170,6 +170,7 @@ const GaleriaUsuario = () => {
                 <div
                   className="card h-100 border-0 shadow-sm galeria-card"
                   style={{
+                    backgroundColor: "transparent",
                     position: "relative",
                     borderRadius: "15px",
                     overflow: "hidden",
@@ -238,7 +239,7 @@ const GaleriaUsuario = () => {
                   <img
                     src={foto.imageUrl}
                     alt={foto.descripcion || "Foto de galería"}
-                    style={{ height: "180px", objectFit: "cover" }}
+                    className ="card-img-top galeria-imagen"
                   />
 
                   {foto.personajeNombre && (

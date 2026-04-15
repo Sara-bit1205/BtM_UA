@@ -7,61 +7,72 @@ secciones de la web. Con el ajuste de auth, deja de depender del user
 antiguo y pasa a usar el estado real de Supabase a través de 
 isAuthenticated y role.*/
 
-import { useState } from 'react'
-import { useNavigate, Link, useLocation } from 'react-router-dom'
-import logo from '../../assets/images/logo.png'
-import { useAuth } from '../../context/AuthContext'
-import StylePanel from './StylePanel'
-
+import { useState } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+import logo from "../../assets/images/logo.png";
+import { useAuth } from "../../context/AuthContext";
+import StylePanel from "./StylePanel";
 
 const CATEGORIES = [
-  { id: 'universos', name: 'Universos', icon: 'bi-globe' },
-  { id: 'personalidades', name: 'Personalidades MBTI', icon: 'bi-people-fill' },
-]
+  { id: "universos", name: "Universos", icon: "bi-globe" },
+  { id: "personalidades", name: "Personalidades MBTI", icon: "bi-people-fill" },
+];
 
 function Navbar() {
-  const { role, isAuthenticated } = useAuth()
-  const navigate = useNavigate()
-  const [searchTerm, setSearchTerm] = useState('')
-  const [isStylePanelOpen, setIsStylePanelOpen] = useState(false)
-  const [activeCategory, setActiveCategory] = useState(null)
+  const { role, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isStylePanelOpen, setIsStylePanelOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(null);
   const location = useLocation(); // Importar de react-router-dom
-  
+
+  //-------------------------------PRUEBA DE LA BARRA DE BUSQUEDA EN MÓVIL-------------------------------
+  const [mostrarBuscadorMovil, setMostrarBuscadorMovil] = useState(false);
+
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (searchTerm.trim()) {
-      navigate(`/busqueda?query=${encodeURIComponent(searchTerm)}`)
-      setSearchTerm('')
+      navigate(`/busqueda?query=${encodeURIComponent(searchTerm)}`);
+      setSearchTerm("");
     }
-  }
+  };
 
   const handleFilterClick = () => {
-    if (location.pathname !== '/busqueda') {
-      navigate('/busqueda?openFilters=true');
+    if (location.pathname !== "/busqueda") {
+      navigate("/busqueda?openFilters=true");
     } else {
-      // Si ya estamos en búsqueda, emitimos un evento personalizado 
+      // Si ya estamos en búsqueda, emitimos un evento personalizado
       // o usamos un estado global. Lo más simple:
-      window.dispatchEvent(new CustomEvent('toggle-search-filters'));
+      window.dispatchEvent(new CustomEvent("toggle-search-filters"));
     }
   };
 
   const profilePath = !isAuthenticated
-    ? '/login'
-    : role === 'admin'
-      ? '/admin'
-      : '/perfil'
+    ? "/login"
+    : role === "admin"
+      ? "/admin"
+      : "/perfil";
 
   return (
     <>
       <nav className="navBar">
+        {/* CONTENEDOR PRINCIPAL */}
         <div className="container-fluid d-flex align-items-center justify-content-between gap-2">
           <div className="navBarLogo d-flex align-items-center justify-content-center">
             <Link to="/">
-              <img src={logo} alt="Behind The Mask" className="navBarLogo-img" />
+              <img
+                src={logo}
+                alt="Behind The Mask"
+                className="navBarLogo-img"
+              />
             </Link>
           </div>
 
-          <form className="navBarSearch flex-grow-1" onSubmit={handleSubmit}>
+          {/* BUSCADOR DE PC (Se oculta en móvil) */}
+          <form
+            className="navBarSearch flex-grow-1 d-none d-md-flex"
+            onSubmit={handleSubmit}
+          >
             <div className="input-group buscarPersonaje">
               <Link className="nav-link" to="/busqueda">
                 <span className="input-group-text navBar__search-icon">
@@ -72,47 +83,90 @@ function Navbar() {
                 type="text"
                 className="form-control navBar__input"
                 placeholder="Buscar personaje..."
-                aria-label="Buscar personaje"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </form>
 
-          <div className="navBarActions d-flex align-items-center gap-3">
-            <button type="button" className="btnFilter" aria-label="Filtrar" onClick={handleFilterClick}>
+          {/* BOTONES DE ACCIÓN */}
+          <div className="navBarActions d-flex align-items-center gap-2 gap-md-3">
+            {/* 1. BOTÓN BUSCAR MÓVIL (Enciende/Apaga el interruptor) */}
+            <button
+              type="button"
+              className="btn-buscar-mobile d-md-none"
+              aria-label="Abrir buscador"
+              onClick={() => setMostrarBuscadorMovil(!mostrarBuscadorMovil)}
+            >
+              {/* Cambiamos el icono a una 'X' si está abierto */}
+              <i
+                className={mostrarBuscadorMovil ? "bi bi-x-lg" : "bi bi-search"}
+              ></i>
+            </button>
+
+            {/* 2. Filtro */}
+            <button
+              type="button"
+              className="btnFilter"
+              onClick={handleFilterClick}
+            >
               <i className="bi bi-funnel-fill"></i>
             </button>
 
+            {/* 3. Estilos */}
             <button
               type="button"
               className="btnStyle"
-              aria-label="Cambiar estilo"
-              aria-expanded={isStylePanelOpen}
-              aria-controls="stylePanel"
               onClick={() => setIsStylePanelOpen((prev) => !prev)}
             >
               <i className="bi bi-brush"></i>
             </button>
 
+            {/* 4. Perfil */}
             <Link to={profilePath} className="profile-link">
-              <button type="button" className="btnUser" aria-label="Perfil">
+              <button type="button" className="btnUser">
                 <i className="bi bi-person-circle"></i>
               </button>
             </Link>
 
+            {/* 5. Menú */}
             <button
               type="button"
               className="btnMenu navbar-toggler"
               data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasNavbar"
-              aria-controls="offcanvasNavbar"
-              aria-label="Menú"
             >
               <i className="bi bi-list"></i>
             </button>
           </div>
         </div>
+
+        {/* --- LA MAGIA: EL BUSCADOR DESPLEGABLE PARA MÓVIL --- */}
+        {mostrarBuscadorMovil && (
+          <div className="buscador-movil-container d-md-none">
+            <form onSubmit={handleSubmit} className="buscador-movil-form">
+              {/* EL MOLDE: Une el input y el botón */}
+              <div className="input-group buscador-movil-wrapper">
+                <input
+                  type="text"
+                  className="form-control buscador-movil-input"
+                  placeholder="¿A quién buscas...?"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  autoFocus
+                />
+
+                <Link
+                  to="/busqueda"
+                  className="btn buscador-movil-btn"
+                  onClick={() => setMostrarBuscadorMovil(false)}
+                >
+                  <i className="bi bi-search fw-bold"></i>
+                </Link>
+              </div>
+            </form>
+          </div>
+        )}
       </nav>
 
       <div
@@ -133,7 +187,9 @@ function Navbar() {
           ></button>
         </div>
 
-        <li><hr className="divider-thick" /></li>
+        <li>
+          <hr className="divider-thick" />
+        </li>
 
         <div className="offcanvas-body">
           <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
@@ -145,7 +201,9 @@ function Navbar() {
               </Link>
             </li>
 
-            <li><hr className="divider-thick" /></li>
+            <li>
+              <hr className="divider-thick" />
+            </li>
 
             <li className="menu-section">PERSONALIDAD</li>
 
@@ -167,7 +225,9 @@ function Navbar() {
               </Link>
             </li>
 
-            <li><hr className="divider-thick" /></li>
+            <li>
+              <hr className="divider-thick" />
+            </li>
 
             <li className="menu-section">EXPLORAR</li>
 
@@ -207,23 +267,29 @@ function Navbar() {
                 <button
                   key={cat.id}
                   onClick={() => {
-                    setActiveCategory(cat.id)
-                    navigate(`/clasificador/${cat.id}`)
+                    setActiveCategory(cat.id);
+                    navigate(`/clasificador/${cat.id}`);
                   }}
                   data-bs-dismiss="offcanvas"
                   className={`btn btn-categoria d-flex align-items-center w-100 text-start border-0 px-3 py-3 ${
-                    activeCategory === cat.id ? 'bg-secondary bg-opacity-25' : 'bg-transparent nav-item'
+                    activeCategory === cat.id
+                      ? "bg-secondary bg-opacity-25"
+                      : "bg-transparent nav-item"
                   }`}
-                  style={{ color: 'inherit' }}
+                  style={{ color: "inherit" }}
                 >
-                  <i className={`bi ${cat.icon} me-3 fs-4 icono-cat nav-item`}></i>
+                  <i
+                    className={`bi ${cat.icon} me-3 fs-4 icono-cat nav-item`}
+                  ></i>
                   <span className="nav-item">{cat.name}</span>
                   <i className="bi bi-chevron-right nav-item justify-content-end center"></i>
                 </button>
               ))}
             </div>
 
-            <li><hr className="divider-thick" /></li>
+            <li>
+              <hr className="divider-thick" />
+            </li>
 
             <li className="menu-section">MULTIMEDIA</li>
 
@@ -233,7 +299,9 @@ function Navbar() {
               </Link>
             </li>
 
-            <li><hr className="divider-thick" /></li>
+            <li>
+              <hr className="divider-thick" />
+            </li>
           </ul>
         </div>
       </div>
@@ -245,7 +313,7 @@ function Navbar() {
         />
       </div>
     </>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;

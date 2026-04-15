@@ -669,3 +669,155 @@ main {
   }
 
 }
+
+/* =========================================
+   AJUSTES MOBILE (Estilo PCComponentes)
+   ========================================= */
+@media (max-width: 768px) {
+  /* 1. Barra de navegación mucho más fina y compacta */
+  .navBar {
+    padding: 0.5rem 1rem !important;
+  }
+
+  /* 2. Logo reducido para ganar espacio central */
+  .navBarLogo {
+    width: 45px !important;
+    height: 45px !important;
+  }
+
+  /* 3. Botones de acción alineados y con tamaño óptimo (Touch Target) */
+  .btnFilter,
+  .btnStyle,
+  .btnMenu,
+  .btnUser {
+    width: 38px;
+    height: 38px;
+    font-size: 1.4rem !important;
+  }
+
+  .btnUser i {
+    font-size: 1.6rem;
+  }
+
+  /* 4. MAGIA DEL BUSCADOR: Ocultamos el input de texto en móvil */
+  .navBar__input {
+    display: none !important;
+  }
+
+  /* Quitamos el ancho completo del grupo del buscador */
+  .input-group.buscarPersonaje {
+    width: auto !important;
+    flex-wrap: nowrap;
+  }
+
+  /* Convertimos el icono/botón de la lupa en un círculo perfecto */
+  .navBar__search-icon,
+  /* El nuevo botón de búsqueda exclusivo para móvil */
+  .btn-buscar-mobile {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: var(--color4); /* Mismo verde/turquesa que el usuario */
+    color: var(--color-principal);   /* Icono en oscuro o claro según tema */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: 1.4rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .btn-buscar-mobile i {
+    font-size: 1.4rem;
+    font-weight: bold;
+  }
+
+  /* Efecto hover/toque para que reaccione igual que los demás */
+  .btn-buscar-mobile:active,
+  .btn-buscar-mobile:hover {
+    transform: translateY(-2px);
+    background-color: var(--color5);
+  }
+
+  /* 5. Panel de estilos (Ajuste para que no se salga de pantalla) */
+  .style-panel {
+    width: 90%;
+    right: 5%; /* Centrado relativo */
+    top: 70px;
+    padding: 0.8rem;
+  }
+
+  .style-panel__title {
+    font-size: 1.35rem;
+  }
+
+  .theme-option {
+    width: 30%;
+    height: 40px;
+    font-size: 1.4rem;
+  }
+
+  .input-group.buscador-movil-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+  }
+
+  .input-group.buscador-movil-wrapper .form-control.buscador-movil-input {
+    display: block !important;
+    flex: 1 !important;
+    margin-top: 0.5rem;
+    padding: 0.6rem 0.9rem !important;
+    font-size: 0.9rem !important;
+    border-radius: 20px !important;
+    border: 2px solid var(--color2) !important;
+    box-shadow: none !important;
+    background-color: var(--color-grisOscuro) !important;
+    color: #ffffff !important;
+  }
+
+  .input-group.buscador-movil-wrapper .form-control.buscador-movil-input::placeholder {
+    color: #b0b0b0 !important;
+  }
+
+  .input-group.buscador-movil-wrapper .form-control.buscador-movil-input:focus {
+    border-color: var(--color4) !important;
+    box-shadow: 0 0 0 2px rgba(72, 145, 175, 0.3) !important;
+    outline: none !important;
+    border-radius: 20px !important;
+    background-color: var(--color-grisOscuro) !important;
+    color: #ffffff !important;
+  }
+
+  .input-group.buscador-movil-wrapper .btn.buscador-movil-btn {
+    display: flex !important;
+    background-color: var(--color4) !important;
+    color: var(--color-principal) !important;
+    border-radius: 50% !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: none !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    transition: transform 0.2s ease, background-color 0.2s ease !important;
+    flex-shrink: 0 !important;
+    margin-top: 0.5rem;
+  }
+
+  .input-group.buscador-movil-wrapper .btn.buscador-movil-btn:hover,
+  .input-group.buscador-movil-wrapper .btn.buscador-movil-btn:active {
+    background-color: var(--color5) !important;
+    transform: translateY(-2px) !important;
+    color: var(--color-principal) !important;
+  }
+
+  .input-group.buscador-movil-wrapper .btn.buscador-movil-btn i {
+    font-size: 1.1rem !important;
+    color: var(--color-principal) !important;
+  }
+}

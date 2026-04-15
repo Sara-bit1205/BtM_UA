@@ -13,7 +13,7 @@
  *   Grupo "Tipo de Personalidad"    → tabla mbti_types
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import categoryService from '../../services/categoryService'
 import '../../assets/styles/adminCategories.css'
@@ -66,9 +66,21 @@ function buildGroups(data) {
 // ── Subcomponente: dropdown personalizado ───────────────────────────────────────
 function Dropdown({ placeholder, options, selected, onSelect }) {
   const [open, setOpen] = useState(false)
+  const wrapRef = useRef(null)
   const label = selected ? options.find(o => o.id === selected)?.name : placeholder
+
+  // Cerrar al hacer click fuera del componente
+  useEffect(() => {
+    if (!open) return
+    const handler = (e) => {
+      if (!wrapRef.current?.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
   return (
-    <div className="admin-cat-dropdown-wrap">
+    <div className="admin-cat-dropdown-wrap" ref={wrapRef}>
       <button
         type="button"
         className={`admin-cat-dropdown-btn ${open ? 'open' : ''}`}

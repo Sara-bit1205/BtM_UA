@@ -182,7 +182,7 @@
 }
 
 .admin-cat-sublist.open {
-  max-height: 500px;
+  max-height: 1500px;
 }
 
 /* El div interior conecta visualmente con la cabecera */
@@ -292,9 +292,8 @@
 }
 
 /* Elevar el z-index del wrap mientras el botón esté abierto */
-.admin-cat-dropdown-wrap:focus-within,
-.admin-cat-dropdown-btn.open ~ * {
-  z-index: 20;
+.admin-cat-dropdown-wrap:has(.admin-cat-dropdown-btn.open) {
+  z-index: 100;
 }
 
 .admin-cat-dropdown-btn {
@@ -348,24 +347,52 @@
 }
 
 .admin-cat-dropdown-list.open {
-  max-height: 400px;
+  max-height: 260px;
   opacity: 1;
   pointer-events: all;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color2) transparent;
+}
+
+.admin-cat-dropdown-list.open::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-cat-dropdown-list.open::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-cat-dropdown-list.open::-webkit-scrollbar-thumb {
+  background: var(--color2);
+  border-radius: 999px;
 }
 
 .admin-cat-dropdown-item {
   font-family: var(--texto-normal);
   color: var(--color-principal);
   font-size: 0.95rem;
-  padding: 0.2rem 0;
+  padding: 0.35rem 0.5rem;
   cursor: pointer;
   list-style: disc;
   margin-left: 1rem;
+  border-radius: 8px;
+  transition: background 0.15s ease, color 0.15s ease, padding-left 0.15s ease;
+}
+
+.admin-cat-dropdown-item:hover {
+  background: var(--color2);
+  color: var(--colorTexto);
+  padding-left: 1rem;
 }
 
 .admin-cat-dropdown-item.selected {
   font-weight: 700;
   color: var(--color2);
+}
+
+.admin-cat-dropdown-item.selected:hover {
+  color: var(--colorTexto);
 }
 
 /* ── Sección añadir personajes ── */

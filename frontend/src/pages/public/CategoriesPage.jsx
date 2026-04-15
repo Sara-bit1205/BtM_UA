@@ -159,7 +159,7 @@ function CategoriesPage() {
       style={{ backgroundColor: "black", minHeight: "100vh", color: "white" }}
     >
       <div className="row justify-content-center pt-4">
-        <div className="col-12 col-md-8 col-lg-6">
+        <div className="col-12 col-md-10 col-lg-8">
           {/* --- BLOQUE 1: CABECERA (HERO) --- */}
           {loadingData ? (
             <div
@@ -206,7 +206,7 @@ function CategoriesPage() {
                 </h1>
                 <h4
                   style={{
-                    color: "var(--color1)",
+                    color: "var(--color4)",
                     fontWeight: "bold",
                     marginBottom: "1rem",
                   }}
@@ -230,9 +230,9 @@ function CategoriesPage() {
                   <h3
                     className="mb-4 ps-3"
                     style={{
-                      color: "var(--color1)",
+                      color: "var(--color3)",
                       fontFamily: "var(--texto-encabezados)",
-                      borderLeft: "5px solid var(--color1)",
+                      borderLeft: "5px solid var(--color3)",
                     }}
                   >
                     PERSONAJES POPULARES
@@ -375,9 +375,9 @@ function CategoriesPage() {
                   <h3
                     className="mb-4 ps-3"
                     style={{
-                      color: "var(--color1)",
+                      color: "var(--color5)",
                       fontFamily: "var(--texto-encabezados)",
-                      borderLeft: "5px solid var(--color1)",
+                      borderLeft: "5px solid var(--color5)",
                     }}
                   >
                     EXPLORA MÁS PERSONAJES

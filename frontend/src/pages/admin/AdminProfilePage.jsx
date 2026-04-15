@@ -118,7 +118,7 @@ function AdminProfilePage() {
         </article>
 
         <nav className="profile-actions" aria-label="Acciones del perfil administrador">
-          <Link className="profile-action" to="/admin/personajes">
+          <Link className="profile-action" to="/admin/lista-personajes">
             Listado de Personajes
           </Link>
           <Link className="profile-action" to="/admin/categorias">

@@ -17,11 +17,6 @@ import Politica_Privacidad from '../pages/public/Politica_privacidad'
 import MBTITypesPage from '../pages/public/MBTITypesPage'
 import HowMBTIWorksPage from '../pages/public/HowMBTIWorksPage'
 
-// Página de lista de personajes (prueba)
-import ListaPersonajes from '../pages/public/listaPersonajes'
-import FormularioPersonaje from '../pages/public/FormularioPersonaje'
-import EliminarPersonaje from '../pages/public/EliminarPersonaje'
-
 // Páginas de usuario autenticado
 import UserProfilePage from '../pages/user/UserProfilePage'
 import FavoritesPage from '../pages/user/FavoritesPage'
@@ -34,6 +29,10 @@ import AdminProfilePage from '../pages/admin/AdminProfilePage'
 import CharactersAdminPage from '../pages/admin/CharactersAdminPage'
 import CategoriesAdminPage from '../pages/admin/CategoriesAdminPage'
 import UsersListPage from '../pages/admin/UsersListPage'
+// Página de lista de personajes (prueba)
+import ListaPersonajes from '../pages/admin/listaPersonajes'
+import FormularioPersonaje from '../pages/admin/FormularioPersonaje'
+import EliminarPersonaje from '../pages/admin/EliminarPersonaje'
 
 // Rutas protegidas
 import ProtectedRoute from '../components/common/ProtectedRoute'
@@ -57,10 +56,8 @@ function AppRoutes() {
         <Route path="/clasificador/:categoria" element={<Clasificador />} />
         <Route path="/clasificador/:categoria" element={<Clasificador />} />
         <Route path="/clasificador/:categoria" element={<Clasificador />} />
-        <Route path="/lista-personajes" element={<ListaPersonajes />} />
-        <Route path="/formulario-personaje" element={<FormularioPersonaje />} />
         <Route path="/politica_privacidad" element={<Politica_Privacidad />} />
-        <Route path="/eliminar-personaje" element={<EliminarPersonaje />} />
+        
 
         <Route element={<ProtectedRoute allowedRoles={['user']} />}>
           <Route path="/perfil" element={<UserProfilePage />} />
@@ -75,6 +72,9 @@ function AppRoutes() {
           <Route path="/admin/personajes" element={<CharactersAdminPage />} />
           <Route path="/admin/categorias" element={<CategoriesAdminPage />} />
           <Route path="/admin/usuarios" element={<UsersListPage />} />
+          <Route path="/admin/lista-personajes" element={<ListaPersonajes />} />
+          <Route path="/admin/formulario-personaje" element={<FormularioPersonaje />} />
+          <Route path="/admin/eliminar-personaje" element={<EliminarPersonaje />} />
         </Route>
       </Route>
 

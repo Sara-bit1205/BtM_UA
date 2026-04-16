@@ -92,6 +92,7 @@ function CharacterDetailPage() {
 
   const [audios, setAudios] = useState([])
   const [openTranscriptId, setOpenTranscriptId] = useState(null)
+  const [personalityTags, setPersonalityTags] = useState([])
 
 useEffect(() => {
   const loadCharacter = async () => {
@@ -234,7 +235,37 @@ useEffect(() => {
         setActors([])
       }
 
-      // 5) imágenes relacionadas
+      // 5) tags de personalidad
+      try {
+        const { data: personalityTagsData, error: personalityTagsError } = await supabase
+          .from('character_personality_tags')
+          .select(`
+            id,
+            personality_tags (
+              id,
+              name,
+              description
+            )
+          `)
+          .eq('character_id', characterId)
+
+        if (personalityTagsError) throw personalityTagsError
+
+        const formattedTags = (personalityTagsData || [])
+          .map((item) => ({
+            id: item.id,
+            name: getRelationValue(item.personality_tags, 'name'),
+            description: getRelationValue(item.personality_tags, 'description'),
+          }))
+          .filter((tag) => tag.name)
+
+        setPersonalityTags(formattedTags)
+      } catch (error) {
+        console.error('Error cargando tags de personalidad:', error.message)
+        setPersonalityTags([])
+      }
+
+      // 6) imágenes relacionadas
       try {
         const { data: mediaData, error: mediaError } = await supabase
           .from('character_media')
@@ -266,7 +297,7 @@ useEffect(() => {
         setRelatedImages([])
       }
 
-       // 6) audios relacionados
+       // 8) audios relacionados
       try {
        const { data: audiosData, error: audiosError } = await supabase
         .from('audios')
@@ -302,7 +333,7 @@ useEffect(() => {
         setAudios([])
       }
 
-      // 6) fotos comunidad
+      // 9) fotos comunidad
       try {
         const { data: communityPhotosData, error: communityPhotosError } = await supabase
           .from('community_photos')
@@ -332,7 +363,7 @@ useEffect(() => {
         setCommunityPhotos([])
       }
 
-      // 7) comentarios
+      // 10) comentarios
       try {
         const { data: commentsData, error: commentsError } = await supabase
           .from('comments')
@@ -600,7 +631,10 @@ useEffect(() => {
           </div>
 
           <h3 className="card-subtitle mb-2">
-            Universo {character.universe}
+            <strong>Universo: </strong>{character.universe}
+          </h3>
+          <h3 className="card-subtitle mb-2">
+            <strong>Carácter: </strong>{personalityTags.length > 0 ? personalityTags.map(tag => tag.name).join(', ') : '—'}
           </h3>
 
           <section className="auxiliar mt-5 mb-3">

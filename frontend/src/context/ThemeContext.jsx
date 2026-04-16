@@ -1,49 +1,104 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useAuth } from "./AuthContext";
+import { supabase } from "../lib/supabase";
 
 const ThemeContext = createContext();
 
+const DEFAULT_THEME = "default";
+const DEFAULT_FONT_SIZE = "100";
+const DEFAULT_ACCESSIBLE_FONT = false;
+
 export function ThemeProvider({ children }) {
+  const { profile, isAuthenticated } = useAuth();
 
-    /*useState --> guarda información del estado. Se usa para que recuerde cosas*/
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("theme") || DEFAULT_THEME;
+  });
 
-    /*Para establecer el estilo --> claro, default(oscuro) o contraste*/
-    const[theme, setTheme] = useState(() => {
-        return localStorage.getItem("theme") || "default";
-    });
+  const [fontSize, setFontSize] = useState(() => {
+    return localStorage.getItem("fontSize") || DEFAULT_FONT_SIZE;
+  });
 
-    /*Para establecer el tamaño del texto, con un valor por defecto del 100%*/
-    const [fontSize, setFontSize] = useState(() => {
-        return localStorage.getItem("fontSize") || "100";
-    });
+  const [accessibleFont, setAccessibleFont] = useState(() => {
+    return localStorage.getItem("accessibleFont") === "true" || DEFAULT_ACCESSIBLE_FONT;
+  });
 
-    /*Para activar o desactivar la fuente accesible (dislexia)*/
-    const [accessibleFont, setAccessibleFont] = useState(() => {
-        return localStorage.getItem("accessibleFont") === "true";
-    });
+  const isApplyingProfileRef = useRef(false);
+  const hasLoadedProfilePrefsRef = useRef(false);
 
-    /*useEffect --> hace cosas cuando pasa algo. En este caso, 
-    cada vez que cambie el tema, se aplicará el nuevo tema al documento y se guardará en localStorage*/
-    useEffect(() => {
-        document.documentElement.setAttribute("data-theme", theme);
-        localStorage.setItem("theme", theme);
-    }, [theme]);
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
 
-    useEffect(() => {
-        document.documentElement.style.setProperty("--font-size-scale", `${fontSize}%`);
-        localStorage.setItem("fontSize", fontSize);
-    }, [fontSize]);
+  useEffect(() => {
+    document.documentElement.style.setProperty("--font-size-scale", `${fontSize}%`);
+  }, [fontSize]);
 
-    useEffect(() => {
-        if (accessibleFont) {
-        document.documentElement.setAttribute("data-font", "accessible");
-        } else {
-        document.documentElement.removeAttribute("data-font");
-        }
+  useEffect(() => {
+    if (accessibleFont) {
+      document.documentElement.setAttribute("data-font", "accessible");
+    } else {
+      document.documentElement.removeAttribute("data-font");
+    }
+  }, [accessibleFont]);
 
-        localStorage.setItem("accessibleFont", accessibleFont);
-    }, [accessibleFont]);
+  useEffect(() => {
+    if (isAuthenticated && profile) {
+      isApplyingProfileRef.current = true;
 
-    return (
+      setTheme(profile.theme || DEFAULT_THEME);
+      setFontSize(profile.font_size || DEFAULT_FONT_SIZE);
+      setAccessibleFont(profile.accessible_font ?? DEFAULT_ACCESSIBLE_FONT);
+
+      hasLoadedProfilePrefsRef.current = true;
+
+      setTimeout(() => {
+        isApplyingProfileRef.current = false;
+      }, 0);
+    } else {
+      setTheme(DEFAULT_THEME);
+      setFontSize(DEFAULT_FONT_SIZE);
+      setAccessibleFont(DEFAULT_ACCESSIBLE_FONT);
+
+      hasLoadedProfilePrefsRef.current = false;
+    }
+  }, [isAuthenticated, profile]);
+
+  useEffect(() => {
+    const savePreferences = async () => {
+      if (!isAuthenticated || !profile?.id) return;
+      if (!hasLoadedProfilePrefsRef.current) return;
+      if (isApplyingProfileRef.current) return;
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          theme,
+          font_size: fontSize,
+          accessible_font: accessibleFont,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", profile.id);
+
+      if (error) {
+        console.error("Error guardando preferencias de tema:", error.message);
+      }
+    };
+
+    savePreferences();
+  }, [theme, fontSize, accessibleFont, isAuthenticated, profile?.id]);
+
+  const resetTheme = () => {
+    setTheme(DEFAULT_THEME);
+    setFontSize(DEFAULT_FONT_SIZE);
+    setAccessibleFont(DEFAULT_ACCESSIBLE_FONT);
+
+    document.documentElement.setAttribute("data-theme", DEFAULT_THEME);
+    document.documentElement.style.setProperty("--font-size-scale", `${DEFAULT_FONT_SIZE}%`);
+    document.documentElement.removeAttribute("data-font");
+  };
+
+  return (
     <ThemeContext.Provider
       value={{
         theme,
@@ -52,6 +107,7 @@ export function ThemeProvider({ children }) {
         setFontSize,
         accessibleFont,
         setAccessibleFont,
+        resetTheme,
       }}
     >
       {children}

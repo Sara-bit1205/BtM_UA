@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../lib/supabase.js'
 import '../../assets/styles/profile.css'
 import '../../assets/styles/mbti.css'
@@ -15,14 +16,14 @@ function AdminProfilePage() {
     
 
   const avatarUrl = useMemo(() => {
-    console.log('AVATAR EN DB:', profile?.avatar)
+    // console.log('AVATAR EN DB:', profile?.avatar)
 
     if (!profile?.avatar) {
       const { data } = supabase.storage
         .from('avatars')
         .getPublicUrl('default-avatar.jpg')
 
-      console.log('DEFAULT URL:', data.publicUrl)
+      // console.log('DEFAULT URL:', data.publicUrl)
       return data.publicUrl
     }
 
@@ -30,7 +31,7 @@ function AdminProfilePage() {
       .from('avatars')
       .getPublicUrl(profile.avatar)
 
-    console.log('AVATAR URL GENERADA:', data.publicUrl)
+    // console.log('AVATAR URL GENERADA:', data.publicUrl)
 
     return data.publicUrl
   }, [profile?.avatar])
@@ -42,17 +43,17 @@ function AdminProfilePage() {
 
   //Confirmamos logout
   //activa loading, llama a logout(), manda al usuario a / (pag principal), si falla muestra error y quita el logout al final
-  const handleConfirmLogout = async () => {
+   const handleConfirmLogout = async () => {
     try {
       setLoadingLogout(true)
       await logout()
+      resetTheme()
       navigate('/')
     } catch (error) {
       console.error('Error al cerrar sesión:', error.message)
       alert('No hemos podido procesar el cierre de sesión. Inténtalo de nuevo.')
     } finally {
       setLoadingLogout(false)
-
     }
   }
 

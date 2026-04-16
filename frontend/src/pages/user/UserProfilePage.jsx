@@ -1,14 +1,7 @@
-/* La nueva versión de UserProfilePage toma los datos del profile cargado
- por AuthContext, muestra la información del usuario y, en vez de borrar
- una cuenta desde una tabla inexistente, usa el servicio de usuario para
- darla de baja de forma segura marcando is_active = false y cerrando
- sesión después. */
-
-//HECHO
-
 import { useRef, useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 import { supabase } from "../../lib/supabase.js";
 import userService from "../../services/userService";
 import mbtiService from "../../services/mbtiService";
@@ -39,6 +32,7 @@ function resolveAvatarUrl(value) {
 
 function UserProfilePage() {
   const { profile, logout } = useAuth();
+  const { resetTheme } = useTheme();
   const navigate = useNavigate();
 
   const dialogRef = useRef(null);
@@ -68,81 +62,46 @@ function UserProfilePage() {
     unsubscribeDialogRef.current?.showModal();
   };
 
-const handleConfirmBaja = async () => {
-  const confirmar = window.confirm(
-    "¿Estás seguro? Se borrarán permanentemente tu cuenta, tu avatar, tus audios y tus fotos de la galería."
-  );
-  if (!confirmar) return;
+  const handleConfirmBaja = async () => {
+    const confirmar = window.confirm(
+      "¿Estás seguro? Se borrarán permanentemente tu cuenta, tu avatar, tus audios y tus fotos de la galería."
+    );
+    if (!confirmar) return;
 
-  try {
-    setLoadingUnsubscribe(true);
-    
-    // 1. Obtener el ID del usuario actual
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("Usuario no encontrado");
+    try {
+      setLoadingUnsubscribe(true);
 
-    // --- PASO A: RECOLECTAR TODAS LAS RUTAS (Antes de que desaparezcan de la DB) ---
+      const avatarPath = await userService.getAvatarPath();
+      const rutasFotos = await userService.getCommunityPhotoPaths();
+      const rutasAudios = await userService.getAudioPaths();
 
-    // 1.1 Ruta del Avatar
-    const { data: perfil } = await supabase
-      .from('profiles')
-      .select('avatar_path')
-      .eq('id', user.id)
-      .single();
+      if (avatarPath) {
+        await supabase.storage.from("avatars").remove([avatarPath]);
+      }
 
-    // 1.2 Rutas de Fotos en Gallery
-    const { data: fotos } = await supabase
-      .from('community_photos')
-      .select('image_path')
-      .eq('user_id', user.id);
-
-    // 1.3 Rutas de Audios
-    const { data: audios } = await supabase
-      .from('audios')
-      .select('audio_path')
-      .eq('uploaded_by', user.id);
-
-
-    // --- PASO B: LIMPIEZA FÍSICA DEL STORAGE ---
-
-    // Borrar Avatar (Bucket: 'avatars')
-    if (perfil?.avatar_path) {
-      await supabase.storage.from('avatars').remove([perfil.avatar_path]);
-    }
-
-    // Borrar Fotos de Galería (Bucket: 'gallery')
-    if (fotos && fotos.length > 0) {
-      const rutasFotos = fotos.map(f => f.image_path).filter(Boolean);
       if (rutasFotos.length > 0) {
-        await supabase.storage.from('gallery').remove(rutasFotos);
+        await supabase.storage.from("gallery").remove(rutasFotos);
       }
-    }
 
-    // Borrar Audios (Bucket: 'audios')
-    if (audios && audios.length > 0) {
-      const rutasAudios = audios.map(a => a.audio_path).filter(Boolean);
       if (rutasAudios.length > 0) {
-        await supabase.storage.from('audios').remove(rutasAudios);
+        await supabase.storage.from("audios").remove(rutasAudios);
       }
+
+      await userService.deleteAccountCompletely();
+
+      await logout();
+      resetTheme();
+      navigate("/");
+      alert("Tu cuenta y todos tus archivos han sido eliminados del sistema.");
+    } catch (error) {
+      console.error("Error en el proceso de baja total:", error);
+      alert(
+        "Hubo un error al intentar borrar todos tus datos. Por favor, contacta con soporte."
+      );
+    } finally {
+      setLoadingUnsubscribe(false);
     }
-
-    // --- PASO C: BORRADO DE CUENTA (Efecto Dominó en la DB) ---
-    // Esto activará el CASCADE que configuramos en el SQL Editor
-    const { error: errorRpc } = await supabase.rpc('borrar_mi_cuenta');
-    if (errorRpc) throw errorRpc;
-
-    // --- PASO D: SALIDA FINAL ---
-    await logout(); 
-    navigate('/');
-    alert('Tu cuenta y todos tus archivos han sido eliminados del sistema.');
-
-  } catch (error) {
-    console.error('Error en el proceso de baja total:', error);
-    alert('Hubo un error al intentar borrar todos tus datos. Por favor, contacta con soporte.');
-  } finally {
-    setLoadingUnsubscribe(false);
-  }
-};
+  };
 
   const openLogoutDialog = () => logoutDialogRef.current?.showModal();
 
@@ -154,11 +113,12 @@ const handleConfirmBaja = async () => {
     try {
       setLoadingLogout(true);
       await logout();
+      resetTheme();
       navigate("/");
     } catch (error) {
       console.error("Error al cerrar sesión:", error.message);
       alert(
-        "No hemos podido procesar el cierre de sesión. Inténtalo de nuevo.",
+        "No hemos podido procesar el cierre de sesión. Inténtalo de nuevo."
       );
     } finally {
       setLoadingLogout(false);

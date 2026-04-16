@@ -91,6 +91,7 @@ function CharacterDetailPage() {
   const [currentUser, setCurrentUser] = useState(null)
 
   const [audios, setAudios] = useState([])
+  const [openTranscriptId, setOpenTranscriptId] = useState(null)
 
 useEffect(() => {
   const loadCharacter = async () => {
@@ -267,30 +268,30 @@ useEffect(() => {
 
        // 6) audios relacionados
       try {
-        const { data: audiosData, error: audiosError } = await supabase
-          .from('audios')
-          .select(`
-            id,
-            title,
-            type,
-            audio_path,
-            created_at
-          `)
-          .eq('character_id', characterId)
-          .order('created_at', { ascending: true })
+       const { data: audiosData, error: audiosError } = await supabase
+        .from('audios')
+        .select(`
+          id,
+          title,
+          type,
+          audio_path,
+          transcription,
+          created_at
+        `)
+        .eq('character_id', characterId)
+        .order('created_at', { ascending: true })
 
         if (audiosError) throw audiosError
 
         const formattedAudios = (audiosData || []).map((audio) => {
         const url = getAudioUrl(audio.audio_path)
-        console.log('AUDIO DB:', audio.audio_path)
-        console.log('AUDIO URL:', url)
 
         return {
           id: audio.id,
           title: audio.title || 'Audio sin título',
           type: audio.type || 'soundtrack',
           audioPath: audio.audio_path,
+          transcription: audio.transcription || '',
           url,
         }
       })
@@ -579,7 +580,9 @@ useEffect(() => {
   return (
     <main className="character-detail-page">
       <div className="cardPersonajeIndividual">
-        <img src={character.image} className="card-img-top" alt={character.name} />
+        {character.image && (
+          <img src={character.image} className="card-img-top" alt={character.name} />
+        )}
 
         <div className="card-body">
           <div className="card-header mb-3">
@@ -881,17 +884,12 @@ useEffect(() => {
 
                             <button
                               type="button"
-                              className="audio-download-btn"
-                              disabled={!audio.audioPath}
+                              className="audio-transcript-btn"
                               onClick={() =>
-                                downloadStorageFile(
-                                  'audio-files',
-                                  audio.audioPath,
-                                  `${audio.title}.${getFileExtension(audio.audioPath)}`
-                                )
+                                setOpenTranscriptId((prev) => (prev === audio.id ? null : audio.id))
                               }
                             >
-                              <i className="bi bi-download"></i>
+                              {openTranscriptId === audio.id ? 'Ocultar transcripción' : 'Ver transcripción'}
                             </button>
                           </div>
 
@@ -899,6 +897,16 @@ useEffect(() => {
                             <source src={audio.url} type="audio/mpeg" />
                             Tu navegador no soporta audio HTML5.
                           </audio>
+
+                          {openTranscriptId === audio.id && (
+                            <div className="audio-transcript-box">
+                              <div className="audio-transcript-content">
+                                {audio.transcription?.trim()
+                                  ? audio.transcription
+                                  : 'Este audio no tiene transcripción'}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>

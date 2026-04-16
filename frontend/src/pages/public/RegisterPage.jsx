@@ -8,6 +8,7 @@ cree automáticamente su fila en profiles, luego completa ese perfil
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import authService from '../../services/authService'
 import '../../assets/styles/Login.css'
 
 function RegisterPage() {
@@ -26,25 +27,25 @@ function RegisterPage() {
 
   const navigate = useNavigate()
 
-  const updateProfileWithRetry = async (userId, updates, retries = 10, delay = 300) => {
-    for (let i = 0; i < retries; i++) {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', userId)
-        .select()
+  // const updateProfileWithRetry = async (userId, updates, retries = 10, delay = 300) => {
+  //   for (let i = 0; i < retries; i++) {
+  //     const { data, error } = await supabase
+  //       .from('profiles')
+  //       .update(updates)
+  //       .eq('id', userId)
+  //       .select()
 
-      if (error) throw error
+  //     if (error) throw error
 
-      if (data && data.length > 0) {
-        return data[0]
-      }
+  //     if (data && data.length > 0) {
+  //       return data[0]
+  //     }
 
-      await new Promise((resolve) => setTimeout(resolve, delay))
-    }
+  //     await new Promise((resolve) => setTimeout(resolve, delay))
+  //   }
 
-    throw new Error('No se pudo completar el perfil del usuario')
-  }
+  //   throw new Error('No se pudo completar el perfil del usuario')
+  // }
 
   const handleChange = (e) => {
     const { name, value, files, type } = e.target
@@ -77,52 +78,15 @@ function RegisterPage() {
     setValidated(true)
 
     try {
-      const cleanEmail = form.email.trim().toLowerCase()
-      const cleanUsername = form.username.trim()
-      const cleanName = form.nombre.trim()
-
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: cleanEmail,
+     await authService.register({
+        email: form.email,
         password: form.password,
-        options: {
-          data: {
-            username: cleanUsername,
-            name: cleanName,
-          },
-        },
+        username: form.username,
+        name: form.nombre,
+        birth_date: form.birth_date,
+        profileImage: form.profileImage,
       })
 
-      if (signUpError) throw signUpError
-
-      const user = data.user
-      if (!user) {
-        throw new Error('No se pudo crear el usuario')
-      }
-
-      await updateProfileWithRetry(user.id, {
-        username: cleanUsername,
-        name: cleanName,
-        birth_date: form.birth_date || null,
-      })
-
-      if (form.profileImage) {
-        const fileExt = form.profileImage.name.split('.').pop()
-        const fileName = `${user.id}.${fileExt}`
-
-        const { error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(fileName, form.profileImage, {
-            upsert: true,
-          })
-
-        if (uploadError) throw uploadError
-
-        await updateProfileWithRetry(user.id, {
-          avatar_path: fileName,
-        })
-      }
-
-      await supabase.auth.signOut()
       navigate('/login', { replace: true })
     } catch (err) {
       console.error(err)

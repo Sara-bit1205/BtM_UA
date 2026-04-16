@@ -11,6 +11,7 @@ CSS → estilos de la página*/
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import authService from '../../services/authService'
 import { supabase } from '../../lib/supabase.js'
 import '../../assets/styles/Login.css'
 
@@ -81,7 +82,7 @@ function LoginPage() {
         AuthContext podrá detectarlo
 
         Si fallan, devuelve error.*/
-      const { error } = await supabase.auth.signInWithPassword({
+      await authService.login({
         email: form.email,
         password: form.password,
       })
@@ -122,7 +123,7 @@ function LoginPage() {
           {error && <p className="text-danger">{error}</p>}
 
           <div className="text-start">
-            <label className="custom-label">USUARIO/EMAIL</label>
+            <label className="custom-label">EMAIL</label>
             <input
               type="email"
               name="email"

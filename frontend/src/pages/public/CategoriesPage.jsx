@@ -2,36 +2,37 @@
 // Cada categoría incluye descripción, personajes populares y listado completoç
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { supabase } from "../../lib/supabase";
+// import { supabase } from "../../lib/supabase";
+import categoryService from '../../services/categoryService'
 
-function getRelationValue(relation, field) {
-  if (Array.isArray(relation)) {
-    return relation[0]?.[field];
-  }
-  return relation?.[field];
-}
-
-// Función para obtener la URL pública de una imagen almacenada en Supabase Storage
-function getCharacterCoverUrl(coverPath) {
-  if (!coverPath) return null;
-
-  const { data } = supabase.storage
-    .from("character-covers")
-    .getPublicUrl(coverPath);
-
-  return data.publicUrl;
-}
+// function getRelationValue(relation, field) {
+//   if (Array.isArray(relation)) {
+//     return relation[0]?.[field];
+//   }
+//   return relation?.[field];
+// }
 
 // Función para obtener la URL pública de una imagen almacenada en Supabase Storage
-function getUniverseImageUrl(coverPath) {
-  if (!coverPath) return null;
+// function getCharacterCoverUrl(coverPath) {
+//   if (!coverPath) return null;
 
-  const { data } = supabase.storage
-    .from("universes_images")
-    .getPublicUrl(coverPath);
+//   const { data } = supabase.storage
+//     .from("character-covers")
+//     .getPublicUrl(coverPath);
 
-  return data.publicUrl;
-}
+//   return data.publicUrl;
+// }
+
+// Función para obtener la URL pública de una imagen almacenada en Supabase Storage
+// function getUniverseImageUrl(coverPath) {
+//   if (!coverPath) return null;
+
+//   const { data } = supabase.storage
+//     .from("universes_images")
+//     .getPublicUrl(coverPath);
+
+//   return data.publicUrl;
+// }
 
 // 1. El estado que controla qué número de personaje estamos viendo (empezamos en el 0)
 function CategoriesPage() {
@@ -47,95 +48,28 @@ function CategoriesPage() {
   //Estos son los personajes populares que vamos a mostrar en el carrusel (puedes cargarlos dinámicamente también)
 
   useEffect(() => {
-    const loadingData = async () => {
+    const loadData = async () => {
       try {
-        // Iniciamos la carga del universo con su descripcion y su imagen
-        setLoadingData(true);
+        setLoadingData(true)
 
-        const { data: universeData, error: universeError } = await supabase
-          .from("universes")
-          .select(
-            `name, 
-            description, 
-            image_path, 
-            characters (
-              id,
-              name, 
-              slug, 
-              cover_path, 
-              mbti_types (code))`,
-          )
-          .eq("name", universo)
-          .single(); // <-- Usamos .single() porque esperamos un solo universo
+        const universeDetail = await categoryService.getUniverseDetail(universo)
 
-        if (universeError) throw universeError;
-
-        // Aquí si no hay datos lo comprobamos
-        if (!universeData || universeData.length === 0) {
-          setData([]);
-          return;
+        if (!universeDetail) {
+          setData(null)
+          return
         }
 
-        //Ahora lo que vamos a hacer es iniciar el filtrado de los personajes por favoritos
-        //Extraemos solo los IDs de los personajes del universo obtenido
-        const characterIds = universeData.characters.map((c) => c.id);
-
-        //Ahora realizamos la peticion a la base de datos para obtener los personajes que son favoritos de este universo
-        let favData = [];
-        if (characterIds.length > 0) {
-          const { data: favCharacters, error: favError } = await supabase
-            .from("character_favorite_counts")
-            .select("character_id, total_favorites")
-            .in("character_id", characterIds); // <-- Este es el parametro que filtra por los IDs de personajes
-
-          if (favError) throw favError;
-
-          if (!favError && favCharacters) {
-            favData = favCharacters;
-          }
-        }
-
-        // Ahora lo que vamos a hacer es transformar o poner los datos para poderlos mostrar poniendo todos los personajes
-        const todosLosPersonajes = universeData.characters.map((pesonajes) => {
-          // Buscamos si estos personajes tiene registro en la tabla de favoritos para obtener su numero de favoritos
-          const fav = favData.find((f) => f.character_id === pesonajes.id);
-
-          return {
-            id: pesonajes.id,
-            name: pesonajes.name,
-            slug: pesonajes.slug,
-            coverUrl: getCharacterCoverUrl(pesonajes.cover_path), // <-- Obtenemos la URL de la imagen de portada
-            mbtiType: getRelationValue(pesonajes.mbti_types, "code"), // <-- Obtenemos el código del tipo MBTI
-            totalFavorites: fav ? fav.total_favorites : 0, // <-- Si no tiene registro de favoritos, ponemos 0
-          };
-        });
-
-        // Ordenamos de mayor a menor por número de favoritos
-        todosLosPersonajes.sort((a, b) => b.totalFavorites - a.totalFavorites);
-
-        // Ahora dividimos para que no se muestre el carrusel en explora más personajes
-        const personajesPopulares = todosLosPersonajes.slice(0, 3); // <-- Tomamos los 3 personajes más populares para el carrusel
-        const personajesRestantes = todosLosPersonajes.slice(3); // <-- El resto de personajes para la sección de explorar más
-
-        // Ahora guardamos estos datos en estados separados para usarlos en cada seccion
-
-        setData({
-          name: universeData.name,
-          description: universeData.description,
-          imageUrl: universeData.image_path
-            ? getUniverseImageUrl(universeData.image_path)
-            : todosLosPersonajes[0]?.coverUrl || null, // <-- Obtenemos la URL de la imagen del universo o usamos la del personaje más popular como fallback
-          populares: personajesPopulares, // <-- Guardamos los personajes populares para el carrusel
-          explorar: personajesRestantes, // <-- Guardamos el resto de personajes para la sección de explorar más
-        });
+        setData(universeDetail)
       } catch (error) {
-        console.error("Error al cargar los datos:", error);
+        console.error("Error al cargar los datos:", error)
+        setData(null)
       } finally {
-        setLoadingData(false);
+        setLoadingData(false)
       }
-    };
-    loadingData();
-  }, [universo]); // <-- El efecto se vuelve a ejecutar cada vez que cambia el universo seleccionado
+    }
+
+    loadData()
+  }, [universo]) // <-- El efecto se vuelve a ejecutar cada vez que cambia el universo seleccionado
 
   // Funciones del carrusel (asegúrate de que Data.characters existe antes de usarlas)
   const irAlSiguiente = () => {

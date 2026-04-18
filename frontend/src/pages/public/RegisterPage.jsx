@@ -7,7 +7,7 @@ cree automáticamente su fila en profiles, luego completa ese perfil
 
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { supabase } from '../../lib/supabase'
+// import { supabase } from '../../lib/supabase'
 import authService from '../../services/authService'
 import '../../assets/styles/Login.css'
 

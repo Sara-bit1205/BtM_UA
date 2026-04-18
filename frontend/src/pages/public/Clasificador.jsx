@@ -2,28 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useParams } from "react-router-dom";
-
-//-------Helpers-------
-
-// Función para obtener el valor de una relación, ya sea un objeto o un array
-// La voy utilizare para obtener el nombre del universo
-function getRelationValue(relation, field) {
-  if (Array.isArray(relation)) {
-    return relation[0]?.[field];
-  }
-  return relation?.[field];
-}
-
-// Función para obtener la URL pública de una imagen almacenada en Supabase Storage
-function getCharacterCoverUrl(coverPath) {
-  if (!coverPath) return null;
-
-  const { data } = supabase.storage
-    .from("character-covers")
-    .getPublicUrl(coverPath);
-
-  return data.publicUrl;
-}
+import characterService from "../../services/characterService";
 
 // Diccionario para mapear los tipos de MBTI a su grupo, rol y color correspondiente
 
@@ -58,88 +37,27 @@ function Clasificador() {
 
   const { categoria } = useParams();
 
-  const [Data, setData] = useState([]);
+  const [data, setData] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
-    const loadingData = async () => {
+    const loadData = async () => {
       try {
-        //Iniciamos la carga de los personajes con su universo y su tipo de MBTI
-        setLoadingData(true);
+        setLoadingData(true)
 
-        const { data, error } = await supabase.from("characters").select(`
-            name,               
-            slug,                   
-            cover_path,         
-            universes (name),  
-            mbti_types (code, title)  
-          `);
-
-        if (error) throw error;
-
-        //Aquí si no hay datos lo comprobamos
-        if (!data || data.length === 0) {
-          setData([]);
-          return;
-        }
-
-        //Lo que vamos a hacer ahora es transformar o poner los datos para poderlos mostrar
-
-        //--- Proceso seguido ---
-        // 1. Creamos un objeto vacío donde vamos a agrupar los personajes por universo
-        // 2. Recorremos los datos obtenidos en busca de los universos y los personajes
-        // 3. Para cada personaje, obtenemos el nombre del universo al que pertenece
-        // Si ese universo no existe se crea dentro del objeto con un array vacío
-        // y si ya existe, simplemente se añade el personaje a ese universo dentro del objeto
-        // 4. Para cada personaje, también obtenemos su nombre, imagen y tipo de MBTI para mostrarlo en la tarjeta
-        // 5. Al final, tendremos un objeto con la estructura { universo1: [personaje1, personaje2], universo2: [personaje3, personaje4], ... }
-        const clasificacion = {};
-
-        data.forEach((personaje) => {
-          let name = null;
-
-          switch (categoria) {
-            case "universos":
-              name = getRelationValue(personaje.universes, "name");
-              break;
-            case "personalidades":
-              name = getRelationValue(personaje.mbti_types, "code");
-              break;
-            case "psicologia":
-              name = getRelationValue(personaje.mbti_types, "code");
-              break;
-            default:
-              return; // Si el personaje no pertenece a ninguno de los universos que nos interesan, lo saltamos
-          }
-
-          if (!clasificacion[name]) clasificacion[name] = [];
-
-          const personajeData = {
-            id: personaje.slug, // Usamos el slug como ID único
-            nombre: personaje.name,
-            imagen: getCharacterCoverUrl(personaje.cover_path),
-            mbti: getRelationValue(personaje.mbti_types, "code"),
-          };
-
-          clasificacion[name].push(personajeData);
-        });
-
-        // Una vez tengamos el objeto lo guardamos en nuestra variable de estado para mostrarlo en la página
-        setData(
-          Object.entries(clasificacion).map(([categoria, personajes]) => ({
-            categoria,
-            personajes,
-          })),
-        );
+        const groupedData = await characterService.getClassificationGroups(categoria)
+        setData(groupedData)
       } catch (error) {
-        console.error("Error al cargar de los datos", error);
+        console.error("Error al cargar de los datos", error)
+        setData([])
       } finally {
-        setLoadingData(false);
+        setLoadingData(false)
       }
-    };
+    }
 
-    loadingData();
+    loadData()
   }, [categoria]);
+
   return (
     <div className="container mt-3 ">
       <div className="mb-4">
@@ -161,9 +79,8 @@ function Clasificador() {
             <span className="visually-hidden">Cargando...</span>
           </div>
         </div>
-      ) : Data && Data.length > 0 ? (
-        /* --- AQUI EMPIEZA EL MAP CON LLAVES { } --- */
-        Data.map((grupo) => {
+      ) : data && data.length > 0 ? (
+      data.map((grupo) => {
           // 1. Buscamos la info del MBTI. Si no existe (ej: Universos), ponemos un valor por defecto.
           const infoMbti = MBTI_DICT[grupo.categoria] || {
             grupo: "Otros",

@@ -1,4 +1,6 @@
 import { supabase } from '../lib/supabase'
+import { getPublicUrl, STORAGE_BUCKETS, removeFiles } from '../lib/storage'
+import { getRelationValue } from '../utils/relation'
 
 const userService = {
   // Obtener el usuario autenticado de Supabase Auth
@@ -128,6 +130,70 @@ const userService = {
     if (error) throw error
     return data
   },
+
+  async getMyCommunityPhotos() {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
+    if (userError) throw userError
+    if (!user) return []
+
+    const { data, error } = await supabase
+      .from('community_photos')
+      .select(`
+        id,
+        user_id,
+        image_path,
+        description,
+        characters(id, name)
+      `)
+      .eq('user_id', user.id)
+
+    if (error) throw error
+
+    return (data || []).map((foto) => ({
+      id: foto.id,
+      usuario: foto.user_id,
+      imageUrl: getPublicUrl(STORAGE_BUCKETS.gallery, foto.image_path),
+      imagePath: foto.image_path,
+      descripcion: foto.description,
+      personajeNombre: getRelationValue(foto.characters, 'name'),
+    }))
+  },
+
+  async deleteMyCommunityPhotos(photoIds, currentPhotos = []) {
+    if (!photoIds || photoIds.length === 0) return true
+
+    const fotosABorrar = currentPhotos.filter((foto) => photoIds.includes(foto.id))
+    const rutasStorage = fotosABorrar.map((foto) => foto.imagePath).filter(Boolean)
+
+    if (rutasStorage.length > 0) {
+      await removeFiles(STORAGE_BUCKETS.gallery, rutasStorage)
+    }
+
+    const { error } = await supabase
+      .from('community_photos')
+      .delete()
+      .in('id', photoIds)
+
+    if (error) throw error
+
+    return true
+  },
+
+  async getAdminUsersList() {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, username, name, email, created_at, role')
+      .eq('role', 'user')
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data || []
+  },
+
 }
 
 export default userService

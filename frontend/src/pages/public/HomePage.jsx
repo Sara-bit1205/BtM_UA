@@ -1,22 +1,19 @@
 //HECHO
-
-import { Link } from 'react-router-dom';
-import React, { useEffect, useMemo, useState } from 'react';
-import { supabase } from '../../lib/supabase';
-import '../../assets/styles/home.css';
-
-import arquitectoIcono from '../../assets/images/bricks.svg';
-import maleficaImg from '../../assets/images/malefica.jpg';
+import { Link } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
+import '../../assets/styles/home.css'
+import characterService from '../../services/characterService'
+import arquitectoIcono from '../../assets/images/bricks.svg'
 
 //Función que recive el cover_path --> para en storage/avatars sacar la imagen de cover correcta
 //lo que devuelve es una url publica para poder poder ponerla en --> <img src= ... />
-function getCharacterCoverUrl(coverPath) {
-  if (!coverPath) return null;
+// function getCharacterCoverUrl(coverPath) {
+//   if (!coverPath) return null;
 
-  const { data } = supabase.storage.from('character-covers').getPublicUrl(coverPath);
+//   const { data } = supabase.storage.from('character-covers').getPublicUrl(coverPath);
 
-  return data.publicUrl;
-}
+//   return data.publicUrl;
+// }
 
 // Devuelve un número entre 0 y total -1 según la fecha de hoy
 //total es el num total de personajes que tenemos en bbdd
@@ -49,12 +46,12 @@ function agruparItems(items, size) {
 //Funcion para sacar el valor de una relacion (universo o mbti)
 //Supabase puede devolver las cosas como: universes = { name: 'Disney' } "Objeto" o como universes = [ { name: 'Disney' } ] "Array con un objeto dentro"
 //Por eso si es objeto --> devolveria ese campo directamente y si es array devuelve el primer elemento
-function getRelationValue(relation, field){
-  if(Array.isArray(relation)){
-    return relation[0]?.[field];
-  }
-  return relation?.[field];
-}
+// function getRelationValue(relation, field){
+//   if(Array.isArray(relation)){
+//     return relation[0]?.[field];
+//   }
+//   return relation?.[field];
+// }
 
 //Función principal del Home
 function HomePage() {
@@ -98,185 +95,73 @@ function HomePage() {
   useEffect(() => {
     const loadPersonajeDelDia = async () => {
       try {
-        setLoadingPersonajeDelDia(true);
+        setLoadingPersonajeDelDia(true)
 
-        //seleccionamos campos necesarios
-        const { data, error } = await supabase
-          .from('characters')
-          .select(`
-            name,
-            slug,
-            cover_path,
-            universes (name),
-            mbti_types (code)
-          `)
-          .order('name', { ascending: true });
+        const characters = await characterService.getHomeCharacterOfTheDay()
 
-        if (error) throw error;
-
-        //si no hay datos
-        if (!data || data.length === 0) {
-          setPersonajeDelDia(null);
-          return;
+        if (!characters || characters.length === 0) {
+          setPersonajeDelDia(null)
+          return
         }
 
-        const index = getDailyCharacterIndex(data.length); //calculamos indice
-        const selectedCharacter = data[index]; //seleccionamos el personaje correspondiente al indice
+        const index = getDailyCharacterIndex(characters.length)
+        const selectedCharacter = characters[index]
 
-        //lo guardamos en el estado con la info que necesitamos para mostrarlo en la pagina
-        setPersonajeDelDia({
-          slug: selectedCharacter.slug,
-          nombre: selectedCharacter.name,
-          universo: getRelationValue(selectedCharacter.universes, 'name') || 'Sin universo',
-          mbti: getRelationValue(selectedCharacter.mbti_types, 'code') || '—',
-          imagen: getCharacterCoverUrl(selectedCharacter.cover_path) || maleficaImg,
-        });
+        setPersonajeDelDia(selectedCharacter)
       } catch (error) {
-        console.error('Error cargando personaje del día:', error.message);
-
-        setPersonajeDelDia({
-          slug: "malefica",
-          nombre: "Maléfica",
-          universo: "Disney",
-          mbti: "INTJ",
-          imagen: maleficaImg,
-        });
+        console.error('Error cargando personaje del día:', error.message)
+        setPersonajeDelDia(null)
       } finally {
-        setLoadingPersonajeDelDia(false);
+        setLoadingPersonajeDelDia(false)
       }
-    };
+    }
 
-    loadPersonajeDelDia();
+    loadPersonajeDelDia()
   }, []);
 
   //Carga de los persnajes populares
   useEffect(() => {
     const loadPersonajesPopulares = async () => {
       try {
-        setLoadingPersonajesPopulares(true);
+        setLoadingPersonajesPopulares(true)
 
-        const { data: favoriteCountsData, error: favoriteCountsError } = await supabase
-          .from('character_favorite_counts')
-          .select('character_id, total_favorites')
-          .order('total_favorites', { ascending: false })
-          .limit(6);
-
-        if (favoriteCountsError) throw favoriteCountsError;
-
-        if (!favoriteCountsData || favoriteCountsData.length === 0) {
-          setPersonajesPopulares([]);
-          return;
-        }
-
-        const personajesIdsOrdenados = favoriteCountsData.map((item) => item.character_id);
-
-        const { data: charactersData, error: charactersError } = await supabase
-          .from('characters')
-          .select(`
-            id,
-            name,
-            slug,
-            cover_path,
-            universes ( name ),
-            mbti_types ( code )
-          `)
-          .in('id', personajesIdsOrdenados);
-
-        if (charactersError) throw charactersError;
-
-        const charactersOrdenados = personajesIdsOrdenados
-          .map((id) => charactersData.find((char) => char.id === id))
-          .filter(Boolean)
-          .map((char) => ({
-            slug: char.slug,
-            nombre: char.name,
-            universo: getRelationValue(char.universes, 'name') || 'Sin universo',
-            mbti: getRelationValue(char.mbti_types, 'code') || '—',
-            imagen: getCharacterCoverUrl(char.cover_path) || maleficaImg,
-          }));
-
-        setPersonajesPopulares(charactersOrdenados);
+        const data = await characterService.getHomePopularCharacters(6)
+        setPersonajesPopulares(data)
       } catch (error) {
-        console.error('Error cargando personajes populares:', error.message);
-        setPersonajesPopulares([]);
+        console.error('Error cargando personajes populares:', error.message)
+        setPersonajesPopulares([])
       } finally {
-        setLoadingPersonajesPopulares(false);
+        setLoadingPersonajesPopulares(false)
       }
-    };
+    }
 
-    loadPersonajesPopulares();
+    loadPersonajesPopulares()
   }, []);
  
 
   //Cargar personalidades mbti mas populares
-   useEffect(() => {
+  useEffect(() => {
     const loadPersonalidadesPopulares = async () => {
       try {
-        setLoadingPersonalidades(true);
-        
-        //De cada personaje sacamos su tipo de personalidad mbti y su descripcion (que esta en la tabla mbti_types)
-        //Ej: data = [ { mbti_type_id: 3, mbti_types: { code: 'INTJ', title: 'El Arquitecto' } }, ... ]
-        const { data, error } = await supabase
-          .from('characters')
-          .select(`
-            mbti_type_id,
-            mbti_types (
-              code,
-              title
-            )
-          `);
+        setLoadingPersonalidades(true)
 
-        if (error) throw error;
+        const data = await characterService.getPopularMbtiTypes(2)
 
-        //Si no hay datos
-        if (!data || data.length === 0) {
-          setPersonalidades([]);
-          return;
-        }
+        const formatted = data.map((item) => ({
+          ...item,
+          icono: arquitectoIcono,
+        }))
 
-        //Contamos la cantidad de personajes tienen cada personalidad
-        //Si no tiene mbti_type_id --> no lo contamos/ si es la primera vez que se lee esa mbti --> crea una entrada / si ya existia --Z suma + 1
-
-        const contador = {};
-
-        data.forEach((item) => {
-          if (!item.mbti_type_id) return;
-
-          const code = getRelationValue(item.mbti_types, 'code');
-          const title = getRelationValue(item.mbti_types, 'title');
-
-          if (!contador[item.mbti_type_id]) {
-            contador[item.mbti_type_id] = {
-              tipo: code || '—',
-              descripcion: title || 'Sin descripción',
-              total: 1,
-            };
-          } else {
-            contador[item.mbti_type_id].total += 1;
-          }
-        });
-
-        //Elegimos el top 2.
-        //Convertimos en array, ordenamos por total de personajes y nos quedamos con los 2 primeros
-        const topPersonalidades = Object.values(contador)
-          .sort((a, b) => b.total - a.total)
-          .slice(0, 2)
-          .map((item) => ({
-            tipo: item.tipo,
-            descripcion: item.descripcion,
-            icono: arquitectoIcono,
-          }));
-
-        setPersonalidades(topPersonalidades);
+        setPersonalidades(formatted)
       } catch (error) {
-        console.error('Error cargando personalidades populares:', error.message);
-        setPersonalidades([]);
+        console.error('Error cargando personalidades populares:', error.message)
+        setPersonalidades([])
       } finally {
-        setLoadingPersonalidades(false);
+        setLoadingPersonalidades(false)
       }
-    };
+    }
 
-    loadPersonalidadesPopulares();
+    loadPersonalidadesPopulares()
   }, []);
 
 
@@ -297,11 +182,13 @@ function HomePage() {
           ) : personajeDelDia ? (
             <div className="card text-bg-dark card-personaje-del-dia">
               <Link className="nav-link" to={`/personaje/${personajeDelDia.slug}`}>
-                <img
-                  src={personajeDelDia.imagen}
-                  className="card-img card-personaje-del-dia-img"
-                  alt={personajeDelDia.nombre}
-                />
+                {personajeDelDia.imagen && (
+                  <img
+                    src={personajeDelDia.imagen}
+                    className="card-img card-personaje-del-dia-img"
+                    alt={personajeDelDia.nombre}
+                  />
+                )}
               </Link>
               <div className="card-img-overlay d-flex flex-column justify-content-end personaje-del-dia-overlay">
                 <div className="d-flex justify-content-between align-items-end">
@@ -357,11 +244,13 @@ function HomePage() {
                           <div className="col" key={personaje.slug}>
                             <div className="card popular-card">
                               <Link className="nav-link" to={`/personaje/${personaje.slug}`}>
-                                <img
-                                  src={personaje.imagen}
-                                  className="card-img-top popular-card-img"
-                                  alt={personaje.nombre}
-                                />
+                                {personaje.imagen && (
+                                  <img
+                                    src={personaje.imagen}
+                                    className="card-img-top popular-card-img"
+                                    alt={personaje.nombre}
+                                  />
+                                )}
                               </Link>
 
                               <div className="card-body">

@@ -12,7 +12,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import authService from '../../services/authService'
-import { supabase } from '../../lib/supabase.js'
+// import { supabase } from '../../lib/supabase.js'
 import '../../assets/styles/Login.css'
 
 function LoginPage() {
@@ -87,8 +87,6 @@ function LoginPage() {
         password: form.password,
       })
 
-      if (error) throw error
-
       /*Si marcó “Recordar mis datos”
         Guarda el email en localStorage.
         Si no lo marcó
@@ -103,9 +101,12 @@ function LoginPage() {
       setError(null)
     } catch (err) {
       console.error(err)
-      setError('Credenciales incorrectas. Inténtalo de nuevo.')
+      if (err.message === 'Esta cuenta ha sido dada de baja y no puede iniciar sesión.') {
+        setError(err.message)
+      } else {
+        setError('Credenciales incorrectas. Inténtalo de nuevo.')
+      }
     }
-
     //Marca el formulario como validado para activar las clases de validación visual.
     setValidated(true)
   }

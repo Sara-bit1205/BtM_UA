@@ -1,27 +1,28 @@
 import React, { use, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import "../../assets/styles/galeria.css";
-import { Modal } from "bootstrap";
+import userService from "../../services/userService";
+// import { Modal } from "bootstrap";
 
 // ------- Helper functions -------
 
 // Función para obtener el valor de una relación, ya sea un objeto o un array
 // La voy utilizare para obtener el nombre del universo
-function getRelationValue(relation, field) {
-  if (Array.isArray(relation)) {
-    return relation[0]?.[field];
-  }
-  return relation?.[field];
-}
+// function getRelationValue(relation, field) {
+//   if (Array.isArray(relation)) {
+//     return relation[0]?.[field];
+//   }
+//   return relation?.[field];
+// }
 
-// Función para obtener la URL pública de una imagen almacenada en Supabase Storage
-function getGalleryImageUrl(filePath) {
-  if (!filePath) return null;
+// // Función para obtener la URL pública de una imagen almacenada en Supabase Storage
+// function getGalleryImageUrl(filePath) {
+//   if (!filePath) return null;
 
-  const { data } = supabase.storage.from("gallery").getPublicUrl(filePath);
+//   const { data } = supabase.storage.from("gallery").getPublicUrl(filePath);
 
-  return data.publicUrl;
-}
+//   return data.publicUrl;
+// }
 
 const GaleriaUsuario = () => {
   // Vamos a utilizar estos estados para poder mostrar las fotos del usuario y un indicador de carga mientras se obtienen los datos
@@ -41,95 +42,36 @@ const GaleriaUsuario = () => {
     );
   };
   useEffect(() => {
-    // 1. Cambiamos el nombre de la función para que no choque con el estado
     const cargarFotos = async () => {
-      setLoading(true); // Usamos la función setter correcta
+      setLoading(true)
 
       try {
-        // 2. Extraemos el user correctamente
-        const {
-          data: { user },
-          error: userError,
-        } = await supabase.auth.getUser();
-
-        if (userError) throw userError;
-        if (!user) return; // Si no hay usuario, no hacemos nada
-
-        // 3. Petición con sintaxis corregida (comillas y comas)
-        const { data: fotosData, error: errorFotos } = await supabase
-          .from("community_photos")
-          .select(
-            `
-                    id,
-                    user_id,
-                    image_path,
-                    description,
-                    characters(id, name)
-                `,
-          )
-          .eq("user_id", user.id);
-
-        if (errorFotos) throw errorFotos;
-
-        // 4. Transformamos el ARRAY que nos da Supabase en nuestro propio ARRAY de objetos
-        if (fotosData) {
-          const fotosFormateadas = fotosData.map((foto) => ({
-            id: foto.id,
-            usuario: foto.user_id,
-            imageUrl: getGalleryImageUrl(foto.image_path), // Esto es la URL que vamos a mostrar en la galería, obtenida a través de nuestro helper
-            imagePath: foto.image_path, // Guardamos también el path original por si queremos eliminar la foto después
-            descripcion: foto.description,
-            personajeNombre: getRelationValue(foto.characters, "name"), // ¡Tu helper en acción!
-          }));
-
-          // Guardamos la lista completa en el estado
-          setFotos(fotosFormateadas);
-        }
+        const fotosData = await userService.getMyCommunityPhotos()
+        setFotos(fotosData)
       } catch (error) {
-        console.error("Error al cargar las fotos del usuario:", error);
+        console.error("Error al cargar las fotos del usuario:", error)
+        setFotos([])
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    cargarFotos();
+    cargarFotos()
   }, []);
 
   // Función para eliminar una foto
  const eliminarFotos = async () => {
-  try {
-    // 1. Extraer las rutas físicas (imagePath) de las fotos que vamos a borrar
-    const fotosABorrar = fotos.filter((foto) => fotosEliminar.includes(foto.id));
-    const rutasStorage = fotosABorrar.map((foto) => foto.imagePath);
+    try {
+      await userService.deleteMyCommunityPhotos(fotosEliminar, fotos)
 
-    // 2. ELIMINAR DEL STORAGE (Archivos físicos)
-    // Asegúrate de poner el nombre exacto de tu bucket (creo que era 'gallery')
-    if (rutasStorage.length > 0) {
-      const { error: errorStorage } = await supabase.storage
-        .from('gallery') 
-        .remove(rutasStorage); // Le pasamos el array de rutas directamente
-
-      if (errorStorage) throw errorStorage;
+      setFotos((prev) => prev.filter((foto) => !fotosEliminar.includes(foto.id)))
+      setFotosEliminar([])
+      setModoseleccion(false)
+    } catch (error) {
+      console.error("Error al eliminar las fotos por completo:", error)
+      alert("Hubo un error al borrar las fotos. Por favor, inténtalo de nuevo.")
     }
-
-    // 3. ELIMINAR DE LA BASE DE DATOS (Registros)
-    const { error: errorEliminar } = await supabase
-      .from("community_photos")
-      .delete()
-      .in("id", fotosEliminar);
-
-    if (errorEliminar) throw errorEliminar;
-
-    // 4. Actualizamos la pantalla de React
-    setFotos((prev) => prev.filter((foto) => !fotosEliminar.includes(foto.id)));
-    setFotosEliminar([]);
-    setModoseleccion(false);
-    
-  } catch (error) {
-    console.error("Error al eliminar las fotos por completo:", error);
-    alert("Hubo un error al borrar las fotos. Por favor, inténtalo de nuevo.");
-  }
-};
+  };
 
   return (
     <div className="galeria-container pb-5">

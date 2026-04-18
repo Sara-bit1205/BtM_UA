@@ -1,70 +1,13 @@
-//HECHO
+
 import { useParams } from 'react-router-dom'
 import React, { useEffect, useState, useRef } from 'react'
 import { supabase } from '../../lib/supabase.js'
 import favoritesService from '../../services/favoritesService'
-// import maleficaImg from '../../assets/images/malefica.jpg'
+import characterService from '../../services/characterService'
+import { getPublicUrl, STORAGE_BUCKETS, getFileExtension } from '../../lib/storage'
 
 import '../../assets/styles/home.css'
 import '../../assets/styles/individualCharacter.css'
-
-// ---------- Helpers ----------
-function getRelationValue(relation, field) {
-  if (Array.isArray(relation)) {
-    return relation[0]?.[field]
-  }
-  return relation?.[field]
-}
-
-function getCharacterCoverUrl(coverPath) {
-  if (!coverPath) return null
-
-  const { data } = supabase.storage
-    .from('character-covers')
-    .getPublicUrl(coverPath)
-
-  return data.publicUrl
-}
-
-function getFilmCoverUrl(coverPath) {
-  if (!coverPath) return null
-
-  const { data } = supabase.storage
-    .from('films-cover')
-    .getPublicUrl(coverPath)
-
-  return data.publicUrl
-}
-
-function getCharacterMediaUrl(filePath) {
-  if (!filePath) return null
-
-  const { data } = supabase.storage
-    .from('character-media')
-    .getPublicUrl(filePath)
-
-  return data.publicUrl
-}
-
-function getGalleryImageUrl(filePath) {
-  if (!filePath) return null
-
-  const { data } = supabase.storage
-    .from('gallery')
-    .getPublicUrl(filePath)
-
-  return data.publicUrl
-}
-
-function getAudioUrl(filePath) {
-  if (!filePath) return null
-
-  const { data } = supabase.storage
-    .from('audio-files')
-    .getPublicUrl(filePath)
-
-  return data.publicUrl
-}
 
 function CharacterDetailPage() {
   const { slug } = useParams()
@@ -105,33 +48,7 @@ useEffect(() => {
 
       setCurrentUser(currentUser)
 
-      // 1) personaje principal
-      const { data: characterData, error: characterError } = await supabase
-        .from('characters')
-        .select(`
-          id,
-          name,
-          slug,
-          description,
-          story,
-          creation_date,
-          first_appearance,
-          biological_origin,
-          place_of_origin,
-          psychological_analysis,
-          cover_path,
-          universes (
-            name
-          ),
-          mbti_types (
-            code,
-            title
-          )
-        `)
-        .eq('slug', slug)
-        .maybeSingle()
-
-      if (characterError) throw characterError
+      const characterData = await characterService.getDetailBySlug(slug)
 
       if (!characterData) {
         setCharacter(null)
@@ -139,27 +56,8 @@ useEffect(() => {
       }
 
       const characterId = characterData.id
+      setCharacter(characterData)
 
-      const formattedCharacter = {
-        id: characterData.id,
-        slug: characterData.slug,
-        name: characterData.name,
-        description: characterData.description,
-        story: characterData.story,
-        creationDate: characterData.creation_date,
-        firstAppearance: characterData.first_appearance,
-        procedence: characterData.place_of_origin,
-        biologicalOrigin: characterData.biological_origin,
-        psicologicalAnalisis: characterData.psychological_analysis,
-        universe: getRelationValue(characterData.universes, 'name') || 'Sin universo',
-        mbti: getRelationValue(characterData.mbti_types, 'code') || '—',
-        mbtiTitle: getRelationValue(characterData.mbti_types, 'title') || '',
-        image: getCharacterCoverUrl(characterData.cover_path),
-      }
-
-      setCharacter(formattedCharacter)
-
-      // 2) favoritos SOLO si hay usuario
       if (currentUserId) {
         try {
           const favoriteStatus = await favoritesService.isFavorite(characterId)
@@ -172,238 +70,61 @@ useEffect(() => {
         setIsFavorite(false)
       }
 
-      // 3) filmografía
       try {
-        const { data: filmographyData, error: filmographyError } = await supabase
-          .from('filmography')
-          .select(`
-            id,
-            title,
-            year,
-            cover_path
-          `)
-          .eq('character_id', characterId)
-          .order('year', { ascending: true })
-
-        if (filmographyError) throw filmographyError
-
-        const formattedFilmography = (filmographyData || []).map((movie) => ({
-          id: movie.id,
-          title: movie.title,
-          year: movie.year,
-          coverPath: movie.cover_path,
-          image: getFilmCoverUrl(movie.cover_path),
-        }))
-
-        setFilmography(formattedFilmography)
+        const data = await characterService.getFilmography(characterId)
+        setFilmography(data)
       } catch (error) {
         console.error('Error cargando filmografía:', error.message)
         setFilmography([])
       }
 
-      // 4) actores
       try {
-        const { data: actorsData, error: actorsError } = await supabase
-          .from('character_actors')
-          .select(`
-            id,
-            actor_name,
-            role_description,
-            years_active,
-            sort_order
-          `)
-          .eq('character_id', characterId)
-          .order('sort_order', { ascending: true })
-
-        if (actorsError) throw actorsError
-
-        const formattedActors = (actorsData || []).map((actor) => {
-          let text = actor.actor_name
-
-          if (actor.role_description) text += ` — ${actor.role_description}`
-          if (actor.years_active) text += ` (${actor.years_active})`
-
-          return {
-            id: actor.id,
-            text,
-          }
-        })
-
-        setActors(formattedActors)
+        const data = await characterService.getActors(characterId)
+        setActors(data)
       } catch (error) {
         console.error('Error cargando actores:', error.message)
         setActors([])
       }
 
-      // 5) tags de personalidad
       try {
-        const { data: personalityTagsData, error: personalityTagsError } = await supabase
-          .from('character_personality_tags')
-          .select(`
-            id,
-            personality_tags (
-              id,
-              name,
-              description
-            )
-          `)
-          .eq('character_id', characterId)
-
-        if (personalityTagsError) throw personalityTagsError
-
-        const formattedTags = (personalityTagsData || [])
-          .map((item) => ({
-            id: item.id,
-            name: getRelationValue(item.personality_tags, 'name'),
-            description: getRelationValue(item.personality_tags, 'description'),
-          }))
-          .filter((tag) => tag.name)
-
-        setPersonalityTags(formattedTags)
+        const data = await characterService.getPersonalityTags(characterId)
+        setPersonalityTags(data)
       } catch (error) {
         console.error('Error cargando tags de personalidad:', error.message)
         setPersonalityTags([])
       }
 
-      // 6) imágenes relacionadas
       try {
-        const { data: mediaData, error: mediaError } = await supabase
-          .from('character_media')
-          .select(`
-            id,
-            type,
-            title,
-            file_path,
-            sort_order,
-            created_at
-          `)
-          .eq('character_id', characterId)
-          .eq('type', 'image')
-          .order('sort_order', { ascending: true })
-          .order('created_at', { ascending: true })
-
-        if (mediaError) throw mediaError
-
-        const formattedImages = (mediaData || []).map((item) => ({
-          id: item.id,
-          title: item.title || characterData.name,
-          filePath: item.file_path,
-          image: getCharacterMediaUrl(item.file_path),
-        }))
-
-        setRelatedImages(formattedImages)
+        const data = await characterService.getImages(characterId, characterData.name)
+        setRelatedImages(data)
       } catch (error) {
         console.error('Error cargando imágenes relacionadas:', error.message)
         setRelatedImages([])
       }
 
-       // 8) audios relacionados
       try {
-       const { data: audiosData, error: audiosError } = await supabase
-        .from('audios')
-        .select(`
-          id,
-          title,
-          type,
-          audio_path,
-          transcription,
-          created_at
-        `)
-        .eq('character_id', characterId)
-        .order('created_at', { ascending: true })
-
-        if (audiosError) throw audiosError
-
-        const formattedAudios = (audiosData || []).map((audio) => {
-        const url = getAudioUrl(audio.audio_path)
-
-        return {
-          id: audio.id,
-          title: audio.title || 'Audio sin título',
-          type: audio.type || 'soundtrack',
-          audioPath: audio.audio_path,
-          transcription: audio.transcription || '',
-          url,
-        }
-      })
-
-        setAudios(formattedAudios)
+        const data = await characterService.getAudios(characterId)
+        setAudios(data)
       } catch (error) {
         console.error('Error cargando audios:', error.message)
         setAudios([])
       }
 
-      // 9) fotos comunidad
       try {
-        const { data: communityPhotosData, error: communityPhotosError } = await supabase
-          .from('community_photos')
-          .select(`
-            id,
-            image_path,
-            description,
-            created_at,
-            profiles ( username )
-          `)
-          .eq('character_id', characterId)
-          .order('created_at', { ascending: false })
-
-        if (communityPhotosError) throw communityPhotosError
-
-        const formattedCommunityPhotos = (communityPhotosData || []).map((photo) => ({
-          id: photo.id,
-          description: photo.description || 'Foto de la comunidad',
-          image: getGalleryImageUrl(photo.image_path),
-          user: photo.profiles?.username || 'Usuario',
-          date: new Date(photo.created_at).toLocaleDateString('es-ES'),
-        }))
-
-        setCommunityPhotos(formattedCommunityPhotos)
+        const data = await characterService.getCommunityPhotos(characterId)
+        setCommunityPhotos(data)
       } catch (error) {
         console.error('Error cargando fotos comunidad:', error.message)
         setCommunityPhotos([])
       }
 
-      // 10) comentarios
       try {
-        const { data: commentsData, error: commentsError } = await supabase
-          .from('comments')
-          .select(`
-            id,
-            comment,
-            created_at,
-            user_id,
-            profiles (
-              username,
-              avatar_path
-            )
-          `)
-          .eq('character_id', characterId)
-          .order('created_at', { ascending: false })
-
-        if (commentsError) throw commentsError
-
-        const formattedComments = (commentsData || []).map((comment) => ({
-          id: comment.id,
-          user:
-            comment.user_id === currentUserId
-              ? 'Tú'
-              : comment.profiles?.username || 'Usuario',
-          avatar: comment.profiles?.avatar_path
-            ? supabase.storage
-                .from('avatars')
-                .getPublicUrl(comment.profiles.avatar_path).data.publicUrl
-            : null,
-          time: new Date(comment.created_at).toLocaleDateString('es-ES'),
-          text: comment.comment,
-        }))
-
-        setComments(formattedComments)
+        const data = await characterService.getComments(characterId, currentUserId)
+        setComments(data)
       } catch (error) {
         console.error('Error cargando comentarios:', error.message)
         setComments([])
       }
-
-      
 
     } catch (error) {
       console.error('Error cargando personaje:', error.message)
@@ -453,9 +174,7 @@ useEffect(() => {
       if (error) throw error
 
       const avatarUrl = authData?.user?.user_metadata?.avatar_path
-      ? supabase.storage
-          .from('avatars')
-          .getPublicUrl(authData.user.user_metadata.avatar_path).data.publicUrl
+      ? getPublicUrl(STORAGE_BUCKETS.avatars, authData.user.user_metadata.avatar_path)
       : null
       
       const newFormattedComment = {
@@ -524,7 +243,7 @@ useEffect(() => {
       const newPhoto = {
         id: data.id,
         description: data.description || 'Foto de la comunidad',
-        image: getGalleryImageUrl(data.image_path) || null,
+        image: getPublicUrl(STORAGE_BUCKETS.gallery, data.image_path) || null,
         user: user.user_metadata?.username || user.email || 'Tú',
         date: new Date().toLocaleDateString('es-ES'),
       }
@@ -587,10 +306,10 @@ useEffect(() => {
     }
   }
 
-  function getFileExtension(path) {
-    if (!path) return 'jpg'
-    return path.split('.').pop()
-  }
+  // function getFileExtension(path) {
+  //   if (!path) return 'jpg'
+  //   return path.split('.').pop()
+  // }
 
   if (loadingCharacter) {
     return (
@@ -1027,7 +746,11 @@ useEffect(() => {
                     <article key={comment.id} className="comment-item">
                       <div className="comment-main">
                         <div className="comment-avatar">
-                          <img src={comment.avatar} alt={comment.user} />
+                          {comment.avatar ? (
+                            <img src={comment.avatar} alt={comment.user} />
+                          ) : (
+                            <div className="comment-avatar-placeholder"></div>
+                          )}
                         </div>
 
                         <div className="comment-content">

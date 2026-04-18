@@ -1,17 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { supabase } from '../../lib/supabase'
+// import { supabase } from '../../lib/supabase'
+import { getPublicUrl, STORAGE_BUCKETS } from '../../lib/storage'
 import { useAuth } from '../../context/AuthContext'
 import mbtiService from '../../services/mbtiService'
 import characterService from '../../services/characterService'
 import '../../assets/styles/mbti.css'
 import '../../assets/styles/home.css'
-
-function getCharacterCoverUrl(coverPath) {
-  if (!coverPath) return null
-  const { data } = supabase.storage.from('character-covers').getPublicUrl(coverPath)
-  return data.publicUrl
-}
 
 function MyMBTIPage() {
   const { isAuthenticated } = useAuth()
@@ -128,34 +123,40 @@ function MyMBTIPage() {
           </p>
         ) : (
           <div className="row g-3 mbti-char-grid">
-            {characters.map((ch) => (
-              <div className="col-6 col-sm-4 col-md-3" key={ch.id}>
-                <div className="card mbti-char-card">
-                  <Link className="nav-link" to={`/personaje/${ch.slug}`}>
-                    <img
-                      src={getCharacterCoverUrl(ch.cover_path)}
-                      className="mbti-char-img"
-                      alt={ch.name}
-                    />
-                  </Link>
-                  <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-start">
-                      <div style={{ minWidth: 0 }}>
-                        <Link className="nav-link" to={`/personaje/${ch.slug}`}>
-                          <h3 className="card-title mbti-char-name text-truncate">{ch.name}</h3>
-                        </Link>
-                        <p className="card-text mb-0 mbti-char-universe text-truncate">
-                          {ch.universes?.name ?? ''}
-                        </p>
+            {characters.map((ch) => {
+              const imageUrl = getPublicUrl(STORAGE_BUCKETS.characterCovers, ch.cover_path)
+
+              return (
+                <div className="col-6 col-sm-4 col-md-3" key={ch.id}>
+                  <div className="card mbti-char-card">
+                    <Link className="nav-link" to={`/personaje/${ch.slug}`}>
+                      {imageUrl && (
+                        <img
+                          src={imageUrl}
+                          className="mbti-char-img"
+                          alt={ch.name}
+                        />
+                      )}
+                    </Link>
+                    <div className="card-body">
+                      <div className="d-flex justify-content-between align-items-start">
+                        <div style={{ minWidth: 0 }}>
+                          <Link className="nav-link" to={`/personaje/${ch.slug}`}>
+                            <h3 className="card-title mbti-char-name text-truncate">{ch.name}</h3>
+                          </Link>
+                          <p className="card-text mb-0 mbti-char-universe text-truncate">
+                            {ch.universes?.name ?? ''}
+                          </p>
+                        </div>
+                        <span className="badge rounded-pill mbti-char-badge">
+                          {ch.mbti_types?.code ?? mbtiCode}
+                        </span>
                       </div>
-                      <span className="badge rounded-pill mbti-char-badge">
-                        {ch.mbti_types?.code ?? mbtiCode}
-                      </span>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </section>

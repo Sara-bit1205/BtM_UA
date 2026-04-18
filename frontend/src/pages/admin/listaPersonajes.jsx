@@ -1,104 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { supabase } from "../../lib/supabase";
+// import { supabase } from "../../lib/supabase";
+import characterService from '../../services/characterService'
 
-//------------- Helpers -------------
-function getRelationValue(relation, field) {
-  if (Array.isArray(relation)) {
-    return relation[0]?.[field];
-  }
-  return relation?.[field];
-}
-
-// Función para obtener la URL pública de una imagen almacenada en Supabase Storage
-function getCharacterCoverUrl(coverPath) {
-  if (!coverPath) return null;
-
-  const { data } = supabase.storage
-    .from("character-covers")
-    .getPublicUrl(coverPath);
-
-  return data.publicUrl;
-}
-
-// Función para obtener la URL pública de una imagen almacenada en Supabase Storage
-function getUniverseImageUrl(coverPath) {
-  if (!coverPath) return null;
-
-  const { data } = supabase.storage
-    .from("universes_images")
-    .getPublicUrl(coverPath);
-
-  return data.publicUrl;
-}
-
-function listaPersonajes() {
+function ListaPersonajes() {
   //----------------------------- Objetos para guardar los datos que recogamos de la base de datos -----------------------------
 
   const [personajes, setPersonajes] = useState([]);
   const [loading, setLoading] = useState(true); // Para mostrar un spinner de carga mientras obtenemos los datos
   // Aquí con
   useEffect(() => {
-    // Función para cargar los personajes desde la base de datos
     const cargarPersonajesLista = async () => {
-      setLoading(true);
+      setLoading(true)
 
       try {
-        const { data: personajesData, error } = await supabase.from(
-          "characters",
-        ).select(`id,
-          name,
-          slug,
-          description,
-          story,
-          creation_date,
-          first_appearance,
-          biological_origin,
-          place_of_origin,
-          psychological_analysis,
-          cover_path,
-          universes (
-            name
-          ),
-          mbti_types (
-            code,
-            title
-          )`);
-
-        // Si hay un error
-        if (error) throw error;
-
-        // Transformamos los datos para incluir la URL pública de la imagen
-        const personajesConUrl = personajesData.map((personaje) => ({
-          id: personaje.id,
-          name: personaje.name,
-          slug: personaje.slug,
-          descripcion:
-            getRelationValue(personaje.mbti_types, "code") || "Desconocido",
-          story: personaje.story,
-          creation_date: personaje.creation_date,
-          first_appearance: personaje.first_appearance,
-          biological_origin: personaje.biological_origin,
-          place_of_origin: personaje.place_of_origin,
-          psychological_analysis: personaje.psychological_analysis,
-          universe: getRelationValue(personaje.universes, "name") || "Desconocido",
-          mbti: getRelationValue(personaje.mbti_types, "code") || "Desconocido",
-          mbti_title: getRelationValue(personaje.mbti_types, "title") || "Desconocido",
-          imagen:
-            getCharacterCoverUrl(personaje.cover_path) ||
-            "https://via.placeholder.com/150", // URL de una imagen por defecto si no hay cover
-        }));
-
-        // Guardamos los personajes con la URL de la imagen en el estado
-        setPersonajes(personajesConUrl);
+        const data = await characterService.getAdminCharactersList()
+        setPersonajes(data)
       } catch (error) {
-        console.error("Error al cargar personajes:", error);
+        console.error("Error al cargar personajes:", error)
+        setPersonajes([])
       } finally {
-        // Aquí podríamos hacer algo al finalizar la carga, como ocultar un spinner de carga
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    cargarPersonajesLista();
+    }
+
+    cargarPersonajesLista()
   }, []);
 
   const navigate = useNavigate();
@@ -270,4 +196,4 @@ function listaPersonajes() {
   );
 }
 
-export default listaPersonajes;
+export default ListaPersonajes;

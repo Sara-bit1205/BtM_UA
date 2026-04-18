@@ -1,7 +1,8 @@
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+// import { supabase } from '../../lib/supabase';
 import '../../assets/styles/SearchPage.css';
+import searchService from '../../services/searchService';
 
 function SearchPage() {
   const location = useLocation();
@@ -37,42 +38,21 @@ function SearchPage() {
   // --- 2. EFECTOS: Carga de Datos ---
   useEffect(() => {
     const fetchPersonajes = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('characters')
-        .select(`
-          id,
-          name,
-          slug,
-          cover_path,
-          universes ( name ),
-          mbti_types ( code ),
-          character_personality_tags ( personality_tags ( name ) )
-        `);
+      setLoading(true)
 
-      if (error) {
-        console.error("Error cargando personajes:", error);
-      } else {
-        const adaptados = data.map(c => ({
-          id: c.id,
-          nombre: c.name,
-          slug: c.slug,
-          tipo: c.mbti_types?.code || 'N/A',
-          universo: c.universes?.name || 'Desconocido',
-          img: c.cover_path
-            ? supabase.storage
-                .from('character-covers')
-                .getPublicUrl(c.cover_path).data.publicUrl
-            : null,
-          tags: c.character_personality_tags?.map(t => t.personality_tags.name) || []
-        }));
-        setPersonajes(adaptados);
+      try {
+        const data = await searchService.getSearchCharacters()
+        setPersonajes(data)
+      } catch (error) {
+        console.error("Error cargando personajes:", error)
+        setPersonajes([])
+      } finally {
+        setLoading(false)
       }
-      setLoading(false);
-    };
+    }
 
-    fetchPersonajes();
-  }, []);
+    fetchPersonajes()
+  }, [])
 
   // --- 3. LÓGICA DE FILTRADO ---
   const personajesFiltrados = personajes.filter(p => {
@@ -96,36 +76,22 @@ function SearchPage() {
 
   useEffect(() => {
     const fetchFiltros = async () => {
-      // Universos
-      const { data: universosData } = await supabase
-        .from('universes')
-        .select('name');
+      try {
+        const data = await searchService.getFilters()
 
-      // MBTI
-      const { data: mbtiData } = await supabase
-        .from('mbti_types')
-        .select('code');
-
-      // Tags
-      const { data: tagsData } = await supabase
-        .from('personality_tags')
-        .select('name');
-
-      if (universosData) {
-        setUniversos(universosData.map(u => u.name));
+        setUniversos(data.universos)
+        setMbtis(data.mbtis)
+        setTags(data.tags)
+      } catch (error) {
+        console.error("Error cargando filtros:", error)
+        setUniversos([])
+        setMbtis([])
+        setTags([])
       }
+    }
 
-      if (mbtiData) {
-        setMbtis(mbtiData.map(m => m.code));
-      }
-
-      if (tagsData) {
-        setTags(tagsData.map(t => t.name));
-      }
-    };
-
-    fetchFiltros();
-  }, []);
+    fetchFiltros()
+  }, [])
 
   return (
     <main className="search-container">
@@ -212,7 +178,14 @@ function SearchPage() {
                   <Link to={`/personaje/${p.slug}`} className="character-link-card d-flex w-100" >
                     <div className="card character-card h-100">
                       <div className="card-img-wrapper">
-                        <img src={p.img} className="card-img-top" alt={p.nombre} loading="lazy" />
+                        {p.img && (
+                          <img
+                            src={p.img}
+                            className="card-img-top"
+                            alt={p.nombre}
+                            loading="lazy"
+                          />
+                        )}
                       </div>
                       <div className="card-body">
                         <div className="d-flex justify-content-between align-items-start mb-2">

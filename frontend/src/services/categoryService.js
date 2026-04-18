@@ -7,6 +7,8 @@
   automáticamente.*/
 
 import { supabase } from '../lib/supabase'
+import { getPublicUrl, STORAGE_BUCKETS } from '../lib/storage'
+import { getRelationValue } from '../utils/relation'
 
 //Es un mapa que traduce el tipo de categoría → tabla real.
 const TABLE_MAP = {
@@ -89,6 +91,71 @@ const categoryService = {
     if (error) throw error
     return true
   },
+
+  async getUniverseDetail(universeName) {
+    const { data: universeData, error: universeError } = await supabase
+      .from('universes')
+      .select(`
+        name,
+        description,
+        image_path,
+        characters (
+          id,
+          name,
+          slug,
+          cover_path,
+          mbti_types (code)
+        )
+      `)
+      .eq('name', universeName)
+      .single()
+
+    if (universeError) throw universeError
+    if (!universeData) return null
+
+    const characterIds = (universeData.characters || []).map((c) => c.id)
+
+    let favData = []
+
+    if (characterIds.length > 0) {
+      const { data: favCharacters, error: favError } = await supabase
+        .from('character_favorite_counts')
+        .select('character_id, total_favorites')
+        .in('character_id', characterIds)
+
+      if (favError) throw favError
+      favData = favCharacters || []
+    }
+
+    const todosLosPersonajes = (universeData.characters || []).map((personaje) => {
+      const fav = favData.find((f) => f.character_id === personaje.id)
+
+      return {
+        id: personaje.id,
+        name: personaje.name,
+        slug: personaje.slug,
+        coverUrl: getPublicUrl(STORAGE_BUCKETS.characterCovers, personaje.cover_path),
+        mbtiType: getRelationValue(personaje.mbti_types, 'code') || '—',
+        totalFavorites: fav ? fav.total_favorites : 0,
+      }
+    })
+
+    todosLosPersonajes.sort((a, b) => b.totalFavorites - a.totalFavorites)
+
+    const personajesPopulares = todosLosPersonajes.slice(0, 3)
+    const personajesRestantes = todosLosPersonajes.slice(3)
+
+    return {
+      name: universeData.name,
+      description: universeData.description,
+      imageUrl: universeData.image_path
+        ? getPublicUrl(STORAGE_BUCKETS.universesImages, universeData.image_path)
+        : todosLosPersonajes[0]?.coverUrl || null,
+      populares: personajesPopulares,
+      explorar: personajesRestantes,
+    }
+  },
+
 }
 
 export default categoryService

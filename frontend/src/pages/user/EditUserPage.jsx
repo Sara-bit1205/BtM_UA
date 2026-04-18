@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 import userService from '../../services/userService'
 import '../../assets/styles/Login.css'
+import { getAvatarUrl, STORAGE_BUCKETS, uploadFile } from '../../lib/storage'
 
 function EditUserPage() {
   const { profile, refreshProfile } = useAuth()
@@ -41,17 +42,7 @@ function EditUserPage() {
   }, [profile])
 
   const currentAvatarUrl = useMemo(() => {
-    if (!profile?.avatar_path) {
-      const { data } = supabase.storage.from('avatars').getPublicUrl('default-avatar.jpg')
-      return data.publicUrl
-    }
-
-    if (profile.avatar_path.startsWith('http://') || profile.avatar_path.startsWith('https://')) {
-      return profile.avatar_path
-    }
-
-    const { data } = supabase.storage.from('avatars').getPublicUrl(profile.avatar_path)
-    return data.publicUrl
+    return getAvatarUrl(profile?.avatar_path)
   }, [profile?.avatar_path])
 
   const handleChange = (e) => {
@@ -94,15 +85,9 @@ function EditUserPage() {
         const fileExt = formData.profileImage.name.split('.').pop()
         const filePath = `${profile.id}.${fileExt}`
 
-        const { error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(filePath, formData.profileImage, { upsert: true })
-
-        if (uploadError) throw uploadError
-
-        const { data: publicUrlData } = supabase.storage
-          .from('avatars')
-          .getPublicUrl(filePath)
+        await uploadFile(STORAGE_BUCKETS.avatars, filePath, formData.profileImage, {
+          upsert: true,
+        })
 
         avatarValue = filePath
       }

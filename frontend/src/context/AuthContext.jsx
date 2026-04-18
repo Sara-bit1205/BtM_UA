@@ -10,6 +10,13 @@ export function AuthProvider({ children }) {
   const [role, setRole] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  const clearAuthState = () => {
+    setSession(null)
+    setAuthUser(null)
+    setProfile(null)
+    setRole(null)
+  }
+
   const fetchProfile = async (userId, retries = 8, delay = 300) => {
     if (!userId) {
       setProfile(null)
@@ -107,10 +114,7 @@ export function AuthProvider({ children }) {
       } catch (err) {
         console.error('Error en loadInitialSession:', err)
         if (isMounted) {
-          setSession(null)
-          setAuthUser(null)
-          setProfile(null)
-          setRole(null)
+          clearAuthState()
         }
       } finally {
         if (isMounted) setLoading(false)
@@ -167,13 +171,6 @@ export function AuthProvider({ children }) {
     [session, authUser, profile, role, loading]
   )
   
-  const clearAuthState = () => {
-  setSession(null)
-  setAuthUser(null)
-  setProfile(null)
-  setRole(null)
-}
-
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

@@ -2,33 +2,12 @@ import { useRef, useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
-import { supabase } from "../../lib/supabase.js";
+// import { supabase } from "../../lib/supabase.js";
 import userService from "../../services/userService";
 import mbtiService from "../../services/mbtiService";
+import { getAvatarUrl, STORAGE_BUCKETS, removeFiles } from '../../lib/storage'
 import "../../assets/styles/profile.css";
 import "../../assets/styles/mbti.css";
-
-const DEFAULT_AVATAR = "default-avatar.jpg";
-
-function getAvatarValue(profile) {
-  return profile?.avatar_path || profile?.avatar || DEFAULT_AVATAR;
-}
-
-function resolveAvatarUrl(value) {
-  if (!value) {
-    const { data } = supabase.storage
-      .from("avatars")
-      .getPublicUrl(DEFAULT_AVATAR);
-    return data.publicUrl;
-  }
-
-  if (value.startsWith("http://") || value.startsWith("https://")) {
-    return value;
-  }
-
-  const { data } = supabase.storage.from("avatars").getPublicUrl(value);
-  return data.publicUrl;
-}
 
 function UserProfilePage() {
   const { profile, logout } = useAuth();
@@ -51,8 +30,7 @@ function UserProfilePage() {
   }, []);
 
   const avatarUrl = useMemo(() => {
-    const avatarValue = getAvatarValue(profile);
-    return resolveAvatarUrl(avatarValue);
+    return getAvatarUrl(profile?.avatar_path || profile?.avatar);
   }, [profile?.avatar_path, profile?.avatar]);
 
   const openDialog = () => dialogRef.current?.showModal();
@@ -76,15 +54,15 @@ function UserProfilePage() {
       const rutasAudios = await userService.getAudioPaths();
 
       if (avatarPath) {
-        await supabase.storage.from("avatars").remove([avatarPath]);
+        await removeFiles(STORAGE_BUCKETS.avatars, [avatarPath])
       }
 
       if (rutasFotos.length > 0) {
-        await supabase.storage.from("gallery").remove(rutasFotos);
+        await removeFiles(STORAGE_BUCKETS.gallery, rutasFotos)
       }
 
       if (rutasAudios.length > 0) {
-        await supabase.storage.from("audios").remove(rutasAudios);
+        await removeFiles(STORAGE_BUCKETS.audioFiles, rutasAudios)
       }
 
       await userService.deleteAccountCompletely();
@@ -153,7 +131,7 @@ function UserProfilePage() {
           src={avatarUrl}
           alt={`Avatar de ${profile?.name || "usuario"}`}
           onError={(e) => {
-            e.currentTarget.src = resolveAvatarUrl(DEFAULT_AVATAR);
+            e.currentTarget.src = getAvatarUrl()
           }}
         />
 

@@ -1,17 +1,18 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase } from '../../lib/supabase'
+// import { supabase } from '../../lib/supabase'
+import { getPublicUrl, STORAGE_BUCKETS } from '../../lib/storage'
 import { useAuth } from '../../context/AuthContext'
 import characterService from '../../services/characterService'
 import mbtiService from '../../services/mbtiService'
 import '../../assets/styles/mbti.css'
 import '../../assets/styles/home.css'
 
-function getCharacterCoverUrl(coverPath) {
-  if (!coverPath) return null
-  const { data } = supabase.storage.from('character-covers').getPublicUrl(coverPath)
-  return data.publicUrl
-}
+// function getCharacterCoverUrl(coverPath) {
+//   if (!coverPath) return null
+//   const { data } = supabase.storage.from('character-covers').getPublicUrl(coverPath)
+//   return data.publicUrl
+// }
 
 // ── Static test data ────────────────────────────────────────
 const QUESTIONS = [
@@ -225,34 +226,40 @@ function Result({ mbtiType, characters, loadingChars, onRetake }) {
           <p className="text-center" style={{ opacity: 0.6 }}>No hay personajes registrados para este tipo todavía.</p>
         ) : (
           <div className="row g-3">
-            {characters.map((ch, idx) => (
-              <div className="col-6 col-md-3" key={ch.id ?? idx}>
-                <div className="card popular-card">
-                  <Link className="nav-link" to={`/personaje/${ch.slug ?? ch.id}`}>
-                    <img
-                      src={getCharacterCoverUrl(ch.cover_path)}
-                      className="card-img-top popular-card-img"
-                      alt={ch.name}
-                    />
-                  </Link>
-                  <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-start">
-                      <div style={{ minWidth: 0 }}>
-                        <Link className="nav-link" to={`/personaje/${ch.slug ?? ch.id}`}>
-                          <h3 className="card-title popular-card-title text-truncate">{ch.name}</h3>
-                        </Link>
-                        <p className="card-text mb-0 text-truncate">
-                          {ch.universes?.name ?? ''}
-                        </p>
+            {characters.map((ch, idx) => {
+              const imageUrl = getPublicUrl(STORAGE_BUCKETS.characterCovers, ch.cover_path)
+
+              return (
+                <div className="col-6 col-md-3" key={ch.id ?? idx}>
+                  <div className="card popular-card">
+                    <Link className="nav-link" to={`/personaje/${ch.slug ?? ch.id}`}>
+                      {imageUrl && (
+                        <img
+                          src={imageUrl}
+                          className="card-img-top popular-card-img"
+                          alt={ch.name}
+                        />
+                      )}
+                    </Link>
+                    <div className="card-body">
+                      <div className="d-flex justify-content-between align-items-start">
+                        <div style={{ minWidth: 0 }}>
+                          <Link className="nav-link" to={`/personaje/${ch.slug ?? ch.id}`}>
+                            <h3 className="card-title popular-card-title text-truncate">{ch.name}</h3>
+                          </Link>
+                          <p className="card-text mb-0 text-truncate">
+                            {ch.universes?.name ?? ''}
+                          </p>
+                        </div>
+                        <span className="badge rounded-pill home-mbti-badge-small">
+                          {ch.mbti_types?.code ?? mbtiType}
+                        </span>
                       </div>
-                      <span className="badge rounded-pill home-mbti-badge-small">
-                        {ch.mbti_types?.code ?? mbtiType}
-                      </span>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </section>

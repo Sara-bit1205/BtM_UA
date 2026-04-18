@@ -3,31 +3,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { supabase } from '../../lib/supabase'
+// import { supabase } from '../../lib/supabase'
 import favoritesService from '../../services/favoritesService'
+import { getAvatarUrl } from '../../lib/storage'
 import '../../assets/styles/profile.css'
 import '../../assets/styles/favorites.css'
-import maleficaImg from '../../assets/images/malefica.jpg'
 
-const DEFAULT_AVATAR = 'default-avatar.jpg'
-
-function getAvatarValue(profile) {
-  return profile?.avatar_path || profile?.avatar || DEFAULT_AVATAR
-}
-
-function resolveAvatarUrl(value) {
-  if (!value) {
-    const { data } = supabase.storage.from('avatars').getPublicUrl(DEFAULT_AVATAR)
-    return data.publicUrl
-  }
-
-  if (value.startsWith('http://') || value.startsWith('https://')) {
-    return value
-  }
-
-  const { data } = supabase.storage.from('avatars').getPublicUrl(value)
-  return data.publicUrl
-}
 
 function FavoritesPage() {
   const { profile } = useAuth()
@@ -37,9 +18,8 @@ function FavoritesPage() {
   const [error, setError] = useState('')
 
   const avatarUrl = useMemo(() => {
-    const avatarValue = getAvatarValue(profile)
-    return resolveAvatarUrl(avatarValue)
-  }, [profile?.avatar_path, profile?.avatar])
+    return getAvatarUrl(profile?.avatar_path)
+  }, [profile?.avatar_path])
 
   useEffect(() => {
     const loadFavorites = async () => {
@@ -83,7 +63,7 @@ function FavoritesPage() {
             src={avatarUrl}
             alt={`Avatar de ${profile?.name || 'usuario'}`}
             onError={(e) => {
-              e.currentTarget.src = resolveAvatarUrl(DEFAULT_AVATAR)
+              e.currentTarget.src = getAvatarUrl()
             }}
           />
 
@@ -137,11 +117,13 @@ function FavoritesPage() {
                 <span className="favorite-card__like" aria-hidden="true">❤</span>
 
                 <Link to={`/personaje/${fav.slug}`} className="favorite-card__avatar-wrapper">
-                  <img
-                    src={fav.image || maleficaImg}
-                    alt={fav.name}
-                    className="favorite-card__avatar"
-                  />
+                  {fav.image && (
+                    <img
+                      src={fav.image}
+                      alt={fav.name}
+                      className="favorite-card__avatar"
+                    />
+                  )}
                 </Link>
 
                 <p className="favorite-card__name">{fav.name}</p>

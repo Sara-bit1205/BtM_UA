@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { supabase } from '../../lib/supabase'
+// import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
+import userService from '../../services/userService'
 import '../../assets/styles/AdminProfileUsers.css'
 
 function UsersListPage() {
@@ -12,17 +13,11 @@ function UsersListPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('id, username, name, email, created_at, role')
-          .eq('role', 'user')
-          .order('created_at', { ascending: false })
-
-        if (error) throw error
-
-        setUsers(data || [])
+        const data = await userService.getAdminUsersList()
+        setUsers(data)
       } catch (err) {
         console.error('Error cargando usuarios:', err.message)
+        setUsers([])
       } finally {
         setLoading(false)
       }
@@ -30,6 +25,8 @@ function UsersListPage() {
 
     if (isAdmin) {
       fetchUsers()
+    } else {
+      setLoading(false)
     }
   }, [isAdmin])
 

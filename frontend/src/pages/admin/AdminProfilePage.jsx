@@ -2,7 +2,8 @@ import { useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
-import { supabase } from '../../lib/supabase.js'
+// import { supabase } from '../../lib/supabase.js'
+import { getAvatarUrl } from '../../lib/storage'
 import '../../assets/styles/profile.css'
 import '../../assets/styles/mbti.css'
 
@@ -10,31 +11,14 @@ import '../../assets/styles/mbti.css'
 // Accesos: Personajes, Categorías, Usuarios, Logout
 function AdminProfilePage() {
   const { profile, logout } = useAuth()
+  const { resetTheme } = useTheme()
   const navigate = useNavigate()
-  const logoutDialogRef = useRef(null)  //logoutDialogRef --> referencia al diálogo de confirmación de logout
-  const [loadingLogout, setLoadingLogout] = useState(false)  //loadingLogout --> dice si se está procesando el logout (para deshabilitar botones y mostrar texto de "Cerrando sesión...")
-    
+  const logoutDialogRef = useRef(null)
+  const [loadingLogout, setLoadingLogout] = useState(false)
 
   const avatarUrl = useMemo(() => {
-    // console.log('AVATAR EN DB:', profile?.avatar)
-
-    if (!profile?.avatar) {
-      const { data } = supabase.storage
-        .from('avatars')
-        .getPublicUrl('default-avatar.jpg')
-
-      // console.log('DEFAULT URL:', data.publicUrl)
-      return data.publicUrl
-    }
-
-    const { data } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(profile.avatar)
-
-    // console.log('AVATAR URL GENERADA:', data.publicUrl)
-
-    return data.publicUrl
-  }, [profile?.avatar])
+    return getAvatarUrl(profile?.avatar_path)
+  }, [profile?.avatar_path])
 
   const openLogoutDialog = () => logoutDialogRef.current?.showModal() //abre el popup de confirmación de logout
   const closeLogoutDialog = () => {
@@ -92,8 +76,7 @@ function AdminProfilePage() {
                 src={avatarUrl}
                 alt={`Avatar de ${profile?.name || 'usuario'}`}
                 onError={(e) => {
-                  const { data } = supabase.storage.from('avatars').getPublicUrl('default-avatar.jpg')
-                  e.currentTarget.src = data.publicUrl
+                  e.currentTarget.src = getAvatarUrl()
                 }}
               />
       

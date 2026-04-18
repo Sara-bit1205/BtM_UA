@@ -1,132 +1,120 @@
 # Behind The Mask (BtM UA)
 
-Plataforma web para explorar personajes de ficción según su tipo de personalidad MBTI.
-Proyecto de Usabilidad y Accesibilidad.
+**Behind The Mask** es una plataforma web que permite explorar personajes de ficción a través de su tipo de personalidad **MBTI**, combinando entretenimiento con análisis psicológico.
 
-## Estructura del proyecto
+Proyecto desarrollado en el contexto de la asignatura de **Usabilidad y Accesibilidad (UA)**.
+
+**AUTORES:** Sara Díaz Úbeda, Celia Fortea Quiles,  Nicolás Florez Pacheco y  Álvaro Millán Tobarra.
+
+---
+
+##  Funcionalidades principales
+
+-  Exploración de personajes por categorías (universo, personalidad, MBTI)
+-  Test de personalidad MBTI
+-  Sistema de favoritos
+-  Gestión de perfil de usuario
+-  Subida de contenido (galería, avatar, etc.)
+-  Autenticación y control de roles (usuario / admin)
+-  Panel de administración:
+  - Gestión de personajes
+  - Gestión de categorías
+  - Gestión de usuarios
+
+---
+
+## Arquitectura del proyecto
+
+El proyecto sigue una arquitectura **frontend desacoplada** con acceso directo a Supabase mediante servicios.
 
 ```
 BtM_UA/
-├── frontend/                          # React + Vite
-│   ├── public/
-│   │   └── index.html
+├── frontend/
 │   ├── src/
-│   │   ├── assets/styles/global.css
-│   │   ├── components/
-│   │   │   ├── common/
-│   │   │   │   ├── Navbar.jsx
-│   │   │   │   ├── Footer.jsx
-│   │   │   │   ├── SideMenu.jsx
-│   │   │   │   ├── SearchBar.jsx
-│   │   │   │   └── ProtectedRoute.jsx
-│   │   │   ├── characters/
-│   │   │   │   ├── CharacterCard.jsx
-│   │   │   │   └── CharacterList.jsx
-│   │   │   ├── categories/
-│   │   │   │   └── CategoryCard.jsx
-│   │   │   └── mbti/
-│   │   │       ├── MBTIQuestion.jsx
-│   │   │       └── MBTIResult.jsx
-│   │   ├── pages/
-│   │   │   ├── public/
-│   │   │   │   ├── HomePage.jsx
-│   │   │   │   ├── LoginPage.jsx
-│   │   │   │   ├── RegisterPage.jsx
-│   │   │   │   ├── AboutBTMPage.jsx
-│   │   │   │   ├── PersonalityTestPage.jsx
-│   │   │   │   ├── CategoriesPage.jsx
-│   │   │   │   ├── CategoryDetailPage.jsx
-│   │   │   │   ├── CharacterDetailPage.jsx
-│   │   │   │   ├── SearchPage.jsx
-│   │   │   │   ├── AboutUsPage.jsx
-│   │   │   │   └── PrivacyPolicyPage.jsx
-│   │   │   ├── user/
-│   │   │   │   ├── UserProfilePage.jsx
-│   │   │   │   ├── FavoritesPage.jsx
-│   │   │   │   ├── EditUserPage.jsx
-│   │   │   │   └── MyMBTIPage.jsx
-│   │   │   └── admin/
-│   │   │       ├── AdminProfilePage.jsx
-│   │   │       ├── CharactersAdminPage.jsx
-│   │   │       ├── CategoriesAdminPage.jsx
-│   │   │       └── UsersListPage.jsx
-│   │   ├── services/
-│   │   │   ├── authService.js
-│   │   │   ├── characterService.js
-│   │   │   ├── categoryService.js
-│   │   │   ├── userService.js
-│   │   │   ├── mbtiService.js
-│   │   │   └── searchService.js
-│   │   ├── context/
-│   │   │   └── AuthContext.jsx
-│   │   ├── hooks/
-│   │   │   ├── useAuth.js
-│   │   │   └── useMBTI.js
-│   │   ├── routes/
-│   │   │   └── AppRoutes.jsx
-│   │   ├── utils/
-│   │   │   └── helpers.js
+│   │   ├── assets/              # Estilos e imágenes
+│   │   ├── components/          # Componentes reutilizables
+│   │   ├── pages/               # Vistas (public, user, admin)
+│   │   ├── services/            # Acceso a datos (Supabase)
+│   │   ├── context/             # Estado global (Auth)
+│   │   ├── hooks/               # Hooks personalizados
+│   │   ├── routes/              # Rutas de la app
+│   │   ├── utils/               # Helpers
+│   │   ├── lib/                 # Configuración (Supabase, Storage)
 │   │   ├── App.jsx
 │   │   └── main.jsx
-│   ├── .env
-│   ├── .gitignore
 │   ├── package.json
 │   └── vite.config.js
-│
-└── backend/                           # Node.js + Express + MongoDB
-    ├── src/
-    │   ├── config/
-    │   │   └── db.js
-    │   ├── controllers/
-    │   │   ├── authController.js
-    │   │   ├── characterController.js
-    │   │   ├── categoryController.js
-    │   │   ├── userController.js
-    │   │   ├── mbtiController.js
-    │   │   └── searchController.js
-    │   ├── models/
-    │   │   ├── User.js
-    │   │   ├── Character.js
-    │   │   ├── Category.js
-    │   │   └── MBTIResult.js
-    │   ├── routes/
-    │   │   ├── authRoutes.js
-    │   │   ├── characterRoutes.js
-    │   │   ├── categoryRoutes.js
-    │   │   ├── userRoutes.js
-    │   │   ├── mbtiRoutes.js
-    │   │   └── searchRoutes.js
-    │   ├── middleware/
-    │   │   ├── authMiddleware.js
-    │   │   └── roleMiddleware.js
-    │   ├── services/
-    │   │   ├── emailService.js
-    │   │   └── mbtiService.js
-    │   ├── utils/
-    │   │   └── helpers.js
-    │   └── app.js
-    ├── .env
-    ├── .gitignore
-    ├── package.json
-    └── server.js
+```
+
+
+---
+
+##  Patrón de arquitectura
+
+El proyecto utiliza una separación clara de responsabilidades:
+
+###  `services/`
+Encapsulan toda la lógica de acceso a datos:
+- `characterService`
+- `categoryService`
+- `userService`
+- `mbtiService`
+- `favoritesService`
+
+ Evita usar Supabase directamente en los componentes.
+
+---
+
+### `context/`
+Gestión global de autenticación:
+- `AuthContext`
+  - sesión
+  - perfil
+  - rol (admin/user)
+  - helpers (`logout`, `refreshProfile`)
+
+---
+
+###  `lib/storage.js`
+Centraliza la gestión de archivos:
+- `getPublicUrl`
+- `getAvatarUrl`
+- `uploadFile`
+- `removeFiles`
+
+Evita duplicar lógica de Storage en los componentes.
+
+---
+
+##  Stack tecnológico
+
+| Capa            | Tecnología                          |
+|-----------------|-------------------------------------|
+| Frontend        | React 18 + Vite                     |
+| Routing         | React Router v6                     |
+| Backend (BaaS)  | Supabase                            |
+| Base de datos   | PostgreSQL (Supabase)               |
+| Auth            | Supabase Auth                       |
+| Storage         | Supabase Storage                    |
+| Estilos         | CSS + Bootstrap                     |
+
+---
+
+##  Variables de entorno
+
+Crear un archivo `.env` en `frontend/`:
+
+```env
+VITE_SUPABASE_URL=your_url
+VITE_SUPABASE_ANON_KEY=your_key
 ```
 
 ## Arrancar en desarrollo
 
 ```bash
-# Backend
-cd backend && npm install && npm run dev   # → http://localhost:3000
 
 # Frontend
 cd frontend && npm install && npm run dev  # → http://localhost:5173
 ```
 
-## Stack tecnológico
 
-| Capa          | Tecnología                          |
-|---------------|-------------------------------------|
-| Frontend      | React 18, Vite, React Router v6     |
-| Backend       | Node.js, Express 4                  |
-| Base de datos | MongoDB + Mongoose                  |
-| Auth          | JWT + bcryptjs                      |
-| Email         | Nodemailer (doble verificación)     |

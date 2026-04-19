@@ -10,6 +10,7 @@ const searchService = {
         name,
         slug,
         cover_path,
+        description,
         universes ( name ),
         mbti_types ( code ),
         character_personality_tags (
@@ -27,6 +28,7 @@ const searchService = {
       tipo: c.mbti_types?.code || 'N/A',
       universo: c.universes?.name || 'Desconocido',
       img: getPublicUrl(STORAGE_BUCKETS.characterCovers, c.cover_path),
+      altText: c.description || `Imagen de ${c.name}`,
       tags:
         c.character_personality_tags
           ?.map((t) => t.personality_tags?.name)

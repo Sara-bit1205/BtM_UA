@@ -54,19 +54,35 @@ function SearchPage() {
     fetchPersonajes()
   }, [])
 
+  // Accesible por teclado, esc para cerrar filtros
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && mostrarFiltros) {
+        setMostrarFiltros(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mostrarFiltros]);
+
   // --- 3. LÓGICA DE FILTRADO ---
-  const personajesFiltrados = personajes.filter(p => {
-    const busqueda = searchTerm.toLowerCase();
-    const coincideBusqueda = p.nombre.toLowerCase().includes(busqueda) || 
-                             p.universo.toLowerCase().includes(busqueda) || 
-                             p.tipo.toLowerCase().includes(busqueda);
+const personajesFiltrados = personajes.filter(p => {
+  const busqueda = searchTerm.toLowerCase();
 
-    const coincideUniverso = !filtroUniverso || p.universo === filtroUniverso;
-    const coincideMBTI = !filtroMBTI || p.tipo === filtroMBTI;
-    const coincideTag = !filtroTag || p.tags.includes(filtroTag);
+  // Comprobamos si el término de búsqueda coincide con nombre, universo, tipo o TAGS
+  const coincideBusqueda = 
+    p.nombre.toLowerCase().includes(busqueda) || 
+    p.universo.toLowerCase().includes(busqueda) || 
+    p.tipo.toLowerCase().includes(busqueda) ||
+    (p.tags && p.tags.some(tag => tag.toLowerCase().includes(busqueda))); // Corregido => y ;
 
-    return coincideBusqueda && coincideUniverso && coincideMBTI && coincideTag;
-  });
+  // Filtros específicos del popup
+  const coincideUniverso = !filtroUniverso || p.universo === filtroUniverso;
+  const coincideMBTI = !filtroMBTI || p.tipo === filtroMBTI;
+  const coincideTag = !filtroTag || (p.tags && p.tags.includes(filtroTag));
+
+  return coincideBusqueda && coincideUniverso && coincideMBTI && coincideTag;
+});
 
   const toggleSubMenu = (menu) => setMenuAbierto(menuAbierto === menu ? null : menu);
 
@@ -182,7 +198,7 @@ function SearchPage() {
                           <img
                             src={p.img}
                             className="card-img-top"
-                            alt={p.nombre}
+                            alt={p.altText}
                             loading="lazy"
                           />
                         )}

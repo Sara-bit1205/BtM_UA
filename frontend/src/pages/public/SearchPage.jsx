@@ -109,6 +109,20 @@ const personajesFiltrados = personajes.filter(p => {
     fetchFiltros()
   }, [])
 
+  //para manejar con teclado, enter para cerrar filtros
+  useEffect(() => {
+    const handleEnter = (e) => {
+      if (e.key === 'Enter' && mostrarFiltros) {
+        setMostrarFiltros(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleEnter);
+    return () => window.removeEventListener('keydown', handleEnter);
+  }, [mostrarFiltros]);
+
+  
+
   return (
     <main className="search-container">
       <header className="search-header text-center mb-5">

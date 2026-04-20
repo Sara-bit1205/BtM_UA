@@ -121,7 +121,16 @@ const personajesFiltrados = personajes.filter(p => {
     return () => window.removeEventListener('keydown', handleEnter);
   }, [mostrarFiltros]);
 
-  
+  const limpiarTodo = () => {
+    // 1. Limpiamos los estados de los filtros del popup
+    setFiltroUniverso("");
+    setFiltroMBTI("");
+    setFiltroTag("");
+
+    // 2. Navegamos a la misma página pero SIN parámetros de búsqueda (?query=...)
+    // Esto hará que 'searchTerm' pase a ser una cadena vacía ""
+    navigate(location.pathname, { replace: true });
+  };
 
   return (
     <main className="search-container">
@@ -231,7 +240,7 @@ const personajesFiltrados = personajes.filter(p => {
             ) : (
               <div className="col-12 text-center mt-5">
                 <p className="text-white">No hay coincidencias.</p>
-                <button className="btn btn-outline-light btn-sm" onClick={() => { setFiltroUniverso(""); setFiltroMBTI(""); setFiltroTag(""); }}>Limpiar filtros</button>
+                <button className="btn btn-outline-light btn-sm" onClick={limpiarTodo}>Limpiar filtros</button>
               </div>
             )}
           </div>

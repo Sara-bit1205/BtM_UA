@@ -160,7 +160,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px 25px;
-  background-color: #b8e695;
+  background-color: var(--color5);
   border-radius: 40px 40px 15px 15px;
 }
 
@@ -172,7 +172,7 @@
 }
 
 .btn-toggle-filter {
-  background: white;
+  background: var(--colorTexto);
   border: none;
   border-radius: 5px;
   padding: 2px 8px;
@@ -200,7 +200,7 @@
 }
 
 .custom-filter-list {
-  background-color: #a7e399;
+  background-color: var(--color4);
   border-radius: 20px;
   list-style: none;
   padding: 15px;
@@ -230,7 +230,7 @@
 
 .custom-filter-list li.active {
   background-color: var(--color2);
-  color: white;
+  color: var(--colorTexto);
 }
 
 .grid-list {
@@ -258,7 +258,7 @@
 
 .btn-aplicar-filtros {
   background-color: var(--color2);
-  color: white;
+  color: var(--colorTexto);
   border: none;
   width: 100%;
   padding: 15px;

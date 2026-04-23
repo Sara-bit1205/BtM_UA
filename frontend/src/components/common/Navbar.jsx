@@ -34,7 +34,11 @@ function Navbar() {
     if (searchTerm.trim()) {
       navigate(`/busqueda?query=${encodeURIComponent(searchTerm)}`);
       setSearchTerm("");
+    } else {
+      navigate("/busqueda");
     }
+    setSearchTerm("");
+    setMostrarBuscadorMovil(false);
   };
 
   const handleFilterClick = () => {
@@ -74,11 +78,9 @@ function Navbar() {
             onSubmit={handleSubmit}
           >
             <div className="input-group buscarPersonaje">
-              <Link className="nav-link" to="/busqueda">
-                <span className="input-group-text navBar__search-icon">
-                  <i className="bi bi-search"></i>
-                </span>
-              </Link>
+              <button type="submit" className="input-group-text navBar__search-icon border-0 bg-transparent">
+                <i className="bi bi-search"></i>
+              </button>
               <input
                 type="text"
                 className="form-control navBar__input"
@@ -156,13 +158,13 @@ function Navbar() {
                   autoFocus
                 />
 
-                <Link
-                  to="/busqueda"
-                  className="btn buscador-movil-btn"
-                  onClick={() => setMostrarBuscadorMovil(false)}
-                >
+                <button
+                    type="submit"
+                    className="btn buscador-movil-btn"
+                  >
                   <i className="bi bi-search fw-bold"></i>
-                </Link>
+                </button>
+
               </div>
             </form>
           </div>
@@ -245,7 +247,7 @@ function Navbar() {
                     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
                   }
                   .btn-categoria:active {
-                    transform: scale(0.97) translateX(8px);
+                    transform: scale(0.97) translateX(8px); 
                   }
                   .btn-categoria .icono-cat {
                     transition: transform 0.3s ease;

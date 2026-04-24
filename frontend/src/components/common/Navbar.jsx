@@ -227,6 +227,12 @@ function Navbar() {
               </Link>
             </li>
 
+            <li className="nav-item">
+              <Link className="nav-link d-flex align-items-center gap-2" to="/descargas">
+                Cómo descargar contenido
+              </Link>
+            </li>
+
             <li>
               <hr className="divider-thick" />
             </li>

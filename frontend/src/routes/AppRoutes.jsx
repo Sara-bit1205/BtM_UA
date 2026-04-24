@@ -16,6 +16,7 @@ import Clasificador from '../pages/public/Clasificador'
 // import Politica_Privacidad from '../pages/public/Politica_privacidad'
 import MBTITypesPage from '../pages/public/MBTITypesPage'
 import HowMBTIWorksPage from '../pages/public/HowMBTIWorksPage'
+import DownloadsPage from '../pages/public/DownloadsPage'
 
 // Páginas de usuario autenticado
 import UserProfilePage from '../pages/user/UserProfilePage'
@@ -57,7 +58,7 @@ function AppRoutes() {
         <Route path="/clasificador/:categoria" element={<Clasificador />} />
         <Route path="/clasificador/:categoria" element={<Clasificador />} />
         {/* <Route path="/politica_privacidad" element={<Politica_Privacidad />} /> */}
-        
+        <Route path="/descargas" element={<DownloadsPage />} />
 
         <Route element={<ProtectedRoute allowedRoles={['user']} />}>
           <Route path="/perfil" element={<UserProfilePage />} />

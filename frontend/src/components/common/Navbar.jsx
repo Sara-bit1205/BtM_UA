@@ -189,9 +189,8 @@ function Navbar() {
           ></button>
         </div>
 
-        <li>
-          <hr className="divider-thick" />
-        </li>
+        
+        <hr className="divider-thick" />
 
         <div className="offcanvas-body">
           <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">

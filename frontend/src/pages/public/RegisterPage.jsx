@@ -114,6 +114,7 @@ function RegisterPage() {
               className="form-control custom-input"
               value={form.nombre}
               onChange={handleChange}
+              placeholder="Ej: Ana Pérez"
               required
             />
           </div>
@@ -126,6 +127,7 @@ function RegisterPage() {
               className="form-control custom-input"
               value={form.username}
               onChange={handleChange}
+              placeholder="Ej: ana_perez123"
               required
             />
           </div>
@@ -138,6 +140,7 @@ function RegisterPage() {
               className="form-control custom-input"
               value={form.email}
               onChange={handleChange}
+              placeholder="Ej: ana@example.com"
               required
             />
           </div>
@@ -164,6 +167,7 @@ function RegisterPage() {
               onChange={handleChange}
               required
               minLength={6}
+              placeholder="Mínimo 6 caracteres"
             />
           </div>
 
@@ -176,6 +180,7 @@ function RegisterPage() {
               value={form.confirmPassword}
               onChange={handleChange}
               required
+             
             />
           </div>
 
@@ -187,7 +192,9 @@ function RegisterPage() {
               className="form-control custom-input"
               onChange={handleChange}
               accept="image/*"
+              aria-describedby="profileImageHelp"
             />
+            <div id="profileImageHelp" className="form-text text-white">Formato JPG/PNG. Tamaño recomendado &lt; 2MB.</div>
           </div>
 
           <div className="col-12 text-center">

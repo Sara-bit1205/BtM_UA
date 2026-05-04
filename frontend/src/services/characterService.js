@@ -16,7 +16,7 @@ La diferencia con tu backend REST anterior es que ahora el frontend habla direct
 /api/characters/:id*/
 
 import { supabase } from '../lib/supabase'
-import { getPublicUrl, STORAGE_BUCKETS } from '../lib/storage'
+import { getPublicUrl, STORAGE_BUCKETS, removeFiles } from '../lib/storage'
 import { getRelationValue } from '../utils/relation'
 
 //Es un objeto que agrupa funciones relacionadas con los personajes
@@ -84,13 +84,14 @@ const characterService = {
           id,
           title,
           year,
-          cover_image
+          cover_path
         ),
         audios (
           id,
           title,
           type,
-          audio_url,
+          audio_path,
+          transcription,
           created_at
         ),
         character_personality_tags (
@@ -131,13 +132,14 @@ const characterService = {
           id,
           title,
           year,
-          cover_image
+          cover_path
         ),
         audios (
           id,
           title,
           type,
-          audio_url,
+          audio_path,
+          transcription,
           created_at
         ),
         character_personality_tags (
@@ -189,6 +191,55 @@ const characterService = {
       .eq('id', id)
 
     if (error) throw error
+    return true
+  },
+
+  async getCharacterAssetPaths(characterId) {
+    const [{ data: character, error: characterError }, { data: filmography, error: filmographyError }, { data: media, error: mediaError }, { data: audios, error: audiosError }] = await Promise.all([
+      supabase.from('characters').select('cover_path').eq('id', characterId).single(),
+      supabase.from('filmography').select('cover_path').eq('character_id', characterId),
+      supabase.from('character_media').select('file_path').eq('character_id', characterId),
+      supabase.from('audios').select('audio_path').eq('character_id', characterId),
+    ])
+
+    if (characterError) throw characterError
+    if (filmographyError) throw filmographyError
+    if (mediaError) throw mediaError
+    if (audiosError) throw audiosError
+
+    return {
+      coverPath: character?.cover_path || null,
+      filmCoverPaths: (filmography || []).map((item) => item.cover_path).filter(Boolean),
+      mediaPaths: (media || []).map((item) => item.file_path).filter(Boolean),
+      audioPaths: (audios || []).map((item) => item.audio_path).filter(Boolean),
+    }
+  },
+
+  async removeFull(id) {
+    const { coverPath, filmCoverPaths, mediaPaths, audioPaths } = await this.getCharacterAssetPaths(id)
+
+    const storageRemovals = []
+    if (coverPath) storageRemovals.push(removeFiles(STORAGE_BUCKETS.characterCovers, [coverPath]))
+    if (filmCoverPaths.length > 0) storageRemovals.push(removeFiles(STORAGE_BUCKETS.filmsCover, filmCoverPaths))
+    if (mediaPaths.length > 0) storageRemovals.push(removeFiles(STORAGE_BUCKETS.characterMedia, mediaPaths))
+    if (audioPaths.length > 0) storageRemovals.push(removeFiles(STORAGE_BUCKETS.audioFiles, audioPaths))
+    await Promise.all(storageRemovals)
+
+    const deleteResults = await Promise.all([
+      supabase.from('filmography').delete().eq('character_id', id),
+      supabase.from('character_actors').delete().eq('character_id', id),
+      supabase.from('character_media').delete().eq('character_id', id),
+      supabase.from('audios').delete().eq('character_id', id),
+      supabase.from('character_personality_tags').delete().eq('character_id', id),
+      supabase.from('favorites').delete().eq('character_id', id),
+      supabase.from('comments').delete().eq('character_id', id),
+      supabase.from('characters').delete().eq('id', id),
+    ])
+
+    deleteResults.forEach(({ error }) => {
+      if (error) throw error
+    })
+
     return true
   },
 
@@ -465,6 +516,7 @@ const characterService = {
 
       return {
         id: actor.id,
+        actorName: actor.actor_name,
         text,
       }
     })

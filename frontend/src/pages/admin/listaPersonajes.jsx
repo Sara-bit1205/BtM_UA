@@ -146,7 +146,7 @@ function ListaPersonajes() {
                             border: "2px solid #85c249",
                           }}
                           onClick={() =>
-                            navigate("/admin/formulario-personaje", {
+                            navigate(`/admin/formulario-personaje/${personaje.id}`, {
                               state: { personaje },
                             })
                           } // Aquí iría la función real de edición, pasando el ID del personaje
@@ -162,7 +162,7 @@ function ListaPersonajes() {
                             border: "2px solid #c91074",
                           }}
                           onClick={() =>
-                            navigate("/admin/eliminar-personaje", {
+                            navigate(`/admin/eliminar-personaje/${personaje.id}`, {
                               state: { personaje },
                             })
                           } // Aquí iría la función real de eliminación

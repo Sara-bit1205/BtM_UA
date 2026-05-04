@@ -1,15 +1,53 @@
-import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { getPublicUrl, STORAGE_BUCKETS } from '../../lib/storage'
+import characterService from '../../services/characterService'
 
 function EliminarPersonaje() {
     const navigate = useNavigate();
     const location = useLocation();
-    
-    // Recuperamos el personaje que nos han pasado desde la lista
-    const personaje = location.state?.personaje || null;
+    const { id } = useParams();
+    const [deleting, setDeleting] = useState(false);
+    const [loading, setLoading] = useState(Boolean(id && !location.state?.personaje));
+    const [personaje, setPersonaje] = useState(location.state?.personaje || null);
 
-    // Si alguien entra a esta URL directamente sin un personaje, lo devolvemos a la lista
-    if (!personaje) {
+    useEffect(() => {
+        const loadPersonaje = async () => {
+            if (!id) return;
+            if (personaje && String(personaje.id) === id) {
+                setLoading(false);
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const data = await characterService.getById(id);
+                setPersonaje({
+                    id: data.id,
+                    name: data.name,
+                    imagen: data.cover_path ? getPublicUrl(STORAGE_BUCKETS.characterCovers, data.cover_path) : null,
+                });
+            } catch (error) {
+                console.error('Error cargando personaje para eliminar:', error);
+                setPersonaje(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadPersonaje();
+    }, [id, personaje]);
+
+    if (loading) {
+        return (
+            <div className="container text-center mt-5 text-white">
+                <h2>Cargando personaje...</h2>
+            </div>
+        );
+    }
+
+    if (!id || !personaje) {
         return (
         <div className="container text-center mt-5 text-white">
             <h2>No hay personaje seleccionado</h2>
@@ -18,13 +56,21 @@ function EliminarPersonaje() {
         );
     }
 
-    // Función para borrar realmente (Aquí irá tu lógica de Supabase)
-    const handleBorrar = () => {
-        console.log(`Borrando a ${personaje.name} de la base de datos...`);
-        // TODO: Supabase DELETE request
-        
-        // Después de borrar, volvemos a la lista
-        navigate('/admin/lista-personajes', { replace: true });
+    const handleBorrar = async () => {
+        const characterId = id || personaje?.id;
+        if (!characterId) return;
+
+        setDeleting(true);
+
+        try {
+            await characterService.removeFull(characterId);
+            navigate('/admin/lista-personajes', { replace: true });
+        } catch (error) {
+            console.error('Error borrando personaje:', error);
+            alert('No se pudo borrar el personaje. Revisa la consola para más detalles.');
+        } finally {
+            setDeleting(false);
+        }
     };
 
     return (
@@ -82,10 +128,11 @@ function EliminarPersonaje() {
                 {/* Botón ACEPTAR (Verde) */}
                 <button 
                     onClick={handleBorrar}
+                    disabled={deleting}
                     className="btn rounded-pill px-4 py-2 fw-bold text-uppercase shadow-sm"
                     style={{ backgroundColor: 'var(--color1, #a8e860)', color: '#000', border: '2px solid #85c249', fontFamily: 'var(--texto-encabezados)', fontSize: '1.2rem' }}
                 >
-                    Aceptar
+                    {deleting ? 'Borrando...' : 'Aceptar'}
                 </button>
 
                 {/* Botón CANCELAR (Rosa Fucsia) */}

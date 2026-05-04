@@ -75,7 +75,8 @@ function AppRoutes() {
           <Route path="/admin/usuarios" element={<UsersListPage />} />
           <Route path="/admin/lista-personajes" element={<ListaPersonajes />} />
           <Route path="/admin/formulario-personaje" element={<FormularioPersonaje />} />
-          <Route path="/admin/eliminar-personaje" element={<EliminarPersonaje />} />
+          <Route path="/admin/formulario-personaje/:id" element={<FormularioPersonaje />} />
+          <Route path="/admin/eliminar-personaje/:id" element={<EliminarPersonaje />} />
         </Route>
       </Route>
 

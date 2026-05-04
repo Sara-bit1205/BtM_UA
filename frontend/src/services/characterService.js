@@ -218,13 +218,6 @@ const characterService = {
   async removeFull(id) {
     const { coverPath, filmCoverPaths, mediaPaths, audioPaths } = await this.getCharacterAssetPaths(id)
 
-    const storageRemovals = []
-    if (coverPath) storageRemovals.push(removeFiles(STORAGE_BUCKETS.characterCovers, [coverPath]))
-    if (filmCoverPaths.length > 0) storageRemovals.push(removeFiles(STORAGE_BUCKETS.filmsCover, filmCoverPaths))
-    if (mediaPaths.length > 0) storageRemovals.push(removeFiles(STORAGE_BUCKETS.characterMedia, mediaPaths))
-    if (audioPaths.length > 0) storageRemovals.push(removeFiles(STORAGE_BUCKETS.audioFiles, audioPaths))
-    await Promise.all(storageRemovals)
-
     const deleteResults = await Promise.all([
       supabase.from('filmography').delete().eq('character_id', id),
       supabase.from('character_actors').delete().eq('character_id', id),
@@ -240,6 +233,26 @@ const characterService = {
       if (error) throw error
     })
 
+    const storageRemovals = []
+    if (coverPath) storageRemovals.push(removeFiles(STORAGE_BUCKETS.characterCovers, [coverPath]))
+    if (mediaPaths.length > 0) storageRemovals.push(removeFiles(STORAGE_BUCKETS.characterMedia, mediaPaths))
+    if (audioPaths.length > 0) storageRemovals.push(removeFiles(STORAGE_BUCKETS.audioFiles, audioPaths))
+
+    const uniqueFilmCoverPaths = [...new Set(filmCoverPaths)]
+    for (const coverPathItem of uniqueFilmCoverPaths) {
+      const { data: stillReferenced, error: referenceError } = await supabase
+        .from('filmography')
+        .select('id')
+        .eq('cover_path', coverPathItem)
+        .limit(1)
+
+      if (referenceError) throw referenceError
+      if (!stillReferenced || stillReferenced.length === 0) {
+        storageRemovals.push(removeFiles(STORAGE_BUCKETS.filmsCover, [coverPathItem]))
+      }
+    }
+
+    if (storageRemovals.length > 0) await Promise.all(storageRemovals)
     return true
   },
 
@@ -491,6 +504,36 @@ const characterService = {
       coverPath: movie.cover_path,
       image: getPublicUrl(STORAGE_BUCKETS.filmsCover, movie.cover_path),
     }))
+  },
+
+  async getAvailableFilms() {
+    const { data, error } = await supabase
+      .from('filmography')
+      .select(`
+        title,
+        year,
+        cover_path
+      `)
+      .order('title', { ascending: true })
+
+    if (error) throw error
+
+    const uniq = []
+    const seen = new Set()
+
+    ;(data || []).forEach((item) => {
+      const key = `${item.title?.trim().toLowerCase() || ''}-${item.year || ''}`
+      if (!seen.has(key) && item.title) {
+        seen.add(key)
+        uniq.push({
+          title: item.title,
+          year: item.year,
+          coverPath: item.cover_path,
+        })
+      }
+    })
+
+    return uniq
   },
 
   async getActors(characterId) {

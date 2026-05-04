@@ -21,6 +21,7 @@ function FormularioPersonaje() {
     first_appearance: '',
     universe_id: '',
     mbti_type_id: '',
+    personality_tag_id: '',
     psychological_analysis: '',
     cover_path: null,
     cover_preview: null,
@@ -32,6 +33,9 @@ function FormularioPersonaje() {
 
   const [universes, setUniverses] = useState([]);
   const [mbtiTypes, setMbtiTypes] = useState([]);
+  const [personalityTags, setPersonalityTags] = useState([]);
+  const [existingFilms, setExistingFilms] = useState([]);
+  const [selectedExistingFilm, setSelectedExistingFilm] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -79,9 +83,15 @@ function FormularioPersonaje() {
       setLoading(true);
 
       try {
-        const { universes: loadedUniverses, mbtiTypes: loadedMbtiTypes } = await categoryService.getAll();
+        const [{ universes: loadedUniverses, mbtiTypes: loadedMbtiTypes, personalityTags: loadedPersonalityTags }, loadedExistingFilms] = await Promise.all([
+          categoryService.getAll(),
+          characterService.getAvailableFilms()
+        ]);
+
         setUniverses(loadedUniverses || []);
         setMbtiTypes(loadedMbtiTypes || []);
+        setPersonalityTags(loadedPersonalityTags || []);
+        setExistingFilms(loadedExistingFilms || []);
 
         const idToLoad = personajeId || personajeAEditar?.id;
 
@@ -103,15 +113,7 @@ function FormularioPersonaje() {
             first_appearance: character.first_appearance || '',
             universe_id: character.universe_id || '',
             mbti_type_id: character.mbti_type_id || '',
-            psychological_analysis: character.psychological_analysis || '',
-            cover_path: character.cover_path || null,
-            cover_preview: character.cover_path
-              ? getPublicUrl(STORAGE_BUCKETS.characterCovers, character.cover_path)
-              : null,
-            gallery: (gallery || []).map(mapGalleryItem),
-            filmography: (filmography && filmography.length > 0)
-              ? filmography.map(mapFilmographyItem)
-              : [{ title: '', year: '', cover_path: null }],
+              personality_tag_id: character.character_personality_tags?.[0]?.personality_tags?.id || '',
             actors: (actors && actors.length > 0)
               ? actors.map(mapActorItem)
               : [{ actor_name: '' }],
@@ -139,6 +141,7 @@ function FormularioPersonaje() {
             first_appearance: personajeAEditar.first_appearance || '',
             universe_id: resolvedUniverseId,
             mbti_type_id: resolvedMbtiTypeId,
+            personality_tag_id: personajeAEditar.personality_tag_id || '',
             psychological_analysis: personajeAEditar.psychological_analysis || '',
             cover_path: personajeAEditar.cover_path || null,
             cover_preview: personajeAEditar.cover_path
@@ -166,6 +169,38 @@ function FormularioPersonaje() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const filmKey = (film) => `${film.title?.trim().toLowerCase() || ''}::${film.year || ''}`;
+
+  const handleAddExistingFilm = () => {
+    if (!selectedExistingFilm) return;
+    const existingFilm = existingFilms.find((film) => filmKey(film) === selectedExistingFilm);
+    if (!existingFilm) return;
+
+    const alreadyAdded = formData.filmography.some(
+      (item) => filmKey(item) === filmKey(existingFilm)
+    );
+
+    if (alreadyAdded) {
+      setSelectedExistingFilm('');
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      filmography: [
+        ...prev.filmography,
+        {
+          title: existingFilm.title,
+          year: existingFilm.year,
+          cover_path: null,
+          coverPath: existingFilm.coverPath || null,
+          preview: existingFilm.coverPath ? getPublicUrl(STORAGE_BUCKETS.filmsCover, existingFilm.coverPath) : null,
+        }
+      ]
+    }));
+    setSelectedExistingFilm('');
   };
 
   const handleFilmographyChange = (index, field, value) => {
@@ -361,24 +396,43 @@ function FormularioPersonaje() {
           supabase.from('filmography').delete().eq('character_id', characterId),
           supabase.from('character_actors').delete().eq('character_id', characterId),
           supabase.from('character_media').delete().eq('character_id', characterId),
-          supabase.from('audios').delete().eq('character_id', characterId)
+          supabase.from('audios').delete().eq('character_id', characterId),
+          supabase.from('character_personality_tags').delete().eq('character_id', characterId)
         ]);
       }
 
-      const filmographyRecords = await Promise.all(
+      const buildFilmographyRecord = async (item) => {
+        const title = item.title?.trim();
+        if (!title) return null;
+
+        const year = item.year || null;
+        let query = supabase.from('filmography').select('id, title, year, cover_path').eq('title', title);
+        if (year) query = query.eq('year', year);
+
+        const { data: existingFilms, error: existingFilmError } = await query.limit(1);
+        if (existingFilmError) throw existingFilmError;
+
+        const existingFilm = Array.isArray(existingFilms) ? existingFilms[0] : existingFilms;
+        const coverPath = await uploadFileIfNeeded(
+          STORAGE_BUCKETS.filmsCover,
+          item.cover_path,
+          item.coverPath || existingFilm?.cover_path || null,
+          'filmography'
+        );
+
+        return {
+          character_id: characterId,
+          title,
+          year,
+          cover_path: coverPath
+        };
+      };
+
+      const filmographyRecords = (await Promise.all(
         formData.filmography
           .filter((item) => item.title || item.year || item.cover_path || item.coverPath)
-          .map(async (item) => ({
-            character_id: characterId,
-            title: item.title,
-            year: item.year,
-            cover_path: await uploadFileIfNeeded(
-              STORAGE_BUCKETS.filmsCover,
-              item.cover_path,
-              item.coverPath || null
-            )
-          }))
-      );
+          .map(buildFilmographyRecord)
+      )).filter(Boolean);
 
       const actorsRecords = formData.actors
         .filter((item) => item.actor_name)
@@ -426,6 +480,9 @@ function FormularioPersonaje() {
       if (actorsRecords.length) inserts.push(supabase.from('character_actors').insert(actorsRecords));
       if (galleryRecords.length) inserts.push(supabase.from('character_media').insert(galleryRecords));
       if (audioRecords.length) inserts.push(supabase.from('audios').insert(audioRecords));
+      if (formData.personality_tag_id) {
+        inserts.push(supabase.from('character_personality_tags').insert([{ character_id: characterId, personality_tag_id: formData.personality_tag_id }]));
+      }
 
       const insertResults = await Promise.all(inserts);
       insertResults.forEach(({ error }) => {
@@ -586,6 +643,22 @@ function FormularioPersonaje() {
                         ))}
                       </select>
                     </div>
+
+                    <div className="col-md-6">
+                      <label htmlFor="personality_tag_id" className="form-label">Carácter</label>
+                      <select
+                        id="personality_tag_id"
+                        name="personality_tag_id"
+                        value={formData.personality_tag_id}
+                        onChange={handleChange}
+                        className="form-select"
+                      >
+                        <option value="">Selecciona carácter</option>
+                        {personalityTags.map((option) => (
+                          <option key={option.id} value={option.id}>{option.name}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </section>
 
@@ -593,9 +666,33 @@ function FormularioPersonaje() {
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <h2 className="h5 fw-semibold mb-0" style={{ color: 'var(--color4)' }}>3. Filmografía</h2>
                     <button type="button" className="btn btn-sm btn-outline-light" onClick={addFilmographyItem}>
-                      Añadir película
+                      Añadir película nueva
                     </button>
                   </div>
+
+                  <div className="mb-4 p-3 rounded-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
+                    <label htmlFor="existingFilmSelect" className="form-label mb-2">Película existente</label>
+                    <div className="d-flex gap-2 align-items-center">
+                      <select
+                        id="existingFilmSelect"
+                        className="form-select"
+                        value={selectedExistingFilm}
+                        onChange={(e) => setSelectedExistingFilm(e.target.value)}
+                      >
+                        <option value="">Selecciona una película existente</option>
+                        {existingFilms.map((film) => (
+                          <option key={filmKey(film)} value={filmKey(film)}>
+                            {film.title} {film.year ? `(${film.year})` : ''}
+                          </option>
+                        ))}
+                      </select>
+                      <button type="button" className="btn btn-sm btn-outline-light" onClick={handleAddExistingFilm}>
+                        Añadir existente
+                      </button>
+                    </div>
+                    <small className="text-muted mt-2 d-block">Selecciona una película ya registrada para enlazarla sin crear duplicados.</small>
+                  </div>
+
                   <div className="row gx-3 gy-4">
                     {formData.filmography.map((item, index) => (
                       <div key={index} className="col-12 border rounded-3 p-3" style={{ backgroundColor: 'var(--color-grisOscuro)' }}>

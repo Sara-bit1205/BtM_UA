@@ -416,8 +416,7 @@ function FormularioPersonaje() {
         const coverPath = await uploadFileIfNeeded(
           STORAGE_BUCKETS.filmsCover,
           item.cover_path,
-          item.coverPath || existingFilm?.cover_path || null,
-          'filmography'
+          item.coverPath || existingFilm?.cover_path || null
         );
 
         return {

@@ -9,7 +9,7 @@
     width: 100%;
     height: clamp(300px, 70vw, 400px);
     object-fit: cover;
-    object-position: top center;
+    object-position: center;
 }
 
 .character-detail-page .card-header{

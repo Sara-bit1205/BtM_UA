@@ -63,6 +63,28 @@
   filter: brightness(1.05);
 }
 
+.admin-cat-back-btn {
+  align-self: flex-start;
+  margin-top: 2rem;
+
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color2);
+  color: var(--colorTexto);
+  border: 3px solid var(--color3);
+  font-size: 1.1rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+
 @media (max-width: 768px) {
   .users-list-page .users-table th,
   .users-list-page .users-table td {

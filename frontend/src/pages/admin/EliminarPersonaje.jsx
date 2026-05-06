@@ -41,7 +41,7 @@ function EliminarPersonaje() {
 
     if (loading) {
         return (
-            <div className="container text-center mt-5 text-white">
+            <div className="container text-center mt-5 text-white" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>
                 <h2>Cargando personaje...</h2>
             </div>
         );
@@ -49,7 +49,7 @@ function EliminarPersonaje() {
 
     if (!id || !personaje) {
         return (
-        <div className="container text-center mt-5 text-white">
+        <div className="container text-center mt-5 text-white" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>
             <h2>No hay personaje seleccionado</h2>
             <button className="btn btn-primary mt-3" onClick={() => navigate(-1)}>Volver</button>
         </div>
@@ -82,12 +82,12 @@ function EliminarPersonaje() {
             <div className="card border-0 p-4 shadow" style={{ backgroundColor: 'var(--color-grisOscuro, #1a1a1a)', borderRadius: '30px' }}>
                 
                 {/* Título */}
-                <h1 className="text-center mb-4 text-uppercase" style={{ fontFamily: 'var(--texto-encabezados)', color: 'var(--color1)' }}>
+                <h1 className="text-center mb-4 text-uppercase" style={{ fontFamily: 'var(--texto-encabezados)', color: 'var(--color4)' }}>
                 BORRAR PERSONAJE
                 </h1>
 
                 {/* Nombre del personaje */}
-                <h2 className="mb-3 text-uppercase" style={{ fontFamily: 'var(--texto-encabezados)', color: '#5bc0be' }}>
+                <h2 className="mb-3 text-uppercase" style={{ fontFamily: 'var(--texto-encabezados)', color: 'var(--color3)' }}>
                 {personaje.name}
                 </h2>
 
@@ -108,8 +108,8 @@ function EliminarPersonaje() {
 
                 {/* Sección de Etiquetas */}
                 <div className="mb-4">
-                <h4 style={{ color: 'var(--color1)', fontWeight: 'bold' }}>Etiquetas:</h4>
-                <ul style={{ fontSize: '1.1rem', lineHeight: '1.6' }}>
+                <h4 style={{ color: 'var(--color4)', fontWeight: 'bold', fontFamily: 'var(--texto-normal)' }}>Etiquetas:</h4>
+                <ul style={{ fontSize: '1.1rem', lineHeight: '1.6', color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>
                     <li><span className="fw-bold">Personalidad:</span> Oscura, Amenazante</li>
                     <li><span className="fw-bold">Universo:</span> Marvel</li>
                     <li><span className="fw-bold">Tipo de Personalidad (MBTI):</span> La Arquitecta (INTJ)</li>
@@ -117,8 +117,8 @@ function EliminarPersonaje() {
                 </div>
 
                 {/* Cuadro gris de advertencia */}
-                <div className="p-4 mb-4" style={{ backgroundColor: '#333333', borderRadius: '25px', textAlign: 'center' }}>
-                <p className="m-0 fs-5" style={{ color: '#e0e0e0' }}>
+                <div className="p-4 mb-4" style={{ backgroundColor: 'var(--color-grisClaro)', borderRadius: '25px', textAlign: 'center' }}>
+                <p className="m-0 fs-5" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>
                     ¿Confirmas que deseas borrar este personaje? También desaparecerán sus imágenes, categorías y personalidades a las que pertenezca.
                 </p>
                 </div>
@@ -129,8 +129,7 @@ function EliminarPersonaje() {
                 <button 
                     onClick={handleBorrar}
                     disabled={deleting}
-                    className="btn rounded-pill px-4 py-2 fw-bold text-uppercase shadow-sm"
-                    style={{ backgroundColor: 'var(--color1, #a8e860)', color: '#000', border: '2px solid #85c249', fontFamily: 'var(--texto-encabezados)', fontSize: '1.2rem' }}
+                    className="btn rounded-pill px-4 py-2 fw-bold text-uppercase shadow-sm btnEditarPers"
                 >
                     {deleting ? 'Borrando...' : 'Aceptar'}
                 </button>
@@ -138,8 +137,7 @@ function EliminarPersonaje() {
                 {/* Botón CANCELAR (Rosa Fucsia) */}
                 <button 
                     onClick={() => navigate(-1)} // Volver atrás sin hacer nada
-                    className="btn rounded-pill px-4 py-2 fw-bold text-uppercase shadow-sm"
-                    style={{ backgroundColor: '#ff1493', color: '#000', border: '2px solid #c91074', fontFamily: 'var(--texto-encabezados)', fontSize: '1.2rem' }}
+                    className="btn rounded-pill px-4 py-2 fw-bold text-uppercase shadow-sm btnEliminarPers"
                 >
                     Cancelar
                 </button>

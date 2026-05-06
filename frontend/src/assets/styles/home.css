@@ -191,6 +191,23 @@
   
 }
 
+/* default = negro */
+.personality-icon {
+  width: 28px;
+  height: 28px;
+  filter: brightness(0);
+}
+
+/* tema claro = negro */
+[data-theme="light"] .personality-icon {
+  filter: brightness(0) invert(1);
+}
+
+/* alto contraste = blanco */
+[data-theme="contrast"] .personality-icon {
+  filter: brightness(0);
+}
+
 .tipoPersonalidad-titulo:hover{
   color:var(--color5);
 }

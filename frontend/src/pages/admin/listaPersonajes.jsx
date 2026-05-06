@@ -2,6 +2,24 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 // import { supabase } from "../../lib/supabase";
 import characterService from '../../services/characterService'
+import '../../assets/styles/adminPersonajes.css'
+
+function BackBtn({ onClick, to }) {
+  const icon = (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+         aria-hidden="true">
+      <polyline points="15 18 9 12 15 6" />
+    </svg>
+  )
+  if (to) return <Link to={to} className="admin-cat-back-btn" aria-label="Volver">{icon}</Link>
+  return (
+    <button type="button" className="admin-cat-back-btn" onClick={onClick} aria-label="Volver">
+      {icon}
+    </button>
+  )
+}
 
 function ListaPersonajes() {
   //----------------------------- Objetos para guardar los datos que recogamos de la base de datos -----------------------------
@@ -52,12 +70,7 @@ function ListaPersonajes() {
           {/* --- BOTÓN CREAR NUEVO --- */}
           <div className="text-center mb-4">
             <button
-              className="btn rounded-pill fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 shadow"
-              style={{
-                backgroundColor: "#5bc0be",
-                color: "#000",
-                border: "2px solid #4a9e9c",
-              }} // Ese verde azulado de tu captura
+              className="btn rounded-pill fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 shadow btnCrearPers"
               onClick={() => navigate("/admin/formulario-personaje")}
             >
               CREAR NUEVO <i className="bi bi-plus-circle fs-5"></i>
@@ -70,17 +83,17 @@ function ListaPersonajes() {
               <div className="spinner-border text-info" role="status" style={{ width: "3rem", height: "3rem" }}>
                 <span className="visually-hidden">Cargando...</span>
               </div>
-              <p className="mt-3" style={{ color: "var(--color1)", fontSize: "1.1rem" }}>
+              <p className="mt-3" style={{ color: "var(--colorTexto)", fontSize: "1.1rem", fontFamily: "var(--texto-normal)" }}>
                 Cargando personajes...
               </p>
             </div>
           ) : personajes.length === 0 ? (
             /* --- MENSAJE CUANDO NO HAY PERSONAJES --- */
             <div className="d-flex flex-column align-items-center justify-content-center" style={{ minHeight: "300px" }}>
-              <p style={{ color: "var(--color1)", fontSize: "1.3rem", fontWeight: "bold" }}>
+              <p style={{ color: "var(--colorTexto)", fontSize: "1.3rem", fontWeight: "bold", fontFamily: "var(--texto-normal)"}}>
                 No hay personajes disponibles
               </p>
-              <p style={{ color: "#b0b0b0", fontSize: "1rem" }}>
+              <p style={{ color: "var(--colorTexto)", fontSize: "1rem", fontFamily: "var(--texto-normal)" }}>
                 Crea uno nuevo para comenzar
               </p>
             </div>
@@ -93,7 +106,7 @@ function ListaPersonajes() {
                   key={personaje.id}
                   className="card border-0 p-3 shadow-sm"
                   style={{
-                    backgroundColor: "var(--color-grisOscuro, #2a2a2a)",
+                    backgroundColor: "var(--color-grisOscuro)",
                     borderRadius: "25px",
                   }}
                 >
@@ -118,7 +131,7 @@ function ListaPersonajes() {
                         className="m-0 text-uppercase"
                         style={{
                           fontFamily: "var(--texto-encabezados)",
-                          color: "var(--color1)",
+                          color: "var(--color3)",
                           fontSize: "1.5rem",
                         }}
                       >
@@ -130,7 +143,8 @@ function ListaPersonajes() {
                         style={{
                           fontSize: "0.85rem",
                           lineHeight: "1.3",
-                          color: "#e0e0e0",
+                          color: "var(--colorTexto)",
+                          fontFamily: "var(--texto-normal)",
                         }}
                       >
                         {personaje.descripcion}
@@ -140,34 +154,26 @@ function ListaPersonajes() {
                       <div className="d-flex justify-content-center gap-3 mt-auto pt-2">
                         {/* Botón Editar (Verde Neón) */}
                         <button
-                          className="btn rounded-pill px-4"
-                          style={{
-                            backgroundColor: "var(--color1)",
-                            border: "2px solid #85c249",
-                          }}
+                          className="btn rounded-pill px-4 btnEditarPers"
                           onClick={() =>
                             navigate(`/admin/formulario-personaje/${personaje.id}`, {
                               state: { personaje },
                             })
                           } // Aquí iría la función real de edición, pasando el ID del personaje
                         >
-                          <i className="bi bi-pencil fs-5 text-dark"></i>
+                          <i className="bi bi-pencil fs-5 iconEditar"></i>
                         </button>
 
                         {/* Botón Eliminar (Rosa Fucsia) */}
                         <button
-                          className="btn rounded-pill px-4"
-                          style={{
-                            backgroundColor: "#ff1493",
-                            border: "2px solid #c91074",
-                          }}
+                          className="btn rounded-pill px-4 btnEliminarPers"
                           onClick={() =>
                             navigate(`/admin/eliminar-personaje/${personaje.id}`, {
                               state: { personaje },
                             })
                           } // Aquí iría la función real de eliminación
                         >
-                          <i className="bi bi-trash fs-5 text-white"></i>
+                          <i className="bi bi-trash fs-5 iconEliminar"></i>
                         </button>
                       </div>
                     </div>
@@ -178,17 +184,8 @@ function ListaPersonajes() {
           )}
 
           {/* --- BOTÓN VOLVER (Abajo a la izquierda) --- */}
-          <div className="mt-4 ms-2">
-            <button
-              onClick={() => navigate(-1)}
-              className="btn border-0 p-0"
-              style={{ color: "var(--color1)" }}
-            >
-              <i
-                className="bi bi-arrow-left-circle-fill"
-                style={{ fontSize: "2.5rem" }}
-              ></i>
-            </button>
+          <div className="mt-4 d-flex justify-content-start">
+            <BackBtn to="/admin" />
           </div>
         </div>
       </div>

@@ -88,13 +88,17 @@ const GaleriaUsuario = () => {
           Mi Galería
         </h2>
         <button
-          className={`btn fw-bold rounded-pill px-4 ${modoseleccion ? "btn-secondary" : "btn-primary"}`}
+          className="btn fw-bold rounded-pill px-4"
+          style={{
+            backgroundColor: modoseleccion ? 'var(--color1)' : 'var(--color4)',
+            color: 'var(--color-principal)',
+          }}
           onClick={() => {
-            setModoseleccion(!modoseleccion);
-            setFotosEliminar([]); // Limpiamos la selección si cancelan
+            setModoseleccion(!modoseleccion)
+            setFotosEliminar([])
           }}
         >
-          {modoseleccion ? "Cancelar" : "Seleccionar"}
+          {modoseleccion ? 'Cancelar' : 'Seleccionar'}
         </button>
       </header>
       {/* --- CUADRÍCULA --- */}

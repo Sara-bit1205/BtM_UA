@@ -37,6 +37,13 @@ function CharacterDetailPage() {
   const [openTranscriptId, setOpenTranscriptId] = useState(null)
   const [personalityTags, setPersonalityTags] = useState([])
 
+  function formatTranscription(text) {
+  return text
+    .replace(/\s+/g, ' ')
+    .replace(/([.!?])\s+/g, '$1\n\n')
+    .trim()
+}
+
 useEffect(() => {
   const loadCharacter = async () => {
     setLoadingCharacter(true)
@@ -655,7 +662,7 @@ useEffect(() => {
                             <div className="audio-transcript-box">
                               <div className="audio-transcript-content">
                                 {audio.transcription?.trim()
-                                  ? audio.transcription
+                                   ? formatTranscription(audio.transcription)
                                   : 'Este audio no tiene transcripción'}
                               </div>
                             </div>
@@ -709,7 +716,7 @@ useEffect(() => {
                   </div>
                 ))
               ) : (
-                <p>De momento no hay fotos de la comunidad.</p>
+                <p>Oh oh! Parece que no hay fotos de la comunidad. Sé el primero en subir una.</p>
               )}
             </div>
 
@@ -765,7 +772,7 @@ useEffect(() => {
                     </article>
                   ))
                 ) : (
-                  <p>De momento no hay comentarios.</p>
+                  <p>Oh oh! Parece que no hay comentarios. Sé el primero en comentar.</p>
                 )}
               </div>
             </section>

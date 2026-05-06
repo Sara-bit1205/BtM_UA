@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import characterService from '../../services/characterService';
 import categoryService from '../../services/categoryService';
 import { uploadFile, getPublicUrl, STORAGE_BUCKETS } from '../../lib/storage';
+import '../../assets/styles/adminPersonajes.css'
 
 function FormularioPersonaje() {
   const navigate = useNavigate();
@@ -113,11 +114,27 @@ function FormularioPersonaje() {
             first_appearance: character.first_appearance || '',
             universe_id: character.universe_id || '',
             mbti_type_id: character.mbti_type_id || '',
-              personality_tag_id: character.character_personality_tags?.[0]?.personality_tags?.id || '',
-            actors: (actors && actors.length > 0)
+            personality_tag_id: character.character_personality_tags?.[0]?.personality_tags?.id || '',
+            psychological_analysis: character.psychological_analysis || '',
+
+            cover_path: character.cover_path || null,
+            cover_preview: character.cover_path
+              ? getPublicUrl(STORAGE_BUCKETS.characterCovers, character.cover_path)
+              : null,
+
+            gallery: gallery?.length
+              ? gallery.map(mapGalleryItem)
+              : [],
+
+            filmography: filmography?.length
+              ? filmography.map(mapFilmographyItem)
+              : [{ title: '', year: '', cover_path: null }],
+
+            actors: actors?.length
               ? actors.map(mapActorItem)
               : [{ actor_name: '' }],
-            audios: (audios && audios.length > 0)
+
+            audios: audios?.length
               ? audios.map(mapAudioItem)
               : [{ title: '', audio_path: null, transcription: '' }]
           });
@@ -503,9 +520,9 @@ function FormularioPersonaje() {
         <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
           <div className="text-center">
             <div className="spinner-border text-info" role="status" style={{ width: '4rem', height: '4rem' }}>
-              <span className="visually-hidden">Cargando...</span>
+              <span className="visually-hidden" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Cargando...</span>
             </div>
-            <p className="mt-3" style={{ color: 'var(--color-grisClarito)' }}>Cargando formulario...</p>
+            <p className="mt-3" style={{ color: 'var(--color-grisClarito)', fontFamily: 'var(--texto-normal)' }}>Cargando formulario...</p>
           </div>
         </div>
       </div>
@@ -522,7 +539,7 @@ function FormularioPersonaje() {
                 <h1 className="h3 text-uppercase mb-2" style={{ color: 'var(--color4)', letterSpacing: '0.08em' }}>
                   {isEditMode ? 'Editar personaje' : 'Crear personaje'}
                 </h1>
-                <p className="text-muted mb-0" style={{ color: 'var(--color4)!important' }}>Completa los bloques básicos, las relaciones y los contenidos dinámicos del personaje.</p>
+                <p className="text-muted mb-0" style={{ color: 'var(--color4)!important', fontFamily: 'var(--texto-normal)' }}>Completa los bloques básicos, las relaciones y los contenidos dinámicos del personaje.</p>
               </div>
 
               <form onSubmit={handleSubmit}>
@@ -530,7 +547,7 @@ function FormularioPersonaje() {
                   <h2 className="h5 fw-semibold mb-3" style={{ color: 'var(--color4)' }}>1. Datos básicos</h2>
                   <div className="row gx-3 gy-3">
                     <div className="col-md-6">
-                      <label htmlFor="name" className="form-label">Nombre</label>
+                      <label htmlFor="name" className="form-label"  style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Nombre</label>
                       <input
                         id="name"
                         name="name"
@@ -543,7 +560,7 @@ function FormularioPersonaje() {
                     </div>
 
                     <div className="col-md-6">
-                      <label htmlFor="creation_date" className="form-label">Fecha de creación</label>
+                      <label htmlFor="creation_date" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Fecha de creación</label>
                       <input
                         id="creation_date"
                         name="creation_date"
@@ -555,7 +572,7 @@ function FormularioPersonaje() {
                     </div>
 
                     <div className="col-12">
-                      <label htmlFor="story" className="form-label">Historia</label>
+                      <label htmlFor="story" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Historia</label>
                       <textarea
                         id="story"
                         name="story"
@@ -568,7 +585,7 @@ function FormularioPersonaje() {
                     </div>
 
                     <div className="col-md-6">
-                      <label htmlFor="place_of_origin" className="form-label">Lugar de origen</label>
+                      <label htmlFor="place_of_origin" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Lugar de origen</label>
                       <input
                         id="place_of_origin"
                         name="place_of_origin"
@@ -581,7 +598,7 @@ function FormularioPersonaje() {
                     </div>
 
                     <div className="col-md-6">
-                      <label htmlFor="biological_origin" className="form-label">Origen biológico</label>
+                      <label htmlFor="biological_origin" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Origen biológico</label>
                       <input
                         id="biological_origin"
                         name="biological_origin"
@@ -594,7 +611,7 @@ function FormularioPersonaje() {
                     </div>
 
                     <div className="col-12">
-                      <label htmlFor="first_appearance" className="form-label">Primera aparición</label>
+                      <label htmlFor="first_appearance" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Primera aparición</label>
                       <input
                         id="first_appearance"
                         name="first_appearance"
@@ -612,7 +629,7 @@ function FormularioPersonaje() {
                   <h2 className="h5 fw-semibold mb-3" style={{ color: 'var(--color4)' }}>2. Relaciones</h2>
                   <div className="row gx-3 gy-3">
                     <div className="col-md-6">
-                      <label htmlFor="universe_id" className="form-label">Universo</label>
+                      <label htmlFor="universe_id" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Universo</label>
                       <select
                         id="universe_id"
                         name="universe_id"
@@ -628,7 +645,7 @@ function FormularioPersonaje() {
                     </div>
 
                     <div className="col-md-6">
-                      <label htmlFor="mbti_type_id" className="form-label">Tipo MBTI</label>
+                      <label htmlFor="mbti_type_id" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Tipo MBTI</label>
                       <select
                         id="mbti_type_id"
                         name="mbti_type_id"
@@ -644,7 +661,7 @@ function FormularioPersonaje() {
                     </div>
 
                     <div className="col-md-6">
-                      <label htmlFor="personality_tag_id" className="form-label">Carácter</label>
+                      <label htmlFor="personality_tag_id" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Carácter</label>
                       <select
                         id="personality_tag_id"
                         name="personality_tag_id"
@@ -664,13 +681,15 @@ function FormularioPersonaje() {
                 <section className="mb-5">
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <h2 className="h5 fw-semibold mb-0" style={{ color: 'var(--color4)' }}>3. Filmografía</h2>
-                    <button type="button" className="btn btn-sm btn-outline-light" onClick={addFilmographyItem}>
+                    <button type="button" className="btn btn-sm btn-outline-light btnAnadirPelis" onClick={addFilmographyItem}>
                       Añadir película nueva
                     </button>
                   </div>
 
-                  <div className="mb-4 p-3 rounded-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
-                    <label htmlFor="existingFilmSelect" className="form-label mb-2">Película existente</label>
+                  <div className="mb-4 p-3 rounded-3" style={{ backgroundColor: 'var(--color-grisOscuro)' }}>
+                    <label htmlFor="existingFilmSelect" className="form-label mb-2" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>
+                      Película existente
+                    </label>
                     <div className="d-flex gap-2 align-items-center">
                       <select
                         id="existingFilmSelect"
@@ -685,19 +704,25 @@ function FormularioPersonaje() {
                           </option>
                         ))}
                       </select>
-                      <button type="button" className="btn btn-sm btn-outline-light" onClick={handleAddExistingFilm}>
+                      <button type="button" className="btn btn-sm btn-outline-light btnAnadirPelis" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }} onClick={handleAddExistingFilm}>
                         Añadir existente
                       </button>
                     </div>
-                    <small className="text-muted mt-2 d-block">Selecciona una película ya registrada para enlazarla sin crear duplicados.</small>
+                    <small className="text-muted mt-2 d-block" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>
+                      Selecciona una película ya registrada para enlazarla sin crear duplicados.
+                    </small>
                   </div>
 
                   <div className="row gx-3 gy-4">
-                    {formData.filmography.map((item, index) => (
-                      <div key={index} className="col-12 border rounded-3 p-3" style={{ backgroundColor: 'var(--color-grisOscuro)' }}>
+                    {(formData.filmography || []).map((item, index) => (
+                      <div
+                        key={index}
+                        className="col-12 border rounded-3 p-3"
+                        style={{ backgroundColor: 'var(--color-grisOscuro)' }}
+                      >
                         <div className="row gx-3 gy-3 align-items-end">
                           <div className="col-md-4">
-                            <label className="form-label">Título</label>
+                            <label className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)'}}>Título</label>
                             <input
                               type="text"
                               className="form-control"
@@ -706,8 +731,9 @@ function FormularioPersonaje() {
                               placeholder="Título de la película"
                             />
                           </div>
+
                           <div className="col-md-3">
-                            <label className="form-label">Año</label>
+                            <label className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)'}}>Año</label>
                             <input
                               type="number"
                               className="form-control"
@@ -716,30 +742,41 @@ function FormularioPersonaje() {
                               placeholder="Año"
                             />
                           </div>
+
                           <div className="col-md-4">
-                            <label className="form-label">Portada</label>
+                            <label className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)'}}>Portada</label>
                             <input
                               type="file"
                               accept="image/*"
                               className="form-control"
                               onChange={(e) => handleFilmographyFile(index, e.target.files?.[0] || null)}
                             />
-                            {(item.cover_path?.name || item.coverPath) && (
+
+                            {/* {(item.cover_path?.name || item.coverPath) && (
                               <small className="text-muted">
                                 Archivo: {item.cover_path?.name || item.coverPath}
                               </small>
-                            )}
+                            )} */}
                           </div>
+
                           <div className="col-md-1 text-end">
-                            <button type="button" className="btn btn-outline-danger btn-sm" onClick={() => removeFilmographyItem(index)}>
+                            <button
+                              type="button"
+                              className="btn btn-outline-danger btn-sm btnEliminarPelis"
+                              onClick={() => removeFilmographyItem(index)}
+                            >
                               x
                             </button>
                           </div>
                         </div>
+
                         {item.preview && (
                           <div className="row gx-3 mt-3">
                             <div className="col-12">
-                              <div className="border rounded-3 overflow-hidden" style={{ backgroundColor: 'var(--color-grisOscuro)' }}>
+                              <div
+                                className="border rounded-3 overflow-hidden"
+                                style={{ backgroundColor: 'var(--color-grisOscuro)' }}
+                              >
                                 <img
                                   src={item.preview}
                                   alt={`Portada de ${item.title || 'película'}`}
@@ -758,15 +795,15 @@ function FormularioPersonaje() {
                 <section className="mb-5">
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <h2 className="h5 fw-semibold mb-0" style={{ color: 'var(--color4)' }}>4. Actores</h2>
-                    <button type="button" className="btn btn-sm btn-outline-light" onClick={addActor}>
+                    <button type="button" className="btn btn-sm btn-outline-light btnAnadirPelis" onClick={addActor}>
                       Añadir actor
                     </button>
                   </div>
                   <div className="row gx-3 gy-3">
-                    {formData.actors.map((actor, index) => (
+                    {(formData.actors || []).map((actor, index) => (
                       <div key={index} className="col-12 d-flex gap-3 align-items-end">
                         <div className="flex-grow-1">
-                          <label className="form-label">Nombre del actor</label>
+                          <label className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)' }}>Nombre del actor</label>
                           <input
                             type="text"
                             className="form-control"
@@ -786,7 +823,7 @@ function FormularioPersonaje() {
                 <section className="mb-5">
                   <h2 className="h5 fw-semibold mb-3" style={{ color: 'var(--color4)' }}>5. Análisis psicológico</h2>
                   <div className="mb-3">
-                    <label htmlFor="psychological_analysis" className="form-label">Análisis</label>
+                    <label htmlFor="psychological_analysis" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)'}}>Análisis</label>
                     <textarea
                       id="psychological_analysis"
                       name="psychological_analysis"
@@ -803,7 +840,7 @@ function FormularioPersonaje() {
                   <h2 className="h5 fw-semibold mb-3" style={{ color: 'var(--color4)' }}>6. Portada principal</h2>
                   <div className="row gx-3 gy-3 align-items-end">
                     <div className="col-md-8">
-                      <label htmlFor="cover_path" className="form-label">Archivo de portada</label>
+                      <label htmlFor="cover_path" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)' }}>Archivo de portada</label>
                       <input
                         id="cover_path"
                         type="file"
@@ -811,9 +848,9 @@ function FormularioPersonaje() {
                         className="form-control"
                         onChange={(e) => handleCoverFile(e.target.files?.[0] || null)}
                       />
-                      {(formData.cover_path?.name || formData.cover_preview) && (
+                      {/* {(formData.cover_path?.name || formData.cover_preview) && (
                         <small className="text-muted">Archivo seleccionado: {formData.cover_path?.name || 'Portada actual cargada'}</small>
-                      )}
+                      )} */}
                     </div>
                     <div className="col-md-4">
                       {formData.cover_preview && (
@@ -834,7 +871,7 @@ function FormularioPersonaje() {
                 <section className="mb-5">
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <h2 className="h5 fw-semibold mb-0" style={{ color: 'var(--color4)' }}>7. Galería de medios</h2>
-                    <label className="btn btn-sm btn-outline-light mb-0">
+                    <label className="btn btn-sm btn-outline-light mb-0 btnAnadirPelis">
                       Añadir imágenes
                       <input
                         type="file"
@@ -846,10 +883,10 @@ function FormularioPersonaje() {
                     </label>
                   </div>
                   <div className="row gx-3 gy-3">
-                    {formData.gallery.length === 0 ? (
+                    {(formData.gallery || []).length === 0 ? (
                       <div className="col-12" style={{ color: 'var(--color-grisClarito)' }}>No hay imágenes en la galería aún.</div>
                     ) : (
-                      formData.gallery.map((item, index) => (
+                      (formData.gallery || []).map((item, index) => (
                         <div key={index} className="col-6 col-md-4 col-lg-3">
                           <div className="position-relative rounded overflow-hidden" style={{ backgroundColor: 'var(--color-grisOscuro)' }}>
                             <img
@@ -875,16 +912,16 @@ function FormularioPersonaje() {
                 <section className="mb-5">
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <h2 className="h5 fw-semibold mb-0" style={{ color: 'var(--color4)' }}>8. Audios</h2>
-                    <button type="button" className="btn btn-sm btn-outline-light" onClick={addAudio}>
+                    <button type="button" className="btn btn-sm btn-outline-light btnAnadirPelis" onClick={addAudio}>
                       Añadir audio
                     </button>
                   </div>
                   <div className="row gx-3 gy-4">
-                    {formData.audios.map((item, index) => (
+                    {(formData.audios || []).map((item, index) => (
                       <div key={index} className="col-12 border rounded-3 p-3" style={{ backgroundColor: 'var(--color-grisOscuro)' }}>
                         <div className="row gx-3 gy-3">
                           <div className="col-md-4">
-                            <label className="form-label">Título</label>
+                            <label className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)' }}>Título</label>
                             <input
                               type="text"
                               className="form-control"
@@ -894,7 +931,7 @@ function FormularioPersonaje() {
                             />
                           </div>
                           <div className="col-md-4">
-                            <label className="form-label">Archivo de audio</label>
+                            <label className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)' }}>Archivo de audio</label>
                             <input
                               type="file"
                               accept="audio/*"
@@ -908,7 +945,7 @@ function FormularioPersonaje() {
                             )}
                           </div>
                           <div className="col-md-3">
-                            <label className="form-label">Transcripción</label>
+                            <label className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)' }}>Transcripción</label>
                             <input
                               type="text"
                               className="form-control"
@@ -928,7 +965,7 @@ function FormularioPersonaje() {
                             <div className="col-12">
                               <div className="border rounded-3 p-3" style={{ backgroundColor: 'var(--color-grisOscuro)' }}>
                                 <p className="mb-2" style={{ color: 'var(--color-grisClarito)' }}>Reproductor de audio</p>
-                                <audio controls className="w-100">
+                                <audio controls className="w-100" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)'}}>
                                   <source src={item.url} />
                                   Tu navegador no soporta reproducción de audio.
                                 </audio>
@@ -942,10 +979,10 @@ function FormularioPersonaje() {
                 </section>
 
                 <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
-                  <button type="button" className="btn btn-outline-light" onClick={() => navigate(-1)}>
+                  <button type="button" className="btn btn-outline-light btnVolver" onClick={() => navigate(-1)}>
                     Volver
                   </button>
-                  <button type="submit" className="btn btn-primary px-4" disabled={submitting} style={{ backgroundColor: 'var(--color2)', borderColor: 'var(--color2)' }}>
+                  <button type="submit" className="btn btn-primary px-4 btnGuardarPer" disabled={submitting} style={{ backgroundColor: 'var(--color2)', borderColor: 'var(--color2)' }}>
                     {submitting ? 'Guardando...' : isEditMode ? 'Actualizar Personaje' : 'Crear personaje'}
                   </button>
                 </div>

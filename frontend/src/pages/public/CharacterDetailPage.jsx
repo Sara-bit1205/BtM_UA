@@ -187,6 +187,7 @@ useEffect(() => {
       const newFormattedComment = {
         id: data.id,
         user: 'Tú',
+        userId: user.id,
         avatar: avatarUrl,
         time: new Date(data.created_at).toLocaleDateString('es-ES'),
         text: data.comment,
@@ -197,6 +198,22 @@ useEffect(() => {
     } catch (error) {
       console.error('Error publicando comentario:', error.message)
       alert('No se pudo publicar el comentario')
+    } finally {
+      setLoadingComment(false)
+    }
+  }
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      if (!window.confirm('¿Eliminar este comentario?')) return
+
+      setLoadingComment(true)
+
+      await characterService.deleteComment(commentId)
+
+      setComments((prev) => prev.filter((c) => c.id !== commentId))
+    } catch (error) {
+      console.error('Error eliminando comentario:', error.message)
     } finally {
       setLoadingComment(false)
     }
@@ -764,6 +781,16 @@ useEffect(() => {
                           <div className="comment-meta">
                             <span className="comment-user">{comment.user}</span>
                             <span className="comment-time">{comment.time}</span>
+                            {currentUser && comment.userId && currentUser.id === comment.userId && (
+                              <button
+                                type="button"
+                                className="btn btn-link text-danger btn-sm ms-2 p-0"
+                                onClick={() => handleDeleteComment(comment.id)}
+                                title="Eliminar comentario"
+                              >
+                                <i className="bi bi-trash"></i>
+                              </button>
+                            )}
                           </div>
 
                           <p className="comment-text mb-0">{comment.text}</p>

@@ -689,12 +689,24 @@ const characterService = {
         comment.user_id === currentUserId
           ? 'Tú'
           : comment.profiles?.username || 'Usuario',
+      userId: comment.user_id,
+      isOwner: comment.user_id === currentUserId,
       avatar: comment.profiles?.avatar_path
         ? getPublicUrl(STORAGE_BUCKETS.avatars, comment.profiles.avatar_path)
         : null,
       time: new Date(comment.created_at).toLocaleDateString('es-ES'),
       text: comment.comment,
     }))
+  },
+
+  async deleteComment(commentId) {
+    const { error } = await supabase
+      .from('comments')
+      .delete()
+      .eq('id', commentId)
+
+    if (error) throw error
+    return true
   },
 
   //CLASIFICADOR

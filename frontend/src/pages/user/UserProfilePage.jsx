@@ -241,7 +241,7 @@ function UserProfilePage() {
         )}
 
         <Link className="profile-action" to="/perfil/galeria">
-          MIS FOTOS SUBIDAS
+          MIS ARCHIVOS
         </Link>
 
         <button

@@ -34,6 +34,44 @@ const GaleriaUsuario = () => {
   const [modoseleccion, setModoseleccion] = useState(false);
 
   const [fotosEliminar, setFotosEliminar] = useState([]);
+
+  function getFileType(path) {
+    if (!path) return 'other'
+    const ext = path.split('.').pop().split('?')[0].toLowerCase()
+    if (['jpg','jpeg','png','gif','webp','svg','bmp'].includes(ext)) return 'image'
+    if (['mp4','webm','ogg','mov','avi','mkv'].includes(ext)) return 'video'
+    if (['pdf'].includes(ext)) return 'pdf'
+    if (['mp3','wav','aac','flac','m4a'].includes(ext)) return 'audio'
+    return 'other'
+  }
+
+  function getFileIcon(path) {
+    if (!path) return 'bi-file-earmark'
+    const ext = path.split('.').pop().split('?')[0].toLowerCase()
+    if (['doc','docx'].includes(ext)) return 'bi-file-earmark-word'
+    if (['xls','xlsx'].includes(ext)) return 'bi-file-earmark-excel'
+    if (['ppt','pptx'].includes(ext)) return 'bi-file-earmark-ppt'
+    if (['zip','rar','7z','tar','gz'].includes(ext)) return 'bi-file-earmark-zip'
+    return 'bi-file-earmark'
+  }
+
+  async function downloadStorageFile(path, filename) {
+    try {
+      const { data, error } = await supabase.storage.from('gallery').download(path)
+      if (error) throw error
+      const url = window.URL.createObjectURL(data)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = filename || 'archivo'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Error descargando archivo:', error.message)
+      alert('Error al descargar el archivo')
+    }
+  }
   const toggleSeleccionFoto = (fotoId) => {
     setFotosEliminar((prev) =>
       prev.includes(fotoId)
@@ -85,7 +123,7 @@ const GaleriaUsuario = () => {
             color: "var(--color1)",
           }}
         >
-          Mi Galería
+          Mis archivos
         </h2>
         <button
           className="btn fw-bold rounded-pill px-4"
@@ -120,8 +158,12 @@ const GaleriaUsuario = () => {
                     position: "relative",
                     borderRadius: "15px",
                     overflow: "hidden",
-                    cursor: modoseleccion ? "pointer" : "default", // Cambia el cursor según el modo
-                    transform: estaSeleccionada ? "scale(0.95)" : "scale(1)", // Efecto "hundido" si se selecciona
+                    cursor: modoseleccion
+                      ? "pointer"
+                      : getFileType(foto.imagePath) === 'image'
+                        ? 'zoom-in'
+                        : 'default',
+                    transform: estaSeleccionada ? "scale(0.95)" : "scale(1)",
                     transition: "all 0.2s ease",
                     border: estaSeleccionada
                       ? "3px solid var(--color1)"
@@ -131,8 +173,7 @@ const GaleriaUsuario = () => {
                     // Si estamos en modo selección, toda la tarjeta funciona como botón
                     if (modoseleccion) {
                       toggleSeleccionFoto(foto.id);
-                    } else {
-                      // Aquí en el futuro puedes poner la lógica para abrir la foto en grande
+                    } else if (getFileType(foto.imagePath) === 'image') {
                       setFotoExtendida(foto);
                     }
                   }}
@@ -182,26 +223,103 @@ const GaleriaUsuario = () => {
                   )}
 
                   {/* IMAGEN Y TEXTO */}
-                  <img
-                    src={foto.imageUrl}
-                    alt={foto.descripcion || "Foto de galería"}
-                    className ="card-img-top galeria-imagen"
-                  />
+                  {getFileType(foto.imagePath) === 'image' ? (
+                    <img
+                      src={foto.imageUrl}
+                      alt={foto.descripcion || "Archivo de galería"}
+                      className="card-img-top galeria-imagen"
+                    />
+                  ) : getFileType(foto.imagePath) === 'video' ? (
+                    <video
+                      controls
+                      className="card-img-top galeria-imagen"
+                      style={{ objectFit: 'contain', backgroundColor: '#000' }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <source src={foto.imageUrl} />
+                    </video>
+                  ) : getFileType(foto.imagePath) === 'pdf' ? (
+                    <div style={{ position: 'relative', width: '100%' }}>
+                      <iframe
+                        src={foto.imageUrl}
+                        className="card-img-top galeria-imagen"
+                        style={{ border: 'none' }}
+                        title={foto.descripcion || 'PDF'}
+                      />
+                      {!modoseleccion && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setFotoExtendida(foto) }}
+                          title="Ampliar PDF"
+                          className="galeria-expand-btn"
+                        >
+                          <i className="bi bi-arrows-fullscreen" />
+                        </button>
+                      )}
+                    </div>
+                  ) : getFileType(foto.imagePath) === 'audio' ? (
+                    <div
+                      className="galeria-imagen d-flex flex-column align-items-center justify-content-center"
+                      style={{ backgroundColor: 'var(--color-grisOscuro)' }}
+                    >
+                      <i className="bi bi-music-note-beamed" style={{ fontSize: '2.5rem', color: 'var(--color1)' }}></i>
+                      <audio controls style={{ width: '90%', marginTop: '8px' }} onClick={(e) => e.stopPropagation()}>
+                        <source src={foto.imageUrl} />
+                      </audio>
+                    </div>
+                  ) : (
+                    <div
+                      className="galeria-imagen d-flex flex-column align-items-center justify-content-center"
+                      style={{ backgroundColor: 'var(--color-grisOscuro)' }}
+                    >
+                      <i className={`bi ${getFileIcon(foto.imagePath)}`} style={{ fontSize: '3rem', color: 'var(--color1)' }}></i>
+                      <small style={{ color: 'var(--colorTexto)', wordBreak: 'break-all', textAlign: 'center', padding: '0 8px' }}>
+                        {foto.imagePath?.split('/').pop() || 'archivo'}
+                      </small>
+                    </div>
+                  )}
 
-                  {foto.personajeNombre && (
+                  {!modoseleccion && getFileType(foto.imagePath) !== 'pdf' && (
+                    <button
+                      type="button"
+                      className="galeria-download-btn"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        downloadStorageFile(foto.imagePath, foto.imagePath?.split('/').pop() || 'archivo')
+                      }}
+                      title="Descargar archivo"
+                    >
+                      <i className="bi bi-download"></i>
+                    </button>
+                  )}
+
+                  {(foto.personajeNombre || foto.descripcion) && (
                     <div
                       className="card-body p-2"
                       style={{ backgroundColor: "var(--color-grisOscuro)" }}
                     >
-                      <p
-                        className="card-title m-0 fw-bold text-truncate"
-                        style={{
-                          fontSize: "0.9rem",
-                          color: "var(--colorTexto)",
-                        }}
-                      >
-                        {foto.personajeNombre}
-                      </p>
+                      {foto.personajeNombre && (
+                        <p
+                          className="card-title m-0 fw-bold text-truncate"
+                          style={{
+                            fontSize: "0.9rem",
+                            color: "var(--colorTexto)",
+                          }}
+                        >
+                          {foto.personajeNombre}
+                        </p>
+                      )}
+                      {foto.descripcion && (
+                        <p
+                          className="m-0 text-truncate"
+                          style={{
+                            fontSize: "0.8rem",
+                            color: "var(--colorTexto)",
+                            opacity: 0.75,
+                          }}
+                        >
+                          {foto.descripcion}
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -211,7 +329,7 @@ const GaleriaUsuario = () => {
         ) : (
           <div className="col-12 text-center py-5">
             <p className="text-muted">
-              Aún no has subido fotos a la comunidad.
+              Aún no has subido archivos a la comunidad.
             </p>
           </div>
         )}
@@ -253,18 +371,32 @@ const GaleriaUsuario = () => {
             <i className="bi bi-x-circle-fill"></i>
           </button>
 
-          <img
-            src={fotoExtendida.imageUrl}
-            alt={fotoExtendida.descripcion || "Foto expandida"}
-            style={{
-              maxHeight: "80vh",
-              maxWidth: "100%",
-              objectFit: "contain",
-              borderRadius: "10px",
-              boxShadow: "0 0 20px rgba(0,0,0,0.5)",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          />
+          {getFileType(fotoExtendida.imagePath) === 'pdf' ? (
+            <iframe
+              src={fotoExtendida.imageUrl}
+              style={{
+                width: '90vw',
+                height: '85vh',
+                border: 'none',
+                borderRadius: '8px',
+              }}
+              title={fotoExtendida.descripcion || 'PDF'}
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <img
+              src={fotoExtendida.imageUrl}
+              alt={fotoExtendida.descripcion || "Foto expandida"}
+              style={{
+                maxHeight: "80vh",
+                maxWidth: "100%",
+                objectFit: "contain",
+                borderRadius: "10px",
+                boxShadow: "0 0 20px rgba(0,0,0,0.5)",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
 
           {(fotoExtendida.personajeNombre || fotoExtendida.descripcion) && (
             <div

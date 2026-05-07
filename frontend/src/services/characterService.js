@@ -656,13 +656,27 @@ const characterService = {
 
     if (error) throw error
 
-    return (data || []).map((photo) => ({
-      id: photo.id,
-      description: photo.description || 'Foto de la comunidad',
-      image: getPublicUrl(STORAGE_BUCKETS.gallery, photo.image_path),
-      user: photo.profiles?.username || 'Usuario',
-      date: new Date(photo.created_at).toLocaleDateString('es-ES'),
-    }))
+    return (data || []).map((photo) => {
+      const defaultDesc = (() => {
+        const ext = (photo.image_path || '').split('.').pop().split('?')[0].toLowerCase()
+        if (['jpg','jpeg','png','gif','webp','svg','bmp'].includes(ext)) return 'Imagen de la comunidad'
+        if (['mp4','webm','ogg','mov','avi','mkv'].includes(ext)) return 'Vídeo de la comunidad'
+        if (ext === 'pdf') return 'PDF de la comunidad'
+        if (['mp3','wav','aac','flac','m4a'].includes(ext)) return 'Audio de la comunidad'
+        return 'Archivo de la comunidad'
+      })()
+      const isGeneric = !photo.description
+        || photo.description === 'Foto de la comunidad'
+        || photo.description === 'Foto de la comunidad'
+      return {
+        id: photo.id,
+        description: isGeneric ? defaultDesc : photo.description,
+        image: getPublicUrl(STORAGE_BUCKETS.gallery, photo.image_path),
+        imagePath: photo.image_path,
+        user: photo.profiles?.username || 'Usuario',
+        date: new Date(photo.created_at).toLocaleDateString('es-ES'),
+      }
+    })
   },
 
   async getComments(characterId, currentUserId = null) {

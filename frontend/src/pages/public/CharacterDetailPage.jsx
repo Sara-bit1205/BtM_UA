@@ -37,12 +37,34 @@ function CharacterDetailPage() {
   const [openTranscriptId, setOpenTranscriptId] = useState(null)
   const [personalityTags, setPersonalityTags] = useState([])
 
+  const [zoomedImage, setZoomedImage] = useState(null)
+
   function formatTranscription(text) {
   return text
     .replace(/\s+/g, ' ')
     .replace(/([.!?])\s+/g, '$1\n\n')
     .trim()
 }
+
+  function getFileType(path) {
+    if (!path) return 'other'
+    const ext = path.split('.').pop().split('?')[0].toLowerCase()
+    if (['jpg','jpeg','png','gif','webp','svg','bmp'].includes(ext)) return 'image'
+    if (['mp4','webm','ogg','mov','avi','mkv'].includes(ext)) return 'video'
+    if (['pdf'].includes(ext)) return 'pdf'
+    if (['mp3','wav','aac','flac','m4a'].includes(ext)) return 'audio'
+    return 'other'
+  }
+
+  function getFileIcon(path) {
+    if (!path) return 'bi-file-earmark'
+    const ext = path.split('.').pop().split('?')[0].toLowerCase()
+    if (['doc','docx'].includes(ext)) return 'bi-file-earmark-word'
+    if (['xls','xlsx'].includes(ext)) return 'bi-file-earmark-excel'
+    if (['ppt','pptx'].includes(ext)) return 'bi-file-earmark-ppt'
+    if (['zip','rar','7z','tar','gz'].includes(ext)) return 'bi-file-earmark-zip'
+    return 'bi-file-earmark'
+  }
 
 useEffect(() => {
   const loadCharacter = async () => {
@@ -233,19 +255,31 @@ useEffect(() => {
       const user = authData?.user
 
       if (!user) {
-        alert('Debes iniciar sesión para subir una imagen')
+        alert('Debes iniciar sesión para subir un archivo')
         return
       }
 
       setLoadingCommunityPhoto(true)
 
-      // nombre único para que no choque con otros archivos
-      const fileName = `${Date.now()}-${file.name}`
+      // nombre único y sanitizado (sin espacios ni caracteres especiales)
+      const safeName = file.name
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar acentos
+        .replace(/[^a-zA-Z0-9._-]/g, '_')                 // reemplazar caracteres no permitidos
+      const fileName = `${Date.now()}-${safeName}`
+
+      const defaultDescription = (() => {
+        const t = getFileType(fileName)
+        if (t === 'image') return 'Imagen de la comunidad'
+        if (t === 'video') return 'Vídeo de la comunidad'
+        if (t === 'pdf') return 'PDF de la comunidad'
+        if (t === 'audio') return 'Audio de la comunidad'
+        return 'Archivo de la comunidad'
+      })()
 
       // 1) subir archivo al bucket gallery
       const { error: uploadError } = await supabase.storage
         .from('gallery')
-        .upload(fileName, file)
+        .upload(fileName, file, { contentType: file.type })
 
       if (uploadError) throw uploadError
 
@@ -256,7 +290,7 @@ useEffect(() => {
           character_id: character.id,
           user_id: user.id,
           image_path: fileName,
-          description: uploadDescription || 'Foto de la comunidad',
+          description: uploadDescription || defaultDescription,
         })
         .select()
         .single()
@@ -266,8 +300,9 @@ useEffect(() => {
       // 3) añadir la nueva foto a la galería en pantalla
       const newPhoto = {
         id: data.id,
-        description: data.description || 'Foto de la comunidad',
+        description: data.description || defaultDescription,
         image: getPublicUrl(STORAGE_BUCKETS.gallery, data.image_path) || null,
+        imagePath: data.image_path,
         user: user.user_metadata?.username || user.email || 'Tú',
         date: new Date().toLocaleDateString('es-ES'),
       }
@@ -280,10 +315,10 @@ useEffect(() => {
         fileInputRef.current.value = ''
       }
 
-      alert('Imagen subida correctamente')
+      alert('Archivo subido correctamente')
     } catch (error) {
-      console.error('Error subiendo imagen:', error.message)
-      alert('No se pudo subir la imagen')
+      console.error('Error subiendo archivo:', error.message, error)
+      alert(`No se pudo subir el archivo: ${error.message}`)
     } finally {
       setLoadingCommunityPhoto(false)
     }
@@ -355,7 +390,13 @@ useEffect(() => {
     <main className="character-detail-page">
       <div className="cardPersonajeIndividual">
         {character.image && (
-          <img src={character.image} className="card-img-top" alt={character.name} />
+          <img
+            src={character.image}
+            className="card-img-top"
+            alt={character.name}
+            style={{ cursor: 'zoom-in' }}
+            onClick={() => setZoomedImage({ url: character.image, label: character.name })}
+          />
         )}
 
         <div className="card-body">
@@ -601,6 +642,8 @@ useEffect(() => {
                             src={img.image}
                             alt={img.title}
                             className="related-image"
+                            style={{ cursor: 'zoom-in' }}
+                            onClick={() => setZoomedImage({ url: img.image, label: img.title })}
                           />
                           <button
                             type="button"
@@ -704,11 +747,10 @@ useEffect(() => {
                 onClick={() => fileInputRef.current.click()}
                 disabled={loadingCommunityPhoto}
               >
-                {loadingCommunityPhoto ? 'Subiendo...' : '+ Subir imagen'}
+                {loadingCommunityPhoto ? 'Subiendo...' : '+ Subir archivo'}
               </button>
               <input
                 type="file"
-                accept="image/*"
                 ref={fileInputRef}
                 onChange={handleUploadImage}
                 style={{ display: 'none' }}
@@ -717,23 +759,93 @@ useEffect(() => {
 
             <div className="community-gallery-grid">
               {communityPhotos.length > 0 ? (
-                communityPhotos.map((photo) => (
-                  <div key={photo.id} className="card border-0 community-gallery-item">
-                    <img
-                      src={photo.image}
-                      alt={photo.description}
-                      className="card-img-top community-gallery-image"
-                    />
+                communityPhotos.map((photo) => {
+                  const fileType = getFileType(photo.imagePath)
+                  const fileName = photo.imagePath?.split('/').pop() || 'archivo'
+                  return (
+                    <div key={photo.id} className="card border-0 community-gallery-item">
+                      <div className="related-image-item" style={{ borderRadius: 0 }}>
+                        {fileType === 'image' ? (
+                          <img
+                            src={photo.image}
+                            alt={photo.description}
+                            className="community-gallery-image"
+                            style={{ cursor: 'zoom-in' }}
+                            onClick={() => setZoomedImage({ url: photo.image, label: photo.description })}
+                          />
+                        ) : fileType === 'video' ? (
+                          <video
+                            controls
+                            className="community-gallery-image"
+                            style={{ objectFit: 'contain', backgroundColor: '#000' }}
+                          >
+                            <source src={photo.image} />
+                          </video>
+                        ) : fileType === 'pdf' ? (
+                          <div style={{ position: 'relative', width: '100%' }}>
+                            <iframe
+                              src={photo.image}
+                              className="community-gallery-image"
+                              style={{ border: 'none' }}
+                              title={photo.description}
+                            />
+                            <button
+                              onClick={() => setZoomedImage({ url: photo.image, label: photo.description, type: 'pdf' })}
+                              title="Ampliar PDF"
+                              style={{
+                                position: 'absolute', top: '6px', right: '6px',
+                                zIndex: 2, background: 'rgba(0,0,0,0.55)',
+                                border: 'none', borderRadius: '6px',
+                                color: '#fff', padding: '4px 7px',
+                                cursor: 'pointer', fontSize: '1rem',
+                                lineHeight: 1,
+                              }}
+                            >
+                              <i className="bi bi-arrows-fullscreen" />
+                            </button>
+                          </div>
+                        ) : fileType === 'audio' ? (
+                          <div
+                            className="community-gallery-image d-flex flex-column align-items-center justify-content-center"
+                            style={{ backgroundColor: 'var(--color-grisOscuro)' }}
+                          >
+                            <i className="bi bi-music-note-beamed" style={{ fontSize: '2.5rem', color: 'var(--color1)' }}></i>
+                            <audio controls style={{ width: '90%', marginTop: '8px' }}>
+                              <source src={photo.image} />
+                            </audio>
+                          </div>
+                        ) : (
+                          <div
+                            className="community-gallery-image d-flex flex-column align-items-center justify-content-center"
+                            style={{ backgroundColor: 'var(--color-grisOscuro)' }}
+                          >
+                            <i className={`bi ${getFileIcon(photo.imagePath)}`} style={{ fontSize: '3rem', color: 'var(--color1)' }}></i>
+                            <small style={{ color: 'var(--colorTexto)', wordBreak: 'break-all', textAlign: 'center', padding: '0 8px' }}>
+                              {fileName}
+                            </small>
+                          </div>
+                        )}
+                        {fileType !== 'pdf' && (
+                          <button
+                            type="button"
+                            className="download-btn"
+                            onClick={() => downloadStorageFile('gallery', photo.imagePath, fileName)}
+                          >
+                            <i className="bi bi-download"></i>
+                          </button>
+                        )}
+                      </div>
 
-                    <div className="card-body infoCommunity">
-                      <p className="mb-1 fw-bold">{photo.user}</p>
-                      <p className="mb-1">{photo.date}</p>
-                      <p className="mb-0">{photo.description}</p>
+                      <div className="card-body infoCommunity">
+                        <p className="mb-1 fw-bold">{photo.user}</p>
+                        <p className="mb-1">{photo.date}</p>
+                        <p className="mb-0">{photo.description}</p>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  )
+                })
               ) : (
-                <p>Oh oh! Parece que no hay fotos de la comunidad. Sé el primero en subir una.</p>
+                <p>Oh oh! Parece que no hay archivos de la comunidad. Sé el primero en subir uno.</p>
               )}
             </div>
 
@@ -806,6 +918,63 @@ useEffect(() => {
           </section>
         </div>
       </div>
+      {zoomedImage && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0, left: 0,
+            width: '100vw', height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.9)',
+            zIndex: 2000,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '20px',
+          }}
+          onClick={() => setZoomedImage(null)}
+        >
+          <button
+            type="button"
+            style={{
+              position: 'absolute', top: '20px', right: '20px',
+              background: 'none', border: 'none',
+              color: 'white', fontSize: '2rem', cursor: 'pointer',
+            }}
+            onClick={(e) => { e.stopPropagation(); setZoomedImage(null) }}
+          >
+            <i className="bi bi-x-circle-fill"></i>
+          </button>
+          {zoomedImage.type === 'pdf' ? (
+            <iframe
+              src={zoomedImage.url}
+              style={{
+                width: '90vw', height: '85vh',
+                border: 'none', borderRadius: '8px',
+              }}
+              title={zoomedImage.label}
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <img
+              src={zoomedImage.url}
+              alt={zoomedImage.label}
+              style={{
+                maxHeight: '85vh', maxWidth: '100%',
+                objectFit: 'contain', borderRadius: '10px',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
+          {zoomedImage.label && (
+            <p
+              style={{ position: 'absolute', bottom: '20px', color: 'white', margin: 0, textAlign: 'center' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {zoomedImage.label}
+            </p>
+          )}
+        </div>
+      )}
     </main>
   )
 }

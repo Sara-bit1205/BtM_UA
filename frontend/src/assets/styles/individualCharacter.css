@@ -305,7 +305,8 @@
   transition: all 0.25s ease;
 }
 
-.character-detail-page .related-image-item:hover .download-btn {
+.character-detail-page .related-image-item:hover .download-btn,
+.character-detail-page .community-gallery-item:hover .download-btn {
   opacity: 1;
 }
 

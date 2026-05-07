@@ -153,14 +153,25 @@ const userService = {
 
     if (error) throw error
 
-    return (data || []).map((foto) => ({
-      id: foto.id,
-      usuario: foto.user_id,
-      imageUrl: getPublicUrl(STORAGE_BUCKETS.gallery, foto.image_path),
-      imagePath: foto.image_path,
-      descripcion: foto.description,
-      personajeNombre: getRelationValue(foto.characters, 'name'),
-    }))
+    return (data || []).map((foto) => {
+      const defaultDesc = (() => {
+        const ext = (foto.image_path || '').split('.').pop().split('?')[0].toLowerCase()
+        if (['jpg','jpeg','png','gif','webp','svg','bmp'].includes(ext)) return 'Imagen de la comunidad'
+        if (['mp4','webm','ogg','mov','avi','mkv'].includes(ext)) return 'Vídeo de la comunidad'
+        if (ext === 'pdf') return 'PDF de la comunidad'
+        if (['mp3','wav','aac','flac','m4a'].includes(ext)) return 'Audio de la comunidad'
+        return 'Archivo de la comunidad'
+      })()
+      const isGeneric = !foto.description || foto.description === 'Foto de la comunidad'
+      return {
+        id: foto.id,
+        usuario: foto.user_id,
+        imageUrl: getPublicUrl(STORAGE_BUCKETS.gallery, foto.image_path),
+        imagePath: foto.image_path,
+        descripcion: isGeneric ? defaultDesc : foto.description,
+        personajeNombre: getRelationValue(foto.characters, 'name'),
+      }
+    })
   },
 
   async deleteMyCommunityPhotos(photoIds, currentPhotos = []) {

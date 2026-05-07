@@ -39,10 +39,6 @@
   height: clamp(200px, 40vw, 750px);
 }
 
-.personaje-del-dia-overlay {
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.15));
-}
-
 .nombre-del-dia{
   font-size: clamp(20px, 5vw, 40px);
   transition: font-size 0.3s ease;

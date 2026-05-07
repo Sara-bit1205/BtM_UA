@@ -181,16 +181,17 @@ function HomePage() {
             <p className="text-center">Cargando personaje del día...</p>
           ) : personajeDelDia ? (
             <div className="card text-bg-dark card-personaje-del-dia">
-              <Link className="nav-link" to={`/personaje/${personajeDelDia.slug}`}>
-                {personajeDelDia.imagen && (
+              {personajeDelDia.imagen && (
+                <Link className="nav-link" to={`/personaje/${personajeDelDia.slug}`}>
                   <img
                     src={personajeDelDia.imagen}
                     className="card-img card-personaje-del-dia-img"
                     alt={personajeDelDia.nombre}
                   />
-                )}
-              </Link>
-              <div className="card-img-overlay d-flex flex-column justify-content-end personaje-del-dia-overlay">
+                </Link>
+              )}
+
+              <div className="position-absolute bottom-0 start-0 end-0 p-3 d-flex flex-column justify-content-end personaje-del-dia-overlay">
                 <div className="d-flex justify-content-between align-items-end">
                   <div>
                     <Link className="nav-link" to={`/personaje/${personajeDelDia.slug}`}>
@@ -198,14 +199,13 @@ function HomePage() {
                         {personajeDelDia.nombre}
                       </h3>
                     </Link>
-                    <Link className="nav-link" to={`/categorias/${personajeDelDia.universo.toLowerCase().replace(/\s+/g, '-')}`}>
-                      <p className="card-text mb-0">
-                        Universo {personajeDelDia.universo}
-                      </p>
-                    </Link>
+
+                    <p className="card-text mb-0">
+                      Universo {personajeDelDia.universo}
+                    </p>
                   </div>
 
-                  <Link className="nav-link" to="/categorias/:id">
+                  <Link className="nav-link" to="/tipos-personalidad">
                     <span className="badge rounded-pill home-mbti-badge mr-2">
                       {personajeDelDia.mbti}
                     </span>
@@ -267,9 +267,11 @@ function HomePage() {
                                     </p>
                                   </div>
 
-                                  <span className="badge rounded-pill home-mbti-badge-small">
-                                    {personaje.mbti}
-                                  </span>
+                                  <Link className="nav-link" to="/tipos-personalidad">
+                                    <span className="badge rounded-pill home-mbti-badge-small">
+                                      {personaje.mbti}
+                                    </span>
+                                  </Link>
                                 </div>
                               </div>
                             </div>

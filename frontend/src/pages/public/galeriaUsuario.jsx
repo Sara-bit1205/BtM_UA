@@ -2,30 +2,8 @@ import React, { use, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import "../../assets/styles/galeria.css";
 import userService from "../../services/userService";
-// import { Modal } from "bootstrap";
-
-// ------- Helper functions -------
-
-// Función para obtener el valor de una relación, ya sea un objeto o un array
-// La voy utilizare para obtener el nombre del universo
-// function getRelationValue(relation, field) {
-//   if (Array.isArray(relation)) {
-//     return relation[0]?.[field];
-//   }
-//   return relation?.[field];
-// }
-
-// // Función para obtener la URL pública de una imagen almacenada en Supabase Storage
-// function getGalleryImageUrl(filePath) {
-//   if (!filePath) return null;
-
-//   const { data } = supabase.storage.from("gallery").getPublicUrl(filePath);
-
-//   return data.publicUrl;
-// }
 
 const GaleriaUsuario = () => {
-  // Vamos a utilizar estos estados para poder mostrar las fotos del usuario y un indicador de carga mientras se obtienen los datos
   const [fotos, setFotos] = useState([]);
   const [loadingFotos, setLoading] = useState(true);
 
@@ -114,7 +92,6 @@ const GaleriaUsuario = () => {
   return (
     <div className="galeria-container pb-5">
       {" "}
-      {/* pb-5 da espacio para que la barra inferior no tape la última foto */}
       {/* --- CABECERA --- */}
       <header className="d-flex justify-content-between align-items-center mb-4 px-2">
         <h2
@@ -170,7 +147,6 @@ const GaleriaUsuario = () => {
                       : "3px solid transparent",
                   }}
                   onClick={() => {
-                    // Si estamos en modo selección, toda la tarjeta funciona como botón
                     if (modoseleccion) {
                       toggleSeleccionFoto(foto.id);
                     } else if (getFileType(foto.imagePath) === 'image') {
@@ -178,7 +154,6 @@ const GaleriaUsuario = () => {
                     }
                   }}
                 >
-                  {/* OVERLAY OSCURO (Solo si está seleccionada) */}
                   {modoseleccion && estaSeleccionada && (
                     <div
                       style={{
@@ -428,7 +403,6 @@ const GaleriaUsuario = () => {
           )}
         </div>
       )}
-      {/* --- LA TRAMPA DEL PULGAR (Barra Inferior Fija) --- */}
       {modoseleccion && fotosEliminar.length > 0 && (
         <div
           className="d-flex justify-content-between align-items-center"

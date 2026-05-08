@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-// import { supabase } from "../../lib/supabase";
 import characterService from '../../services/characterService'
 import '../../assets/styles/adminPersonajes.css'
 
@@ -22,11 +21,10 @@ function BackBtn({ onClick, to }) {
 }
 
 function ListaPersonajes() {
-  //----------------------------- Objetos para guardar los datos que recogamos de la base de datos -----------------------------
-
+  
   const [personajes, setPersonajes] = useState([]);
   const [loading, setLoading] = useState(true); // Para mostrar un spinner de carga mientras obtenemos los datos
-  // Aquí con
+ 
   useEffect(() => {
     const cargarPersonajesLista = async () => {
       setLoading(true)
@@ -101,7 +99,6 @@ function ListaPersonajes() {
             /* --- LISTA DE TARJETAS --- */
             <div className="d-flex flex-column gap-3 px-2">
               {personajes.map((personaje) => (
-                /* Tarjeta de Bootstrap adaptada a tu diseño */
                 <div
                   key={personaje.id}
                   className="card border-0 p-3 shadow-sm"
@@ -110,13 +107,12 @@ function ListaPersonajes() {
                     borderRadius: "25px",
                   }}
                 >
-                  {/* Usamos d-flex para poner foto a la izquierda y textos a la derecha */}
                   <div className="d-flex align-items-start gap-3">
                     {/* 1. Imagen cuadrada con bordes redondeados */}
                     <img
                       src={personaje.imagen}
                       alt={personaje.name}
-                      className="bg-white" // Fondo blanco por si la imagen tiene transparencias (como Maléfica)
+                      className="bg-white" // Fondo blanco por si la imagen tiene transparencias 
                       style={{
                         width: "100px",
                         height: "100px",
@@ -150,28 +146,27 @@ function ListaPersonajes() {
                         {personaje.descripcion}
                       </p>
 
-                      {/* Contenedor de los botones Editar y Eliminar centrados bajo el texto */}
                       <div className="d-flex justify-content-center gap-3 mt-auto pt-2">
-                        {/* Botón Editar (Verde Neón) */}
+                        {/* Botón Editar */}
                         <button
                           className="btn rounded-pill px-4 btnEditarPers"
                           onClick={() =>
                             navigate(`/admin/formulario-personaje/${personaje.id}`, {
                               state: { personaje },
                             })
-                          } // Aquí iría la función real de edición, pasando el ID del personaje
+                          }
                         >
                           <i className="bi bi-pencil fs-5 iconEditar"></i>
                         </button>
 
-                        {/* Botón Eliminar (Rosa Fucsia) */}
+                        {/* Botón Eliminar*/}
                         <button
                           className="btn rounded-pill px-4 btnEliminarPers"
                           onClick={() =>
                             navigate(`/admin/eliminar-personaje/${personaje.id}`, {
                               state: { personaje },
                             })
-                          } // Aquí iría la función real de eliminación
+                          }
                         >
                           <i className="bi bi-trash fs-5 iconEliminar"></i>
                         </button>
@@ -183,7 +178,7 @@ function ListaPersonajes() {
             </div>
           )}
 
-          {/* --- BOTÓN VOLVER (Abajo a la izquierda) --- */}
+          {/* --- BOTÓN VOLVER --- */}
           <div className="mt-4 d-flex justify-content-start">
             <BackBtn to="/admin" />
           </div>

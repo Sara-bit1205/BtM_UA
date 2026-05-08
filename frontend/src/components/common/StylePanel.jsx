@@ -1,11 +1,3 @@
-/*Es un panel flotante de accesibilidad y estilo que solo se muestra 
-cuando isOpen es true. Usa useTheme() para leer y cambiar el tema, el
- tamaño del texto y la fuente accesible; además, con useEffect escucha 
- clics fuera del panel y la tecla Escape para cerrarse automáticamente.
-  En resumen, es un componente de interfaz que controla preferencias 
-  visuales del usuario y no depende ni de auth, ni de backend, ni de 
-  base de datos.*/
-  
 import { useEffect, useRef } from "react";
 import {useTheme} from "../../context/ThemeContext";
 
@@ -41,7 +33,6 @@ function StylePanel ({ isOpen ,onClose}) {
     if (!isOpen) return null;
 
     return (
-        /*El stylePanel es un dropdown/floating panel*/
         <div ref={panelRef} className="style-panel" role="dialog" aria-modal="true" aria-label="Panel de accesibilidad">
             <div className="style-panel__section">
                 <div className="titulo_close d-flex justify-content-between align-items-center mb-3">

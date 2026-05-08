@@ -1,23 +1,10 @@
-//HECHO
+
 import { Link } from 'react-router-dom'
 import React, { useEffect, useMemo, useState } from 'react'
 import '../../assets/styles/home.css'
 import characterService from '../../services/characterService'
 import arquitectoIcono from '../../assets/images/bricks.svg'
 
-//Función que recive el cover_path --> para en storage/avatars sacar la imagen de cover correcta
-//lo que devuelve es una url publica para poder poder ponerla en --> <img src= ... />
-// function getCharacterCoverUrl(coverPath) {
-//   if (!coverPath) return null;
-
-//   const { data } = supabase.storage.from('character-covers').getPublicUrl(coverPath);
-
-//   return data.publicUrl;
-// }
-
-// Devuelve un número entre 0 y total -1 según la fecha de hoy
-//total es el num total de personajes que tenemos en bbdd
-//ej: getDailyCharacter(10 ) --Z devuelve 3, pues --> selectedCharacter = data[3] sera el persoanje del dia
 function getDailyCharacterIndex(total) {
   if (!total) return 0;
 
@@ -32,9 +19,6 @@ function getDailyCharacterIndex(total) {
   return Math.abs(num) % total;
 }
 
-//Función para agrupar los personajes populares en el carrusel en grupo segun tamaño pantalla --> 1,2,3
-//items --> array de personajes populares, size --> num de items por slide (1,2 o 3)
-//ej: si tenemos 5 personajes populares y size = 2 --> devuelve [[perso1, perso2], [perso3, perso4], [perso5]]
 function agruparItems(items, size) {
   const grupos = [];
   for (let i = 0; i < items.length; i += size) {
@@ -43,20 +27,9 @@ function agruparItems(items, size) {
   return grupos;
 }
 
-//Funcion para sacar el valor de una relacion (universo o mbti)
-//Supabase puede devolver las cosas como: universes = { name: 'Disney' } "Objeto" o como universes = [ { name: 'Disney' } ] "Array con un objeto dentro"
-//Por eso si es objeto --> devolveria ese campo directamente y si es array devuelve el primer elemento
-// function getRelationValue(relation, field){
-//   if(Array.isArray(relation)){
-//     return relation[0]?.[field];
-//   }
-//   return relation?.[field];
-// }
 
-//Función principal del Home
 function HomePage() {
 
-  //Para sacar cuantos personajes mostrar en el carrusel según el tamaño de la pantalla
   const getItemsPerSlide = () => {
     const width = window.innerWidth; //mira ancho de la pantalla
     if (width >= 992) return 3; // lg 
@@ -76,11 +49,6 @@ function HomePage() {
   const [personalidades, setPersonalidades] = useState([]); //las 2 persoladidades mbti mas populares
   const [loadingPersonalidades, setLoadingPersonalidades] = useState(true); //si se estan cargando
 
-
-  //Efectos que se dan en la pagina como respuesta a cambios en el estado o al cargar la pagina:
-
-  //Cuando cambia el tamaño de la pagina (resize) --> se vuelve a calcular el numero de items por slide para el carrusel
-  //[] --> significa que solo se ejecuta 1 vez al cargar la pagina y montar el cmponente
   useEffect(() => {
     const handleResize = () => {
       setItemsPorSlide(getItemsPerSlide());
@@ -91,7 +59,6 @@ function HomePage() {
   }, []);
 
 
-  //Carga tds los personajes desde supabase y elige uno usando getDailyCharacterIndex
   useEffect(() => {
     const loadPersonajeDelDia = async () => {
       try {
@@ -119,7 +86,6 @@ function HomePage() {
     loadPersonajeDelDia()
   }, []);
 
-  //Carga de los persnajes populares
   useEffect(() => {
     const loadPersonajesPopulares = async () => {
       try {
@@ -138,8 +104,6 @@ function HomePage() {
     loadPersonajesPopulares()
   }, []);
  
-
-  //Cargar personalidades mbti mas populares
   useEffect(() => {
     const loadPersonalidadesPopulares = async () => {
       try {
@@ -165,7 +129,6 @@ function HomePage() {
   }, []);
 
 
-  //Agrupamos los personajes populares en grupos segun el numero de items por slide para mostrarlos en el carrusel
  const gruposPersonajes = useMemo(() => {
     return agruparItems(personajesPopulares, itemsPorSlide);
   }, [personajesPopulares, itemsPorSlide]);

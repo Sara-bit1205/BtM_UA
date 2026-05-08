@@ -28,18 +28,18 @@
 .about-card {
   background-color: var(--color-grisOscuro);
   border-radius: 30px;
-  padding: clamp(1.5rem, 5vw, 3rem); /* Padding fluido */
+  padding: clamp(1.5rem, 5vw, 3rem); 
   width: 100%;
-  max-width: 1000px; /* Tamaño máximo para lectura cómoda en PC */
+  max-width: 1000px; 
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .about-title {
   font-family: var(--texto-encabezados);
-  color: var(--color5); /* Tu verde claro */
+  color: var(--color5); 
   text-align: center;
-  font-size: clamp(1.8rem, 6vw, 3rem); /* Tamaño fluido según pantalla */
+  font-size: clamp(1.8rem, 6vw, 3rem);
   margin-bottom: 2rem;
   text-transform: uppercase;
 }
@@ -52,7 +52,6 @@
   text-align: left;
 }
 
-/* Botón atrás estilo neón */
 .btn-back {
   background: none;
   border: none;
@@ -71,11 +70,10 @@
 }
 
 /* --- MEDIA QUERIES PARA RESPONSIVE --- */
-
-/* MÓVIL (Por defecto ya es una columna, pero ajustamos márgenes) */
+/* MÓVIL*/
 @media (max-width: 767px) {
   .about-container {
-    align-items: flex-start; /* En móvil empieza desde arriba para poder hacer scroll */
+    align-items: flex-start;
     padding-top: 40px;
   }
   .about-card {
@@ -84,7 +82,7 @@
   }
 }
 
-/* TABLET / PC (Centramos y damos más aire) */
+/* TABLET / PC */
 @media (min-width: 768px) {
   .about-card {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);

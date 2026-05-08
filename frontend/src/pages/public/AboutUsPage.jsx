@@ -1,6 +1,5 @@
 import '../../assets/styles/comunInfo.css'; 
 
-// Página "Sobre Nosotros" — quiénes somos y propósito del proyecto
 function AboutUsPage() {
   return (
     <main className="about-container">

@@ -2,13 +2,10 @@ import { useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
-// import { supabase } from '../../lib/supabase.js'
 import { getAvatarUrl } from '../../lib/storage'
 import '../../assets/styles/profile.css'
 import '../../assets/styles/mbti.css'
 
-// Panel de administración (rol: admin)
-// Accesos: Personajes, Categorías, Usuarios, Logout
 function AdminProfilePage() {
   const { profile, logout } = useAuth()
   const { resetTheme } = useTheme()

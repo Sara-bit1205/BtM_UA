@@ -1,19 +1,3 @@
-/*Este servicio sirve para trabajar con la tabla characters de tu BBDD.
-
-Hace estas cosas:
-
-obtener todos los personajes
-obtener uno por id
-obtener uno por slug
-crear
-actualizar
-borrar
-buscar personajes por tipo MBTI
-
-La diferencia con tu backend REST anterior es que ahora el frontend habla directamente con Supabase, sin pasar por rutas tipo:
-
-/api/characters
-/api/characters/:id*/
 
 import { supabase } from '../lib/supabase'
 import { getPublicUrl, STORAGE_BUCKETS, removeFiles } from '../lib/storage'
@@ -723,17 +707,6 @@ const characterService = {
     return true
   },
 
-  //CLASIFICADOR
-  //Lo que vamos a hacer ahora es transformar o poner los datos para poderlos mostrar
-
-        //--- Proceso seguido ---
-        // 1. Creamos un objeto vacío donde vamos a agrupar los personajes por universo
-        // 2. Recorremos los datos obtenidos en busca de los universos y los personajes
-        // 3. Para cada personaje, obtenemos el nombre del universo al que pertenece
-        // Si ese universo no existe se crea dentro del objeto con un array vacío
-        // y si ya existe, simplemente se añade el personaje a ese universo dentro del objeto
-        // 4. Para cada personaje, también obtenemos su nombre, imagen y tipo de MBTI para mostrarlo en la tarjeta
-        // 5. Al final, tendremos un objeto con la estructura { universo1: [personaje1, personaje2], universo2: [personaje3, personaje4], ... }
   async getClassificationGroups(categoria) {
     const { data, error } = await supabase
       .from('characters')

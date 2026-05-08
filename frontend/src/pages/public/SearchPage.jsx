@@ -1,6 +1,5 @@
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-// import { supabase } from '../../lib/supabase';
 import '../../assets/styles/SearchPage.css';
 import searchService from '../../services/searchService';
 
@@ -74,7 +73,7 @@ const personajesFiltrados = personajes.filter(p => {
     p.nombre.toLowerCase().includes(busqueda) || 
     p.universo.toLowerCase().includes(busqueda) || 
     p.tipo.toLowerCase().includes(busqueda) ||
-    (p.tags && p.tags.some(tag => tag.toLowerCase().includes(busqueda))); // Corregido => y ;
+    (p.tags && p.tags.some(tag => tag.toLowerCase().includes(busqueda))); 
 
   // Filtros específicos del popup
   const coincideUniverso = !filtroUniverso || p.universo === filtroUniverso;

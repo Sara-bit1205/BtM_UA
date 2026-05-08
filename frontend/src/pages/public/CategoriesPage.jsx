@@ -5,34 +5,6 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 // import { supabase } from "../../lib/supabase";
 import categoryService from '../../services/categoryService'
 
-// function getRelationValue(relation, field) {
-//   if (Array.isArray(relation)) {
-//     return relation[0]?.[field];
-//   }
-//   return relation?.[field];
-// }
-
-// Función para obtener la URL pública de una imagen almacenada en Supabase Storage
-// function getCharacterCoverUrl(coverPath) {
-//   if (!coverPath) return null;
-
-//   const { data } = supabase.storage
-//     .from("character-covers")
-//     .getPublicUrl(coverPath);
-
-//   return data.publicUrl;
-// }
-
-// Función para obtener la URL pública de una imagen almacenada en Supabase Storage
-// function getUniverseImageUrl(coverPath) {
-//   if (!coverPath) return null;
-
-//   const { data } = supabase.storage
-//     .from("universes_images")
-//     .getPublicUrl(coverPath);
-
-//   return data.publicUrl;
-// }
 
 // 1. El estado que controla qué número de personaje estamos viendo (empezamos en el 0)
 function CategoriesPage() {
@@ -45,7 +17,7 @@ function CategoriesPage() {
 
   const [personajeActual, setPersonajeActual] = useState(0);
 
-  //Estos son los personajes populares que vamos a mostrar en el carrusel (puedes cargarlos dinámicamente también)
+  //Estos son los personajes populares que vamos a mostrar en el carrusel 
 
   useEffect(() => {
     const loadData = async () => {
@@ -69,9 +41,9 @@ function CategoriesPage() {
     }
 
     loadData()
-  }, [universo]) // <-- El efecto se vuelve a ejecutar cada vez que cambia el universo seleccionado
+  }, [universo]) 
 
-  // Funciones del carrusel (asegúrate de que Data.characters existe antes de usarlas)
+  // Funciones del carrusel 
   const irAlSiguiente = () => {
     if (Data && Data.populares) {
       setPersonajeActual((prev) => (prev + 1) % Data.populares.length);
@@ -94,7 +66,7 @@ function CategoriesPage() {
     >
       <div className="row justify-content-center pt-4">
         <div className="col-12 col-md-10 col-lg-8">
-          {/* --- BLOQUE 1: CABECERA (HERO) --- */}
+          {/* --- BLOQUE 1: CABECERA  --- */}
           {loadingData ? (
             <div
               className="d-flex justify-content-center align-items-center"
@@ -106,7 +78,7 @@ function CategoriesPage() {
             </div>
           ) : Data ? (
             <>
-              {/* --- BLOQUE 1: CABECERA (HERO) --- */}
+              {/* --- BLOQUE 1: CABECERA --- */}
               <div
                 className="p-4 mb-4"
                 style={{
@@ -157,10 +129,10 @@ function CategoriesPage() {
                   {Data.description || "Descripción no disponible."}
                 </p>
               </div>
-              {/* --- BLOQUES 2 Y 3 (Solo se muestran si hay personajes populares) --- */}
+              {/* --- BLOQUES 2 Y 3 --- */}
               {Data.populares && Data.populares.length > 0 && (
                 <>
-                  {/* --- BLOQUE 2: PERSONAJES POPULARES (Carrusel) --- */}
+                  {/* --- BLOQUE 2: PERSONAJES POPULARES --- */}
                   <h3
                     className="mb-4 ps-3"
                     style={{
@@ -185,7 +157,6 @@ function CategoriesPage() {
                     </button>
 
                     {Data.populares.map((personaje, index) => {
-                      // ... (AQUÍ VA TODA TU LÓGICA DEL CARRUSEL QUE ESTABA PERFECTA) ...
                       let distancia = index - personajeActual;
                       if (
                         personajeActual === 0 &&
@@ -305,7 +276,7 @@ function CategoriesPage() {
                     </button>
                   </div>
 
-                  {/* --- BLOQUE 3: EXPLORA MÁS PERSONAJES (Lista) --- */}
+                  {/* --- BLOQUE 3: EXPLORA MÁS PERSONAJES--- */}
                   <h3
                     className="mb-4 ps-3"
                     style={{
@@ -318,7 +289,6 @@ function CategoriesPage() {
                   </h3>
 
                   <div className="d-flex flex-column gap-3">
-                    {/* Aquí aplicamos el ternario limpio */}
                     {Data.explorar && Data.explorar.length > 0 ? (
                       Data.explorar.map((personaje) => (
                         <Link
@@ -399,11 +369,11 @@ function CategoriesPage() {
                         </p>
                       </div>
                     )}{" "}
-                    {/* <-- Cierre correcto del ternario */}
+                    
                   </div>
                 </>
               )}{" "}
-              {/* <-- Cierre correcto del bloque de "Si hay personajes populares dibuja el bloque 2 y 3" */}
+              
               <div className="mt-5 mb-3">
                 <button
                   onClick={() => navigate(-1)}

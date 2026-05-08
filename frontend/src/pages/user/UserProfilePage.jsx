@@ -2,7 +2,6 @@ import { useRef, useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
-// import { supabase } from "../../lib/supabase.js";
 import userService from "../../services/userService";
 import mbtiService from "../../services/mbtiService";
 import { getAvatarUrl, STORAGE_BUCKETS, removeFiles } from '../../lib/storage'

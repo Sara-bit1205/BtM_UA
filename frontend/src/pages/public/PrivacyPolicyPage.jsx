@@ -3,7 +3,6 @@ import React from 'react';
 function PoliticaPrivacidad() {
   return (
     <main className="container py-4">
-      {/* Títulos adaptados a tu imagen */}
       <h1 className="mb-2 text-uppercase" style={{ fontFamily: 'var(--texto-encabezados)', color: 'var(--color3)', fontSize: 'clamp(2rem, 6vw, 4rem)' }}>
         Política de Privacidad
       </h1>
@@ -11,12 +10,10 @@ function PoliticaPrivacidad() {
         Última actualización: octubre 23-2024
       </h3>
 
-      {/* Texto introductorio justificado */}
       <p className="mb-5" style={{ textAlign: 'justify', lineHeight: '1.6' }}>
         En Behind The Mask (en adelante, "el Sitio Web"), nos comprometemos a proteger la privacidad y la seguridad de los datos personales de nuestros usuarios. Esta Política de Privacidad explica cómo recopilamos, utilizamos y protegemos tu información conforme al Reglamento (UE) 2016/679 (RGPD) y la Ley Orgánica 3/2018 (LOPDGDD).
       </p>
 
-      {/* Contenedor de Acordeones */}
       <div className="accordion" id="accordionPrivacy">
         
         {/* --- ACORDEÓN 1 --- */}
@@ -28,7 +25,6 @@ function PoliticaPrivacidad() {
           </h2>
           <div id="collapseOne" className="accordion-collapse collapse show" data-bs-parent="#accordionPrivacy">
             <div className="accordion-body btm-accordion-body">
-              {/* Texto en lugar de tabla, calcado a tu imagen */}
               <p className="mb-1"><strong style={{fontFamily: 'var(--texto-encabezados)', letterSpacing: '1px'}}>Identidad del Responsable:</strong> José Pilar Sánchez</p>
               <p className="mb-1"><strong style={{fontFamily: 'var(--texto-encabezados)', letterSpacing: '1px'}}>Domicilio Social:</strong> Calle de los rumores Puerta no me acuerdo</p>
               <p className="mb-0"><strong style={{fontFamily: 'var(--texto-encabezados)', letterSpacing: '1px'}}>Correo Electrónico de Contacto:</strong> Behind_theMask@hotmail.com</p>

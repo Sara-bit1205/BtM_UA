@@ -1,5 +1,3 @@
-// Página teórica: explica cómo se procesan las respuestas del test MBTI
-// y qué lógica determina el tipo resultante
 
 import { Fragment } from 'react'
 import { Link } from 'react-router-dom'
@@ -54,7 +52,6 @@ function HowMBTIWorksPage() {
         </p>
       </section>
 
-      {/* ── Step by step ── */}
       <section aria-labelledby="steps-title">
         <h2 id="steps-title" className="mbti-section-subtitle mb-3">El proceso paso a paso</h2>
         <ol className="mbti-steps" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -70,7 +67,6 @@ function HowMBTIWorksPage() {
         </ol>
       </section>
 
-      {/* ── Dimension breakdown ── */}
       <section aria-labelledby="dims-detail-title">
         <h2 id="dims-detail-title" className="mbti-section-subtitle mb-3">
           Distribución de preguntas por dimensión
@@ -99,7 +95,6 @@ function HowMBTIWorksPage() {
         </div>
       </section>
 
-      {/* ── Formula ── */}
       <section aria-labelledby="formula-title">
         <h2 id="formula-title" className="mbti-section-subtitle mb-3">La fórmula del resultado</h2>
 
@@ -136,7 +131,6 @@ function HowMBTIWorksPage() {
         </div>
       </section>
 
-      {/* ── Important note ── */}
       <section aria-labelledby="note-title">
         <h2 id="note-title" className="mbti-section-subtitle mb-3">Nota importante</h2>
         <div className="mbti-info-block" role="note">
@@ -149,7 +143,6 @@ function HowMBTIWorksPage() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
       <section className="mbti-cta-section" aria-labelledby="cta-title">
         <h2 id="cta-title">¿Listo para descubrir tu tipo?</h2>
         <p style={{ maxWidth: 540, opacity: 0.85 }}>

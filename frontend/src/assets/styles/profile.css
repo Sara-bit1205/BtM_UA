@@ -176,31 +176,28 @@ button.profile-action {
   flex-wrap: wrap;
 }
 
-/* 5. Estilo de los BOTONES (El look de la foto) */
 .btn-confirm, 
 .btn-cancel {
-  font-family: var(--texto-encabezados); /* Fuente cabezona */
+  font-family: var(--texto-encabezados); 
   font-size: 1.1rem;
   padding: 0.9rem 2rem;
   border-radius: 20px;
   border: none;
   cursor: pointer;
   transition: transform 0.1s ease, filter 0.2s ease;
-  box-shadow: 0 5px 0 rgba(0,0,0,0.15); /* Efecto 3D abajo */
+  box-shadow: 0 5px 0 rgba(0,0,0,0.15); 
   text-transform: uppercase;
   min-width: 140px;
 }
 
-/* Botón ACEPTAR / SALIR (Verde más intenso) */
 .btn-confirm {
-  background-color: var(--color4) !important; /* Tu verde #a7e399 */
-  color: var(--color-principal) !important;   /* Texto negro */
+  background-color: var(--color4) !important; 
+  color: var(--color-principal) !important;  
 }
 
-/* Botón CANCELAR (Verde más clarito) */
 .btn-cancel {
-  background-color: var(--color5) !important; /* Tu verde #cff199 */
-  color: var(--color-principal) !important;   /* Texto negro */
+  background-color: var(--color5) !important; 
+  color: var(--color-principal) !important;   
 }
 
 /* Efectos de interacción */
@@ -212,7 +209,7 @@ button.profile-action {
 
 .btn-confirm:active, 
 .btn-cancel:active {
-  transform: translateY(3px); /* Se hunde al pulsar */
+  transform: translateY(3px); 
   box-shadow: none;
 }
 /* móvil */

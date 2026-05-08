@@ -1,12 +1,3 @@
-/*Este Navbar es la barra de navegación principal de la app: muestra 
-el logo con acceso al inicio, un buscador que redirige a la página de 
-búsqueda con el término en la URL, botones de acciones como filtros y 
-estilos, un acceso dinámico al perfil o al login según si el usuario 
-está autenticado, y un menú lateral responsive con enlaces a distintas 
-secciones de la web. Con el ajuste de auth, deja de depender del user 
-antiguo y pasa a usar el estado real de Supabase a través de 
-isAuthenticated y role.*/
-
 import { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
@@ -24,9 +15,8 @@ function Navbar() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isStylePanelOpen, setIsStylePanelOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
-  const location = useLocation(); // Importar de react-router-dom
+  const location = useLocation(); 
 
-  //-------------------------------PRUEBA DE LA BARRA DE BUSQUEDA EN MÓVIL-------------------------------
   const [mostrarBuscadorMovil, setMostrarBuscadorMovil] = useState(false);
 
   const handleSubmit = (e) => {
@@ -45,8 +35,6 @@ function Navbar() {
     if (location.pathname !== "/busqueda") {
       navigate("/busqueda?openFilters=true");
     } else {
-      // Si ya estamos en búsqueda, emitimos un evento personalizado
-      // o usamos un estado global. Lo más simple:
       window.dispatchEvent(new CustomEvent("toggle-search-filters"));
     }
   };
@@ -143,11 +131,10 @@ function Navbar() {
           </div>
         </div>
 
-        {/* --- LA MAGIA: EL BUSCADOR DESPLEGABLE PARA MÓVIL --- */}
+        {/* ---  EL BUSCADOR DESPLEGABLE PARA MÓVIL --- */}
         {mostrarBuscadorMovil && (
           <div className="buscador-movil-container d-md-none">
             <form onSubmit={handleSubmit} className="buscador-movil-form">
-              {/* EL MOLDE: Une el input y el botón */}
               <div className="input-group buscador-movil-wrapper">
                 <input
                   type="text"

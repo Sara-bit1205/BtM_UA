@@ -78,7 +78,7 @@ function EliminarPersonaje() {
         <div className="row justify-content-center">
             <div className="col-12 col-md-8 col-lg-6">
             
-            {/* Tarjeta principal oscura */}
+            {/* Tarjeta principal */}
             <div className="card border-0 p-4 shadow" style={{ backgroundColor: 'var(--color-grisOscuro, #1a1a1a)', borderRadius: '30px' }}>
                 
                 {/* Título */}
@@ -96,7 +96,7 @@ function EliminarPersonaje() {
                 <img 
                     src={personaje.imagen} 
                     alt={personaje.name}
-                    className="bg-white" // Fondo blanco por si es PNG transparente
+                    className="bg-white" 
                     style={{ 
                     width: '180px', 
                     height: '180px', 
@@ -125,7 +125,7 @@ function EliminarPersonaje() {
 
                 {/* Botones de acción */}
                 <div className="d-flex justify-content-center gap-4 mt-2">
-                {/* Botón ACEPTAR (Verde) */}
+                {/* Botón ACEPTAR  */}
                 <button 
                     onClick={handleBorrar}
                     disabled={deleting}
@@ -134,7 +134,7 @@ function EliminarPersonaje() {
                     {deleting ? 'Borrando...' : 'Aceptar'}
                 </button>
 
-                {/* Botón CANCELAR (Rosa Fucsia) */}
+                {/* Botón CANCELAR */}
                 <button 
                     onClick={() => navigate(-1)} // Volver atrás sin hacer nada
                     className="btn rounded-pill px-4 py-2 fw-bold text-uppercase shadow-sm btnEliminarPers"

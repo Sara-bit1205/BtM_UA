@@ -15,7 +15,6 @@
   --texto-normal: "Poppins", sans-serif;
 }
 
-/* --- 1. ESTILOS BASE (MÓVIL PRIMERO) --- */
 .search-container {
   background-color: var(--color-principal);
   min-height: 100vh;
@@ -117,7 +116,6 @@
   width: 100%;
 }
 
-/* TODO ESTO ES PARA FILTROS*/
 .filter-popup-overlay {
   position: fixed;
   top: 0;
@@ -273,7 +271,6 @@
   background-color: var(--color-grisOscuro);
 }
 
-/* --- 2. TABLETS (Pantallas medianas) --- */
 @media (min-width: 768px) {
   .search-container {
     padding: 40px 20px;
@@ -297,7 +294,6 @@
   }
 }
 
-/* --- 3. ORDENADOR / DESKTOP (Pantallas grandes) --- */
 @media (min-width: 1024px) {
   .search-container {
     padding: 60px 50px;
@@ -307,7 +303,6 @@
     font-size: 2.5rem;
   }
 
-  /* Efecto Hover solo para PC */
   .character-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }

@@ -1,18 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-// import { supabase } from '../../lib/supabase'
 import { getPublicUrl, STORAGE_BUCKETS } from '../../lib/storage'
 import { useAuth } from '../../context/AuthContext'
 import characterService from '../../services/characterService'
 import mbtiService from '../../services/mbtiService'
 import '../../assets/styles/mbti.css'
 import '../../assets/styles/home.css'
-
-// function getCharacterCoverUrl(coverPath) {
-//   if (!coverPath) return null
-//   const { data } = supabase.storage.from('character-covers').getPublicUrl(coverPath)
-//   return data.publicUrl
-// }
 
 // ── Static test data ────────────────────────────────────────
 const QUESTIONS = [
@@ -296,12 +289,10 @@ function PersonalityTestPage() {
       setMbtiType(type)
       setPhase('result')
 
-      // Persist result to database if authenticated
       if (isAuthenticated) {
         mbtiService.submitResult(newAnswers).catch(console.error)
       }
 
-      // Fetch related characters
       setLoadingChars(true)
       characterService.getByMBTI(type)
         .then((data) => setCharacters(Array.isArray(data) ? data.slice(0, 8) : []))

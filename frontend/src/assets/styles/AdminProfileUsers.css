@@ -39,7 +39,7 @@
   background-color: var(--color2) !important;
   color: var(--color-principal) !important;
 }
-/* Romper Bootstrap striped */
+
 .users-list-page .users-table.table-striped > tbody > tr:nth-of-type(odd) {
   background-color: var(--color-grisOscuro) !important;
 }

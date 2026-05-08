@@ -131,7 +131,6 @@ export function AuthProvider({ children }) {
       setSession(session)
       setAuthUser(session?.user ?? null)
 
-      // Evitar llamadas async directas dentro del callback
       setTimeout(async () => {
         if (!isMounted) return
 

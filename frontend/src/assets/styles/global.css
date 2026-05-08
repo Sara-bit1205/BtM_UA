@@ -239,7 +239,6 @@ main {
   align-items: center;
 }
 
-/* Ajuste fino del contenedor Bootstrap */
 .input-group > .form-control,
 .input-group > .input-group-text {
   height: 28px;
@@ -252,7 +251,6 @@ main {
   margin-top: auto;
 }
 
-/* ── Inner layout ── */
 .footer-inner {
   display: flex;
   flex-wrap: wrap;
@@ -262,7 +260,6 @@ main {
   padding-bottom: 2rem;
 }
 
-/* ── Brand block ── */
 .footer-brand {
   display: flex;
   flex-direction: column;
@@ -287,7 +284,6 @@ main {
   margin: 0;
 }
 
-/* ── Links columns ── */
 .footer-links {
   display: flex;
   flex-wrap: wrap;
@@ -324,7 +320,6 @@ main {
   padding-left: 4px;
 }
 
-/* Acordeón móvil — estilo propio del footer */
 .footer-accordion {
   margin-top: 0.5rem;
 }
@@ -559,51 +554,40 @@ main {
   font-weight: bold;
 }
 
-/* =========================================
-   ACORDEONES GLOBALES BTM (Diseño Unificado)
-   ========================================= */
-
-/* Contenedor de cada pestaña (El borde verde y fondo oscuro) */
 .btm-accordion-item {
   background-color: var(--color-grisOscuro) !important; 
-  border: 3px solid var(--color4) !important; /* Tu verde neón */
+  border: 3px solid var(--color4) !important;
   border-radius: 12px !important;
-  margin-bottom: 1rem; /* Espacio entre acordeones */
+  margin-bottom: 1rem; 
   overflow: hidden;
 }
 
-/* Botón del acordeón (Texto verde) */
 .btm-accordion-btn {
   background-color: transparent !important;
   color: var(--color4) !important; 
   font-family: var(--texto-normal);
   font-weight: 700; /* Negrita */
   font-size: clamp(1.1rem, 4vw, 1.4rem);
-  box-shadow: none !important; /* Quita el aro azul feo de Bootstrap */
+  box-shadow: none !important;
   border: none !important;
   padding: 1.2rem 1.5rem;
 }
 
-/* Estado abierto (Evita que Bootstrap le cambie el color) */
+/* Estado abierto */
 .btm-accordion-btn:not(.collapsed) {
   color: var(--color4) !important;
   background-color: transparent !important;
   box-shadow: none !important;
 }
 
-/* LA MAGIA: Flecha personalizada (Cuadrado blanco con flecha negra) */
-/* LA MAGIA: Flecha simple dinámica (Mismo color que el texto) */
 .btm-accordion-btn::after {
-  background-image: none !important; /* Quitamos la imagen base de Bootstrap */
+  background-image: none !important; 
   
-  /* 1. Le damos el color de tu texto a la forma (tu verde neón) */
   background-color: var(--color4) !important; 
   
-  /* 2. Usamos la flecha original como una máscara de recorte */
   -webkit-mask-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
   mask-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
   
-  /* Centramos y ajustamos el tamaño de la máscara */
   -webkit-mask-size: 20px;
   mask-size: 20px;
   -webkit-mask-repeat: no-repeat;
@@ -613,16 +597,15 @@ main {
 
   width: 24px;
   height: 24px;
-  border-radius: 0; /* Aseguramos que no haya rastro del cuadrado anterior */
+  border-radius: 0;
   transition: transform 0.3s ease;
 }
 
-/* Cuerpo desplegado (Donde va el texto interior) */
 .btm-accordion-body {
   background-color: transparent !important;
-  color: var(--colorTexto); /* Automáticamente será blanco en oscuro y negro en claro */
+  color: var(--colorTexto);
   font-family: var(--texto-normal);
-  padding: 0 1.5rem 1.5rem 1.5rem; /* Padding lateral e inferior */
+  padding: 0 1.5rem 1.5rem 1.5rem; 
   font-size: 1rem;
 }
 
@@ -670,22 +653,16 @@ main {
 
 }
 
-/* =========================================
-   AJUSTES MOBILE (Estilo PCComponentes)
-   ========================================= */
 @media (max-width: 768px) {
-  /* 1. Barra de navegación mucho más fina y compacta */
   .navBar {
     padding: 0.5rem 1rem !important;
   }
 
-  /* 2. Logo reducido para ganar espacio central */
   .navBarLogo {
     width: 45px !important;
     height: 45px !important;
   }
 
-  /* 3. Botones de acción alineados y con tamaño óptimo (Touch Target) */
   .btnFilter,
   .btnStyle,
   .btnMenu,
@@ -699,26 +676,22 @@ main {
     font-size: 1.6rem;
   }
 
-  /* 4. MAGIA DEL BUSCADOR: Ocultamos el input de texto en móvil */
   .navBar__input {
     display: none !important;
   }
 
-  /* Quitamos el ancho completo del grupo del buscador */
   .input-group.buscarPersonaje {
     width: auto !important;
     flex-wrap: nowrap;
   }
 
-  /* Convertimos el icono/botón de la lupa en un círculo perfecto */
   .navBar__search-icon,
-  /* El nuevo botón de búsqueda exclusivo para móvil */
   .btn-buscar-mobile {
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background-color: var(--color4); /* Mismo verde/turquesa que el usuario */
-    color: var(--color-principal);   /* Icono en oscuro o claro según tema */
+    background-color: var(--color4); 
+    color: var(--color-principal);  
     display: flex;
     align-items: center;
     justify-content: center;
@@ -734,17 +707,15 @@ main {
     font-weight: bold;
   }
 
-  /* Efecto hover/toque para que reaccione igual que los demás */
   .btn-buscar-mobile:active,
   .btn-buscar-mobile:hover {
     transform: translateY(-2px);
     background-color: var(--color5);
   }
 
-  /* 5. Panel de estilos (Ajuste para que no se salga de pantalla) */
   .style-panel {
     width: 90%;
-    right: 5%; /* Centrado relativo */
+    right: 5%; 
     top: 70px;
     padding: 0.8rem;
   }

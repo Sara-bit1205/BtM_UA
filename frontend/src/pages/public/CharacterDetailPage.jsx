@@ -365,11 +365,6 @@ useEffect(() => {
     }
   }
 
-  // function getFileExtension(path) {
-  //   if (!path) return 'jpg'
-  //   return path.split('.').pop()
-  // }
-
   if (loadingCharacter) {
     return (
       <main className="character-detail-page">

@@ -1,13 +1,6 @@
-/*Esta versión registra al usuario en Supabase Auth, deja que el trigger 
-cree automáticamente su fila en profiles, luego completa ese perfil
- con username, name y birth_date, y si el usuario ha subido una imagen,
-  la guarda en Storage y actualiza el campo avatar con la URL pública.*/
-
-//MIGRADO
 
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-// import { supabase } from '../../lib/supabase'
 import authService from '../../services/authService'
 import '../../assets/styles/Login.css'
 
@@ -26,27 +19,6 @@ function RegisterPage() {
   })
 
   const navigate = useNavigate()
-
-  // const updateProfileWithRetry = async (userId, updates, retries = 10, delay = 300) => {
-  //   for (let i = 0; i < retries; i++) {
-  //     const { data, error } = await supabase
-  //       .from('profiles')
-  //       .update(updates)
-  //       .eq('id', userId)
-  //       .select()
-
-  //     if (error) throw error
-
-  //     if (data && data.length > 0) {
-  //       return data[0]
-  //     }
-
-  //     await new Promise((resolve) => setTimeout(resolve, delay))
-  //   }
-
-  //   throw new Error('No se pudo completar el perfil del usuario')
-  // }
-
   const handleChange = (e) => {
     const { name, value, files, type } = e.target
 

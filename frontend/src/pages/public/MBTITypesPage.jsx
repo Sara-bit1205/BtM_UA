@@ -1,5 +1,3 @@
-// Página informativa sobre los 16 tipos de personalidad MBTI
-// Explica qué es el MBTI, las 4 dimensiones y muestra los 16 tipos agrupados
 
 import { Link } from 'react-router-dom'
 import '../../assets/styles/mbti.css'

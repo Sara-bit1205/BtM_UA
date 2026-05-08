@@ -18,8 +18,6 @@ import { Link } from 'react-router-dom'
 import categoryService from '../../services/categoryService'
 import '../../assets/styles/adminCategories.css'
 
-// ── Configuración estática de los 3 grupos ──────────────────────────────────────
-// Cada grupo mapea a una tabla real + sus campos de formulario
 const GROUPS_CONFIG = [
   {
     id: 'universes',
@@ -48,7 +46,6 @@ const GROUPS_CONFIG = [
   },
 ]
 
-// Nombre legible para una fila de cualquier grupo
 function catLabel(groupId, cat) {
   if (groupId === 'mbti_types') return `${cat.code} — ${cat.title}`
   return cat.name ?? ''
@@ -63,13 +60,12 @@ function buildGroups(data) {
   ]
 }
 
-// ── Subcomponente: dropdown personalizado ───────────────────────────────────────
 function Dropdown({ placeholder, options, selected, onSelect }) {
   const [open, setOpen] = useState(false)
   const wrapRef = useRef(null)
   const label = selected ? options.find(o => o.id === selected)?.name : placeholder
 
-  // Cerrar al hacer click fuera del componente
+  
   useEffect(() => {
     if (!open) return
     const handler = (e) => {
@@ -108,8 +104,6 @@ function Dropdown({ placeholder, options, selected, onSelect }) {
   )
 }
 
-// ── Subcomponente: botón de retroceso ──────────────────────────────────────────
-// Renderiza un <Link> hacia una ruta o un <button> para cambio de vista interna.
 function BackBtn({ onClick, to }) {
   const icon = (
     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
@@ -443,7 +437,6 @@ function EditView({ groups, onView, onDone }) {
 
 // ── Vista: Borrar ──────────────────────────────────────────────────────────────
 function DeleteView({ groups, onView, onDone }) {
-  // key = `${groupId}:${catId}` → valor = { ...cat, _groupId }
   const [selected,  setSelected]  = useState({})
   const [treeOpen,  setTreeOpen]  = useState({})
   const [deleting,  setDeleting]  = useState(false)

@@ -1,16 +1,8 @@
-/*Este nuevo servicio ya no llama a una ruta genérica /categories, sino
- que trabaja directamente con las tablas reales de Supabase que 
- representan tus categorías (universes, personality_tags y mbti_types). 
- Para leer, devuelve los tres grupos; y para crear, editar o borrar, 
- necesita que le indiques qué tipo de categoría quieres modificar,
-  dejando que Supabase y las policies RLS controlen los permisos 
-  automáticamente.*/
 
 import { supabase } from '../lib/supabase'
 import { getPublicUrl, STORAGE_BUCKETS } from '../lib/storage'
 import { getRelationValue } from '../utils/relation'
 
-//Es un mapa que traduce el tipo de categoría → tabla real.
 const TABLE_MAP = {
   universes: 'universes',
   personality_tags: 'personality_tags',
@@ -19,9 +11,7 @@ const TABLE_MAP = {
 
 
 const categoryService = {
-  //Obtenemos tds las categorías
   async getAll() {
-    //trae los datos de las 3 tablas a la vez y Promise.all espera a que las 3 respuestas lleguen para continuar(en paralelo)
     const [universesRes, tagsRes, mbtiRes] = await Promise.all([
       supabase.from('universes').select('*').order('name'),
       supabase.from('personality_tags').select('*').order('name'),

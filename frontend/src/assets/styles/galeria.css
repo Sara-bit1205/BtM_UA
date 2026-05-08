@@ -1,4 +1,4 @@
-/* Animación para que la barra inferior suba suavemente */
+
 @keyframes slideUp {
   from {
     transform: translateY(100%);
@@ -10,7 +10,7 @@
   }
 }
 
-/* Efecto hover suave solo cuando NO estamos seleccionando (para PC) */
+
 .galeria-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
@@ -76,21 +76,17 @@
   transform: scale(1.1) !important;
 }
 
-/* --- ESTILOS BASE --- */
 .galeria-imagen {
   width: 100%;
   object-fit: cover;
-  display: block; /* Quita un micro-espacio invisible que a veces dejan las imágenes en HTML */
+  display: block; 
   
-  /* EL TRUCO: Forzamos a que las esquinas de ABAJO sean totalmente cuadradas (0px) */
   border-bottom-left-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
   
-  /* Si el móvil necesita altura fija: */
   height: 180px; 
 }
 
-/* --- ESTILOS PARA PC --- */
 @media (min-width: 768px) {
   .galeria-imagen {
     height: auto; 
@@ -98,9 +94,8 @@
   }
 }
 
-/* Si en pantallas GIGANTES (1200px+) quieres que se vean aún más altas, puedes añadir esto: */
 @media (min-width: 1200px) {
   .galeria-imagen {
-    aspect-ratio: 1 / 1; /* Las hace totalmente cuadradas (estilo Instagram) */
+    aspect-ratio: 1 / 1;
   }
 }

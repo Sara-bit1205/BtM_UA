@@ -65,8 +65,6 @@ const authService = {
       })
     }
 
-    // Mantienes el mismo comportamiento actual:
-    // tras registrarse, no dejas la sesión abierta.
     await supabase.auth.signOut()
 
     return data

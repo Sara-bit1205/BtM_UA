@@ -21,7 +21,7 @@
   display: flex;
   align-items: self-start;
   justify-content: center;
-  padding: 20px; /* Evita que el contenido pegue a los bordes en móviles */
+  padding: 20px; 
   box-sizing: border-box;
   padding-top: 80px;
 }
@@ -33,27 +33,24 @@
   text-align: center;
 }
 
-/* Título Adaptativo */
 .login-title {
   color: var(--color5);
   font-family: var(--texto-encabezados);
-  font-size: clamp(2rem, 8vw, 3rem); /* Se ajusta entre 2rem y 3rem según el ancho */
+  font-size: clamp(2rem, 8vw, 3rem); 
   margin-bottom: 2rem;
   text-transform: uppercase;
   letter-spacing: 2px;
 }
 
-/* Etiquetas */
 .custom-label {
   color: var(--color1);
   font-weight: bold;
   font-size: 0.9rem;
-  margin-left: 15px; /* Alineado con el inicio del input redondeado */
+  margin-left: 15px;
   display: block;
   margin-bottom: 6px;
 }
 
-/* Inputs */
 .custom-input {
   width: 100%;
   border-radius: 50px;
@@ -71,10 +68,9 @@
   box-shadow: 0 0 8px rgba(79, 179, 195, 0.4);
 }
 
-/* Botón Log In */
 .btn-login {
   background-color: var(--color5);
-  color: var(--color-grisOscuro); /* Un tono más oscuro para contraste */
+  color: var(--color-grisOscuro);
   border: none;
   border-radius: 50px;
   padding: 12px 20px;
@@ -82,10 +78,10 @@
   font-size: 1.1rem;
   margin-top: 20px;
   cursor: pointer;
-  width: 100%; /* Ocupa todo el ancho en móviles */
+  width: 100%;
   transition: transform 0.2s, background-color 0.2s;
 }
-/*Edit*/
+
 .edit-user-page {
   background-color: var(--color-principal);
   min-height: 100vh;
@@ -179,7 +175,7 @@
 }
 
 .edit-user-page .btn-aceptar {
-  color: var(--color2);
+  color: var(--color-grisOscuro);
   background-color: var(--color5);
 }
 
@@ -217,14 +213,23 @@
   filter: brightness(1.05);
 }
 
+ [data-theme="light"] .edit-user-page input[type="password"]::-ms-reveal,
+[data-theme="light"] .edit-user-page input[type="password"]::-ms-clear {
+  filter: invert(1);
+}
+
+.edit-user-page input[type="password"]::-ms-reveal,
+.edit-user-page input[type="password"]::-ms-clear {
+  filter: invert(0);
+} 
 
 @media (min-width: 768px) {
   .btn-login {
-    width: auto; /* En tablet/PC vuelve a su tamaño contenido */
+    width: auto; 
     padding: 12px 60px;
   }
    .login-box {
-    max-width: 700px; /* tablet */
+    max-width: 700px; 
   }
 
   .custom-label {
@@ -234,7 +239,7 @@
 
 @media (min-width: 1200px) {
   .login-box {
-    max-width: 900px; /* PC grande */
+    max-width: 900px;
   }
    .custom-label {
     font-size: 1.5rem;
@@ -251,7 +256,6 @@
   background-color: var(--color5);
 }
 
-/* Footer */
 .login-footer {
   margin-top: 30px;
   color: white;

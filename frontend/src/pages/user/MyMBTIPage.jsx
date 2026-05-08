@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-// import { supabase } from '../../lib/supabase'
 import { getPublicUrl, STORAGE_BUCKETS } from '../../lib/storage'
 import { useAuth } from '../../context/AuthContext'
 import mbtiService from '../../services/mbtiService'
@@ -91,7 +90,7 @@ function MyMBTIPage() {
 
   return (
     <main className="container py-4 mbti-page">
-      {/* ── Type hero ── */}
+      
       <section className="my-mbti-hero" aria-labelledby="my-mbti-title">
         <span className="mbti-type-badge" aria-label={`Tu tipo MBTI: ${mbtiCode}`}>
           {mbtiCode}
@@ -109,7 +108,7 @@ function MyMBTIPage() {
         </div>
       </section>
 
-      {/* ── Related characters ── */}
+      
       <section className="mbti-characters-section" aria-labelledby="chars-title">
         <h2 id="chars-title" className="mbti-section-subtitle">
           Personajes {mbtiCode}

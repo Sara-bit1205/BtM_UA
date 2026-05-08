@@ -1,18 +1,8 @@
-/*useState → para estado local
-useEffect → para ejecutar lógica al montar o cuando cambian datos
-useNavigate → para redirigir
-Link → para enlazar a registro
-useAuth → para leer estado de autenticación desde tu contexto
-supabase → para iniciar sesión
-CSS → estilos de la página*/
 
-//MIGRADO
-  
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import authService from '../../services/authService'
-// import { supabase } from '../../lib/supabase.js'
 import '../../assets/styles/Login.css'
 
 function LoginPage() {

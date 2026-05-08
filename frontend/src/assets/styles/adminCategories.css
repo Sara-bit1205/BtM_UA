@@ -1,6 +1,5 @@
 /* ============================================================
    Admin — Gestión de Categorías
-   Compatible con global.css CSS variables & Bootstrap 5
    ============================================================ */
 
 /* ── Página contenedor ── */
@@ -74,10 +73,7 @@
   color: var(--colorTexto);
 }
 
-/* ── Ítem de categoría (acordeón) ─────────────────────────────── */
-/* El ítem no tiene fondo ni borde propio: el header y la sublist-inner
-   son elementos independientes que visualmente se "conectan" entre sí.
-   Esto elimina por completo el reborde negro lateral e inferior. */
+/* ── Ítem de categoría─────────────────────────────── */
 .admin-cat-item {
   border-radius: 12px;
   transition: transform 0.18s ease, filter 0.18s ease;
@@ -88,7 +84,7 @@
   filter: drop-shadow(0 4px 14px rgba(95, 235, 190, 0.18));
 }
 
-/* Cabecera: lleva todo el estilo visual */
+/* Cabecera*/
 .admin-cat-item-header {
   display: flex;
   align-items: center;
@@ -102,13 +98,11 @@
   transition: border-color 0.22s ease, background 0.22s ease;
 }
 
-/* Hover: borde más brillante + tinte sutil */
 .admin-cat-item-header:hover {
   border-color: var(--color1);
   background: rgba(207, 241, 153, 0.07);
 }
 
-/* Cuando está abierto: radio inferior plano para empalmar con la sublist */
 .admin-cat-item.open > .admin-cat-item-header {
   border-radius: 12px 12px 0 0;
   border-color: var(--color1);
@@ -124,7 +118,7 @@
   margin: 0;
 }
 
-/* Checkbox nativo oculto — el ✓ se renderiza con label::before */
+/* Checkbox nativo oculto*/
 .admin-cat-item-check {
   position: absolute;
   opacity: 0;
@@ -134,7 +128,6 @@
   pointer-events: none;
 }
 
-/* Pseudo-checkbox como ::before del label */
 .admin-cat-item-check + label::before {
   content: '';
   display: inline-flex;
@@ -154,13 +147,11 @@
   transition: background 0.18s ease, border-color 0.18s ease, color 0.1s ease;
 }
 
-/* Estado hover: resaltar el borde */
 .admin-cat-item-check + label:hover::before {
   border-color: var(--color4);
   background: rgba(207, 241, 153, 0.12);
 }
 
-/* Estado checked: fondo verde + marca ✓ */
 .admin-cat-item-check:checked + label::before {
   content: '✓';
   background: var(--color4);
@@ -169,10 +160,7 @@
 }
 
 /* Subcategorías desplegadas */
-/* El ul solo controla la altura animada — sin fondo ni padding propios */
 .admin-cat-sublist {
-  /* Reset de márgenes y padding que el navegador aplica a <ul> por defecto:
-     sin esto quedaría un hueco negro entre la cabecera y el contenido verde */
   margin: 0;
   padding: 0;
   list-style: none;
@@ -185,11 +173,9 @@
   max-height: 1500px;
 }
 
-/* El div interior conecta visualmente con la cabecera */
 .admin-cat-sublist-inner {
   background: var(--color5);
   padding: 0.7rem 1.1rem 1rem 1.5rem;
-  /* Continuación de los bordes laterales + inferior de la cabecera */
   border: 2px solid var(--color1);
   border-top: none;
   border-radius: 0 0 12px 12px;
@@ -205,8 +191,6 @@
   list-style: disc;
 }
 
-/* ── Chevron animado — compartido entre ListView y árbol de borrar ── */
-/* Rota 180° con transición suave cuando el padre tiene clase .open */
 .admin-cat-chevron {
   color: var(--color4);
   font-size: 0.75rem;
@@ -219,12 +203,6 @@
   transform: rotate(180deg);
 }
 
-/* ── Estado hover y abierto del acordeón de listado ── */
-/* Los estados hover y open ya se gestionan directamente en
-   .admin-cat-item-header y .admin-cat-item.open > .admin-cat-item-header
-   — no se necesitan estilos adicionales aquí */
-
-/* Resaltar el borde del ítem completo en hover para mayor feedback */
 .admin-cat-item:hover {
   border-color: var(--color1);
 }
@@ -278,27 +256,21 @@
   color: #d32f81;
   font-size: 0.85rem;
   font-family: var(--texto-normal);
-  /* Sin margin negativo: evita que el texto quede bajo el dropdown absoluto */
   margin-top: 0.3rem;
   padding-left: 0.25rem;
 }
 
-/* ── Dropdown custom ── */
-/* El dropdown-wrap necesita z-index para superar elementos vecinos
-   cuando su lista está desplegada */
 .admin-cat-dropdown-wrap {
   position: relative;
   z-index: 10;
 }
 
-/* Elevar el z-index del wrap mientras el botón esté abierto */
 .admin-cat-dropdown-wrap:has(.admin-cat-dropdown-btn.open) {
   z-index: 100;
 }
 
 .admin-cat-dropdown-btn {
   width: 100%;
-  /* Mismo fondo que los inputs del formulario para consistencia visual */
   background: var(--color-grisOscuro);
   color: var(--colorTexto);
   border: 2px solid var(--color2);
@@ -549,8 +521,6 @@
 }
 
 /* ── Botón volver ───────────────────────────────────────────── */
-/* Posición sticky dentro del flujo de la página (no fixed al viewport)
-   — queda al fondo del contenido sin superponerse a elementos externos */
 .admin-cat-back-btn {
   align-self: flex-start;
   margin-top: auto;
@@ -579,9 +549,8 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
 }
 
-/* ── Delete: árbol de selección rediseñado como tarjetas oscuras ── */
+/* ── Delete ── */
 .admin-cat-tree {
-  /* Contenedor sin fondo propio: cada sección es su propia tarjeta */
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -597,12 +566,10 @@
   transition: background 0.2s ease;
 }
 
-/* Grupo clickable (tiene categorías hijas) */
 .admin-cat-tree-group.clickable {
   cursor: pointer;
 }
 
-/* Hover más notorio sobre fondo oscuro */
 .admin-cat-tree-group.clickable:hover {
   background: rgba(95, 235, 190, 0.12);
 }
@@ -611,7 +578,6 @@
   font-family: var(--texto-encabezados);
   color: var(--colorTexto);
   font-weight: 600;
-  /* Tamaño aumentado para mejor legibilidad */
   font-size: clamp(0.95rem, 3vw, 1.05rem);
   letter-spacing: 0.8px;
   text-transform: uppercase;
@@ -631,7 +597,6 @@
   transform: rotate(180deg);
 }
 
-/* Sección de grupo: cada una es una tarjeta con borde */
 .admin-cat-tree-section {
   border: 2px solid var(--color4);
   border-radius: 10px;
@@ -640,23 +605,19 @@
   transition: border-color 0.22s ease, box-shadow 0.22s ease;
 }
 
-/* Hover sobre la tarjeta completa */
 .admin-cat-tree-section:hover {
   border-color: var(--color1);
   box-shadow: 0 0 10px rgba(95, 235, 190, 0.2);
 }
 
-/* Con hijos expandidos: cambiar el color del borde a resalte */
 .admin-cat-tree-section.open {
   border-color: var(--color1);
 }
 
-/* Línea separadora entre cabecera y lista cuando está abierto */
 .admin-cat-tree-section.open > .admin-cat-tree-group {
   border-bottom: 1px solid rgba(207, 241, 153, 0.2);
 }
 
-/* Indicador de grupo vacío (sin categorías) */
 .admin-cat-tree-empty-hint {
   font-family: var(--texto-normal);
   color: var(--colorTexto);
@@ -667,7 +628,6 @@
 }
 
 .admin-cat-tree-children {
-  /* Reset de márgenes del navegador en <ul> — evita el hueco inferior */
   margin: 0;
   padding: 0;
   list-style: none;
@@ -700,7 +660,6 @@
 .admin-cat-tree-child-name {
   font-family: var(--texto-normal);
   color: var(--colorTexto);
-  /* Tamaño aumentado: más legible en lista de borrado */
   font-size: clamp(0.9rem, 3vw, 1rem);
   cursor: pointer;
   display: inline-flex;

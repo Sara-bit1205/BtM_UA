@@ -1,9 +1,7 @@
-//HECHO 
 
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-// import { supabase } from '../../lib/supabase'
 import favoritesService from '../../services/favoritesService'
 import { getAvatarUrl } from '../../lib/storage'
 import '../../assets/styles/profile.css'

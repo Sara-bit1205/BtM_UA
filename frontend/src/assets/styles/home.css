@@ -29,7 +29,7 @@
 
 .card-personaje-del-dia .nombre-del-dia:hover{
   color:transparent;
-  -webkit-text-stroke: 1px var(--color3); /*solo deja el contorno del texto.. Es un WebKit --> propiedad nativa del navegador*/
+  -webkit-text-stroke: 1px var(--color3); 
 }
 
 .card-personaje-del-dia-img {
@@ -61,7 +61,6 @@
   -webkit-text-stroke: 1px var(--color5);
 }
 
-/*Sección Personajes Populares*/
 .popular-carousel {
   position: relative;
   border: 4px dashed var(--colorDashed);
@@ -251,7 +250,7 @@
     padding: 0.2rem 0.5rem;
   }
   .popular-carousel .carousel-inner {
-    padding: 0 0.5rem; /* Menos padding lateral en móvil */
+    padding: 0 0.5rem;
   }
 
 }

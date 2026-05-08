@@ -33,8 +33,6 @@ const MBTI_DICT = {
 };
 
 function Clasificador() {
-  // Aquí lo que vamos a hacer es poner los datos estatícos que vamos a cargar en la página
-
   const { categoria } = useParams();
 
   const [data, setData] = useState([]);
@@ -114,7 +112,7 @@ function Clasificador() {
                   </Link>
                 </div>
               ) : (
-                /* DISEÑO B: PERSONALIDADES (Caja coloreada) */
+                /* DISEÑO B: PERSONALIDADES*/
                 <div
                   className="d-flex justify-content-between align-items-center mb-4 p-3 rounded-4 shadow-sm"
                   style={{ backgroundColor: infoMbti.color, color: "white" }}
@@ -139,7 +137,7 @@ function Clasificador() {
                 </div>
               )}
 
-              {/* --- CONTENEDOR FILA DESLIZABLE (Común para ambos diseños) --- */}
+              {/* --- CONTENEDOR FILA DESLIZABLE --- */}
               <div
                 className="d-flex flex-nowrap overflow-x-auto gap-3 py-3 px-2"
                 style={{ scrollBehavior: "smooth" }}
@@ -155,7 +153,6 @@ function Clasificador() {
                       style={{
                         width: "240px",
                         backgroundColor: "var(--color-grisOscuro)",
-                        /* Quitamos el !important para que React lo lea bien */
                         border:
                           categoria === "personalidades"
                             ? `2px solid ${infoMbti.color}`
@@ -166,7 +163,6 @@ function Clasificador() {
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = "translateY(-4px)";
-                        /* La sombra también coge el color del MBTI si es Personalidades */
                         e.currentTarget.style.boxShadow =
                           categoria === "personalidades"
                             ? `0 8px 15px ${infoMbti.color}40`
@@ -191,7 +187,6 @@ function Clasificador() {
                         <span
                           className="align-self-start mb-2 px-2 py-1 rounded-1"
                           style={{
-                            /* La etiqueta hereda el color del MBTI */
                             backgroundColor:
                               categoria === "personalidades"
                                 ? infoMbti.color
@@ -224,7 +219,6 @@ function Clasificador() {
           );
         })
       ) : (
-        /* --- AQUÍ TERMINA EL MAP CON LLAVES --- */
 
         <p>No hay personajes disponibles.</p>
       )}

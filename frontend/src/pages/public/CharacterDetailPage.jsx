@@ -850,26 +850,34 @@ useEffect(() => {
                 <h3 className="commentsTitle mb-0">Comentarios</h3>
               </div>
 
-              <div className="comment-form-box mb-4">
-                <textarea
-                  className="form-control community-textarea"
-                  placeholder="Escribe un comentario..."
-                  rows={4}
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                ></textarea>
+              {currentUser ? (
+                <div className="comment-form-box mb-4">
+                  <textarea
+                    className="form-control community-textarea"
+                    placeholder="Escribe un comentario..."
+                    rows={4}
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                  ></textarea>
 
-                <div className="d-flex justify-content-end mt-3">
-                  <button
-                    type="button"
-                    className="btn btn-primary comment-button"
-                    onClick={handlePublishComment}
-                    disabled={loadingComment}
-                  >
-                    {loadingComment ? 'Publicando...' : 'Publicar'}
-                  </button>
+                  <div className="d-flex justify-content-end mt-3">
+                    <button
+                      type="button"
+                      className="btn btn-primary comment-button"
+                      onClick={handlePublishComment}
+                      disabled={loadingComment}
+                    >
+                      {loadingComment ? 'Publicando...' : 'Publicar'}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="comment-form-box mb-4">
+                  <p style={{ margin: 0, color: 'var(--colorTexto)', padding: '12px 0' }}>
+                    Debe iniciar sesión para poder escribir un comentario.
+                  </p>
+                </div>
+              )}
 
               <div className="comments-list">
                 {comments.length > 0 ? (

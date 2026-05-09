@@ -38,6 +38,7 @@ function CharacterDetailPage() {
   const [personalityTags, setPersonalityTags] = useState([])
 
   const [zoomedImage, setZoomedImage] = useState(null)
+  const [uploadMessage, setUploadMessage] = useState(null)
 
   function formatTranscription(text) {
   return text
@@ -315,10 +316,24 @@ useEffect(() => {
         fileInputRef.current.value = ''
       }
 
-      alert('Archivo subido correctamente')
+      setUploadMessage({
+        type: 'success',
+        text: '¡Archivo subido correctamente a la galería!'
+      })
+
+      setTimeout(() => {
+        setUploadMessage(null)
+      }, 3000)
     } catch (error) {
       console.error('Error subiendo archivo:', error.message, error)
-      alert(`No se pudo subir el archivo: ${error.message}`)
+      setUploadMessage({
+        type: 'error',
+        text: 'Error al subir el archivo'
+      })
+
+      setTimeout(() => {
+        setUploadMessage(null)
+      }, 3000)
     } finally {
       setLoadingCommunityPhoto(false)
     }
@@ -751,6 +766,12 @@ useEffect(() => {
                 style={{ display: 'none' }}
               />
             </div>
+            {uploadMessage && (
+              <div className={`upload-toast upload-toast--${uploadMessage.type}`}>
+                <i className={`bi ${uploadMessage.type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'}`}></i>
+                <span>{uploadMessage.text}</span>
+              </div>
+            )}
 
             <div className="community-gallery-grid">
               {communityPhotos.length > 0 ? (

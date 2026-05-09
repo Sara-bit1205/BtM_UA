@@ -568,6 +568,49 @@
   color: var(--colorTexto);
 }
 
+.upload-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0.5rem 0 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: 14px;
+  font-family: var(--texto-normal);
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+  animation: uploadToastIn 0.25s ease;
+}
+
+.upload-toast i {
+  font-size: 1.2rem;
+}
+
+.upload-toast--success {
+  background-color: var(--color5);
+  color: var(--color-principal);
+  border: 3px solid var(--color4);
+}
+
+.upload-toast--error {
+  background-color: var(--color2);
+  color: var(--colorTexto);
+  border: 3px solid var(--color5);
+}
+
+@keyframes uploadToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 576px) {
   .audio-item-header {
     flex-direction: column;

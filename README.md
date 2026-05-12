@@ -1,25 +1,38 @@
 # Behind The Mask (BtM UA)
 
-**Behind The Mask** es una plataforma web que permite explorar personajes de ficción a través de su tipo de personalidad **MBTI**, combinando entretenimiento con análisis psicológico.
+**Behind The Mask** es una plataforma web centrada en el análisis de personajes de ficción mediante el sistema de personalidad MBTI.
+
+La aplicación permite explorar personajes, descubrir compatibilidades psicológicas, realizar tests MBTI y compartir contenido multimedia relacionado con universos de ficción.
 
 Proyecto desarrollado en el contexto de la asignatura de **Usabilidad y Accesibilidad (UA)**.
 
-**AUTORES:** Sara Díaz Úbeda, Celia Fortea Quiles,  Nicolás Florez Pacheco y  Álvaro Millán Tobarra.
-
 ---
 
-##  Funcionalidades principales
+## Funcionalidades principales
 
--  Exploración de personajes por categorías (universo, personalidad, MBTI)
--  Test de personalidad MBTI
--  Sistema de favoritos
--  Gestión de perfil de usuario
--  Subida de contenido (galería, avatar, etc.)
--  Autenticación y control de roles (usuario / admin)
--  Panel de administración:
-  - Gestión de personajes
-  - Gestión de categorías
-  - Gestión de usuarios
+### Exploración de contenido
+- Exploración de personajes por universos
+- Clasificación MBTI
+- Sistema de búsqueda avanzada
+- Filtros dinámicos
+
+### Sistema de usuario
+- Registro e inicio de sesión
+- Gestión de perfil
+- Sistema de favoritos
+- Avatares personalizados
+
+### Experiencia interactiva
+- Test MBTI integrado
+- Compatibilidad con personajes
+- Galería multimedia
+- Descarga de contenido
+
+### Administración
+- CRUD de personajes
+- CRUD de categorías
+- Gestión de usuarios
+- Control de roles
 
 ---
 
@@ -31,58 +44,101 @@ El proyecto sigue una arquitectura **frontend desacoplada** con acceso directo a
 BtM_UA/
 ├── frontend/
 │   ├── src/
-│   │   ├── assets/              # Estilos e imágenes
-│   │   ├── components/          # Componentes reutilizables
-│   │   ├── pages/               # Vistas (public, user, admin)
-│   │   ├── services/            # Acceso a datos (Supabase)
-│   │   ├── context/             # Estado global (Auth)
-│   │   ├── hooks/               # Hooks personalizados
-│   │   ├── routes/              # Rutas de la app
-│   │   ├── utils/               # Helpers
-│   │   ├── lib/                 # Configuración (Supabase, Storage)
+│   │   ├── assets/       # Estilos e imágenes para pruebas 
+│   │   │
+│   │   ├── components/
+│   │   │   ├── common/   # Componentes reutilizables
+│   │   │      ├── Footer.jsx
+│   │   │      ├── Navbar.jsx
+│   │   │      ├── ProtectedRoute.jsx
+│   │   │      └── StylePanel.jsx
+│   │   │   
+│   │   ├── context/
+│   │   │      ├── AuthContext.jsx
+│   │   │      └── ThemeContext.jsx
+│   │   │   
+│   │   ├── layouts/
+│   │   │      └── mainLayout.jsx
+│   │   │   
+│   │   ├── lib/
+│   │   │   ├── storage.js
+│   │   │   └── supabase.js
+│   │   │
+│   │   ├── pages/        # Vistas (public, user, admin)
+│   │   │   ├── admin/
+│   │   │   │   ├── AdminProfilePage.jsx
+│   │   │   │   ├── CategoriesAdminPage.jsx
+│   │   │   │   ├── CharacterAdminPage.jsx
+│   │   │   │   ├── EliminarPersonaje.jsx
+│   │   │   │   ├── FormularioPersonaje.jsx
+│   │   │   │   ├── ListaPersonaje.jsx
+│   │   │   │   └── UserListPage.jsx
+│   │   │   │
+│   │   │   ├── public/
+│   │   │   │   ├── AboutMBTIPage.jsx
+│   │   │   │   ├── AboutUsPage.jsx
+│   │   │   │   ├── CategoriesPage.jsx
+│   │   │   │   ├── CharacterDetailPage.jsx
+│   │   │   │   ├── Clasificador.jsx
+│   │   │   │   ├── DownloadsPage.jsx
+│   │   │   │   ├── GaleriaUsuario.jsx
+│   │   │   │   ├── HomePage.jsx
+│   │   │   │   ├── HowMBTIWorksPage.jsx
+│   │   │   │   ├── LoginPage.jsx
+│   │   │   │   ├── MBTITypesPage.jsx
+│   │   │   │   ├── PersonalityTestPage.jsx
+│   │   │   │   ├── PrivacyPolicyPage.jsx
+│   │   │   │   ├── RegisterPage.jsx
+│   │   │   │   └── SearchPage.jsx
+│   │   │   │
+│   │   │   └── user/
+│   │   │       ├── EditUserPage.jsx
+│   │   │       ├── FavoritePage.jsx
+│   │   │       ├── MyMBTIPage.jsx
+│   │   │       └── UserProfilePage.jsx
+│   │   │
+│   │   ├── services/       # Acceso a datos (Supabase)
+│   │   │   ├── authService.js
+│   │   │   ├── categoryService.js
+│   │   │   ├── characterService.js
+│   │   │   ├── favoriteService.js
+│   │   │   ├── mbtiService.js
+│   │   │   ├── mbtiTypeService.js
+│   │   │   ├── searchService.js
+│   │   │   └── userService.js
+│   │   │
+│   │   ├── routes/          # Rutas de la app
+│   │   │   └── AppRoutes.jsx
+│   │   │
+│   │   ├── utils/           # Helpers
+│   │   │   └── relation.js
+│   │   │
+│   │   │
 │   │   ├── App.jsx
 │   │   └── main.jsx
+│   │
 │   ├── package.json
-│   └── vite.config.js
+│   ├── vite.config.js
+│   ├── .env
+│   └── index.html
+├── netlify.toml
+└── README.md
+
 ```
 
-
 ---
 
-##  Patrón de arquitectura
+## Arquitectura
 
-El proyecto utiliza una separación clara de responsabilidades:
+Behind The Mask sigue una arquitectura SPA (Single Page Application) basada en React + Vite.
 
-###  `services/`
-Encapsulan toda la lógica de acceso a datos:
-- `characterService`
-- `categoryService`
-- `userService`
-- `mbtiService`
-- `favoritesService`
+La aplicación interactúa directamente con Supabase como backend-as-a-service, utilizando:
+- PostgreSQL para persistencia de datos
+- Supabase Auth para autenticación
+- Supabase Storage para archivos multimedia
+- Policies RLS para seguridad y permisos
 
- Evita usar Supabase directamente en los componentes.
-
----
-
-### `context/`
-Gestión global de autenticación:
-- `AuthContext`
-  - sesión
-  - perfil
-  - rol (admin/user)
-  - helpers (`logout`, `refreshProfile`)
-
----
-
-###  `lib/storage.js`
-Centraliza la gestión de archivos:
-- `getPublicUrl`
-- `getAvatarUrl`
-- `uploadFile`
-- `removeFiles`
-
-Evita duplicar lógica de Storage en los componentes.
+El acceso a datos se abstrae mediante una capa de servicios, evitando el acceso directo desde los componentes React y mejorando la mantenibilidad del proyecto.
 
 ---
 
@@ -100,21 +156,38 @@ Evita duplicar lógica de Storage en los componentes.
 
 ---
 
-##  Variables de entorno
+## Badges
 
-Crear un archivo `.env` en `frontend/`:
+![React](https://img.shields.io/badge/React-18-blue)
+![Vite](https://img.shields.io/badge/Vite-Frontend-purple)
+![Supabase](https://img.shields.io/badge/Supabase-Backend-green)
+![Netlify](https://img.shields.io/badge/Deploy-Netlify-black)
+![License](https://img.shields.io/badge/license-Academic-lightgrey)
 
-```env
-VITE_SUPABASE_URL=your_url
-VITE_SUPABASE_ANON_KEY=your_key
-```
+---
 
-## Arrancar en desarrollo
+## Instalación y ejecución
 
+### Ejecutando desde terminal
 ```bash
-
-# Frontend
 cd frontend && npm install && npm run dev  # → http://localhost:5173
 ```
+### Despliegue en Netlify 
 
+```bash
+https://ua-behind-the-mask.netlify.app/
+```
+---
+
+## Autores
+  - Sara Díaz Úbeda
+  - Celia Fortea Quiles
+  - Nicolás Florez Pacheco
+  - Álvaro Millán Tobarra.
+
+---
+
+## Licencia
+
+Proyecto académico desarrollado con fines educativos.
 

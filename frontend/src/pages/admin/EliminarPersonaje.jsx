@@ -14,30 +14,26 @@ function EliminarPersonaje() {
     useEffect(() => {
         const loadPersonaje = async () => {
             if (!id) return;
-            if (personaje && String(personaje.id) === id) {
+            
+            // Si ya tenemos las tags de personalidad, no hace falta volver a buscar
+            if (personaje && personaje.character_personality_tags) {
                 setLoading(false);
                 return;
             }
 
-            setLoading(true);
-
             try {
+                // Fetch completo para asegurar que tenemos todos los datos relacionales
                 const data = await characterService.getById(id);
-                setPersonaje({
-                    id: data.id,
-                    name: data.name,
-                    imagen: data.cover_path ? getPublicUrl(STORAGE_BUCKETS.characterCovers, data.cover_path) : null,
-                });
+                setPersonaje(data);
             } catch (error) {
                 console.error('Error cargando personaje para eliminar:', error);
-                setPersonaje(null);
             } finally {
                 setLoading(false);
             }
         };
 
         loadPersonaje();
-    }, [id, personaje]);
+    }, [id]);
 
     if (loading) {
         return (
@@ -74,7 +70,7 @@ function EliminarPersonaje() {
     };
 
     return (
-        <div className="container-fluid pb-5 pt-4" style={{ backgroundColor: 'black', minHeight: '100vh', color: 'white' }}>
+        <div className="container-fluid pb-5 pt-4" style={{ backgroundColor: 'var(--color-principal)', minHeight: '100vh', color: 'var(--colorTexto)' }}>
         <div className="row justify-content-center">
             <div className="col-12 col-md-8 col-lg-6">
             
@@ -94,7 +90,7 @@ function EliminarPersonaje() {
                 {/* Imagen centrada */}
                 <div className="text-center mb-4">
                 <img 
-                    src={personaje.imagen} 
+                    src={personaje.imagen || (personaje.cover_path ? getPublicUrl(STORAGE_BUCKETS.characterCovers, personaje.cover_path) : null)} 
                     alt={personaje.name}
                     className="bg-white" 
                     style={{ 
@@ -108,17 +104,17 @@ function EliminarPersonaje() {
 
                 {/* Sección de Etiquetas */}
                 <div className="mb-4">
-                <h4 style={{ color: 'var(--color4)', fontWeight: 'bold', fontFamily: 'var(--texto-normal)' }}>Etiquetas:</h4>
-                <ul style={{ fontSize: '1.1rem', lineHeight: '1.6', color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>
-                    <li><span className="fw-bold">Personalidad:</span> Oscura, Amenazante</li>
-                    <li><span className="fw-bold">Universo:</span> Marvel</li>
-                    <li><span className="fw-bold">Tipo de Personalidad (MBTI):</span> La Arquitecta (INTJ)</li>
+                <h4 style={{ color: 'var(--color1)', fontWeight: 'bold' }}>Etiquetas:</h4>
+                <ul style={{ fontSize: '1.1rem', lineHeight: '1.6', listStylePosition: 'inside', paddingLeft: 0, color: 'var(--colorTexto)' }}>
+                    <li><span className="fw-bold" style={{ color: 'var(--color4)' }}>Personalidad:</span> {personaje.character_personality_tags?.length > 0 ? personaje.character_personality_tags.map(t => t.personality_tags?.name).filter(Boolean).join(', ') : 'Ninguna'}</li>
+                    <li><span className="fw-bold" style={{ color: 'var(--color4)' }}>Universo:</span> {personaje.universes?.name || 'Desconocido'}</li>
+                    <li><span className="fw-bold" style={{ color: 'var(--color4)' }}>Tipo de Personalidad (MBTI):</span> {personaje.mbti_types ? `${personaje.mbti_types.title} (${personaje.mbti_types.code})` : 'Desconocido'}</li>
                 </ul>
                 </div>
 
                 {/* Cuadro gris de advertencia */}
-                <div className="p-4 mb-4" style={{ backgroundColor: 'var(--color-grisClaro)', borderRadius: '25px', textAlign: 'center' }}>
-                <p className="m-0 fs-5" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>
+                <div className="p-4 mb-4" style={{ backgroundColor: 'var(--color-principal)', border: '1px solid var(--color2)', borderRadius: '25px', textAlign: 'center' }}>
+                <p className="m-0 fs-5" style={{ color: 'var(--colorTexto)' }}>
                     ¿Confirmas que deseas borrar este personaje? También desaparecerán sus imágenes, categorías y personalidades a las que pertenezca.
                 </p>
                 </div>
@@ -129,7 +125,8 @@ function EliminarPersonaje() {
                 <button 
                     onClick={handleBorrar}
                     disabled={deleting}
-                    className="btn rounded-pill px-4 py-2 fw-bold text-uppercase shadow-sm btnEditarPers"
+                    className="btn rounded-pill px-4 py-2 fw-bold text-uppercase shadow-sm"
+                    style={{ backgroundColor: 'var(--color1)', color: 'var(--color-principal)', border: '2px solid var(--color2)', fontFamily: 'var(--texto-encabezados)', fontSize: '1.2rem' }}
                 >
                     {deleting ? 'Borrando...' : 'Aceptar'}
                 </button>
@@ -137,7 +134,8 @@ function EliminarPersonaje() {
                 {/* Botón CANCELAR */}
                 <button 
                     onClick={() => navigate(-1)} // Volver atrás sin hacer nada
-                    className="btn rounded-pill px-4 py-2 fw-bold text-uppercase shadow-sm btnEliminarPers"
+                    className="btn rounded-pill px-4 py-2 fw-bold text-uppercase shadow-sm"
+                    style={{ backgroundColor: 'transparent', color: 'var(--color-grisClarito)', border: '2px solid var(--color-grisClarito)', fontFamily: 'var(--texto-encabezados)', fontSize: '1.2rem' }}
                 >
                     Cancelar
                 </button>

@@ -4,7 +4,6 @@ import { supabase } from '../../lib/supabase';
 import characterService from '../../services/characterService';
 import categoryService from '../../services/categoryService';
 import { uploadFile, getPublicUrl, STORAGE_BUCKETS } from '../../lib/storage';
-import '../../assets/styles/adminPersonajes.css'
 
 function FormularioPersonaje() {
   const navigate = useNavigate();
@@ -22,7 +21,7 @@ function FormularioPersonaje() {
     first_appearance: '',
     universe_id: '',
     mbti_type_id: '',
-    personality_tag_id: '',
+    personality_tag_ids: [],
     psychological_analysis: '',
     cover_path: null,
     cover_preview: null,
@@ -105,6 +104,10 @@ function FormularioPersonaje() {
             characterService.getAudios(idToLoad)
           ]);
 
+          const loadedPersonalityTagIds = (character.character_personality_tags || [])
+            .map((t) => t.personality_tag_id || t.personality_tags?.id)
+            .filter(Boolean);
+
           setFormData({
             name: character.name || '',
             story: character.story || '',
@@ -114,27 +117,22 @@ function FormularioPersonaje() {
             first_appearance: character.first_appearance || '',
             universe_id: character.universe_id || '',
             mbti_type_id: character.mbti_type_id || '',
-            personality_tag_id: character.character_personality_tags?.[0]?.personality_tags?.id || '',
+            personality_tag_ids: loadedPersonalityTagIds,
             psychological_analysis: character.psychological_analysis || '',
-
             cover_path: character.cover_path || null,
             cover_preview: character.cover_path
               ? getPublicUrl(STORAGE_BUCKETS.characterCovers, character.cover_path)
               : null,
-
-            gallery: gallery?.length
+            gallery: (gallery && gallery.length > 0)
               ? gallery.map(mapGalleryItem)
               : [],
-
-            filmography: filmography?.length
+            filmography: (filmography && filmography.length > 0)
               ? filmography.map(mapFilmographyItem)
               : [{ title: '', year: '', cover_path: null }],
-
-            actors: actors?.length
+            actors: (actors && actors.length > 0)
               ? actors.map(mapActorItem)
               : [{ actor_name: '' }],
-
-            audios: audios?.length
+            audios: (audios && audios.length > 0)
               ? audios.map(mapAudioItem)
               : [{ title: '', audio_path: null, transcription: '' }]
           });
@@ -158,7 +156,11 @@ function FormularioPersonaje() {
             first_appearance: personajeAEditar.first_appearance || '',
             universe_id: resolvedUniverseId,
             mbti_type_id: resolvedMbtiTypeId,
-            personality_tag_id: personajeAEditar.personality_tag_id || '',
+            personality_tag_ids: Array.isArray(personajeAEditar.personality_tag_ids)
+              ? personajeAEditar.personality_tag_ids
+              : personajeAEditar.personality_tag_id
+                ? [personajeAEditar.personality_tag_id]
+                : [],
             psychological_analysis: personajeAEditar.psychological_analysis || '',
             cover_path: personajeAEditar.cover_path || null,
             cover_preview: personajeAEditar.cover_path
@@ -392,13 +394,13 @@ function FormularioPersonaje() {
         name: formData.name,
         slug: generateSlug(formData.name),
         story: formData.story,
-        creation_date: formData.creation_date,
-        place_of_origin: formData.place_of_origin,
-        biological_origin: formData.biological_origin,
-        first_appearance: formData.first_appearance,
-        universe_id: formData.universe_id,
-        mbti_type_id: formData.mbti_type_id,
-        psychological_analysis: formData.psychological_analysis,
+        creation_date: formData.creation_date || null,
+        place_of_origin: formData.place_of_origin || null,
+        biological_origin: formData.biological_origin || null,
+        first_appearance: formData.first_appearance || null,
+        universe_id: formData.universe_id || null,
+        mbti_type_id: formData.mbti_type_id || null,
+        psychological_analysis: formData.psychological_analysis || null,
         cover_path: finalCoverPath
       };
 
@@ -496,8 +498,12 @@ function FormularioPersonaje() {
       if (actorsRecords.length) inserts.push(supabase.from('character_actors').insert(actorsRecords));
       if (galleryRecords.length) inserts.push(supabase.from('character_media').insert(galleryRecords));
       if (audioRecords.length) inserts.push(supabase.from('audios').insert(audioRecords));
-      if (formData.personality_tag_id) {
-        inserts.push(supabase.from('character_personality_tags').insert([{ character_id: characterId, personality_tag_id: formData.personality_tag_id }]));
+      if (formData.personality_tag_ids && formData.personality_tag_ids.length > 0) {
+        const tagRows = formData.personality_tag_ids.map((tagId) => ({
+          character_id: characterId,
+          personality_tag_id: tagId
+        }));
+        inserts.push(supabase.from('character_personality_tags').insert(tagRows));
       }
 
       const insertResults = await Promise.all(inserts);
@@ -508,7 +514,11 @@ function FormularioPersonaje() {
       navigate(-1);
     } catch (error) {
       console.error('Error guardando el personaje:', error);
-      alert('No se pudo guardar el personaje. Revisa la consola para más detalles.');
+      if (error.message && error.message.includes('characters_slug_key')) {
+        alert('Ya existe un personaje con este nombre. Por favor, añade un apellido o cambia el nombre para que sea único.');
+      } else {
+        alert(`No se pudo guardar el personaje. Error: ${error.message || error}`);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -516,480 +526,371 @@ function FormularioPersonaje() {
 
   if (loading) {
     return (
-      <div className="container-fluid py-5" style={{ backgroundColor: 'var(--color-principal)', minHeight: '100vh', color: 'var(--colorTexto)' }}>
-        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
-          <div className="text-center">
-            <div className="spinner-border text-info" role="status" style={{ width: '4rem', height: '4rem' }}>
-              <span className="visually-hidden" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Cargando...</span>
-            </div>
-            <p className="mt-3" style={{ color: 'var(--color-grisClarito)', fontFamily: 'var(--texto-normal)' }}>Cargando formulario...</p>
-          </div>
+      <div style={{ backgroundColor: 'var(--color-principal)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: 56, height: 56, border: '3px solid rgba(255,255,255,0.1)', borderTopColor: 'var(--color2)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto' }} />
+          <p style={{ color: 'var(--color-grisClarito)', marginTop: 20, fontSize: 14, letterSpacing: '0.05em' }}>Cargando formulario...</p>
+          <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
         </div>
       </div>
     );
   }
 
+  const sS = { // shared section style
+    background: 'var(--color-grisOscuro)',
+    border: '1px solid var(--color2)',
+    borderRadius: 16,
+    padding: '28px 28px 24px',
+    marginBottom: 24,
+  };
+  const labelS = { fontSize: 12, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--color4)', marginBottom: 6, display: 'block', fontFamily: 'var(--texto-normal)' };
+  const inputS = { background: 'var(--color-principal)', border: '1px solid var(--color-grisClarito)', borderRadius: 10, color: 'var(--colorTexto)', padding: '10px 14px', width: '100%', fontSize: 14, outline: 'none', transition: 'border-color 0.2s', fontFamily: 'var(--texto-normal)' };
+  const sectionTitle = (num, text) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+      <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{num}</span>
+      <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--color4)', letterSpacing: '0.04em', fontFamily: 'var(--texto-normal)' }}>{text}</h2>
+    </div>
+  );
+  const addBtn = (onClick, label) => (
+    <button type="button" onClick={onClick} style={{ background: 'transparent', border: '1px solid var(--color3)', borderRadius: 8, color: 'var(--color3)', fontSize: 13, padding: '6px 14px', cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'var(--texto-normal)' }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'var(--color3)'; e.currentTarget.style.color = 'var(--color-principal)'; }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--color3)'; }}>
+      + {label}
+    </button>
+  );
+  const removeBtn = (onClick) => (
+    <button type="button" onClick={onClick} style={{ background: 'transparent', border: '1px solid rgba(220,53,69,0.5)', borderRadius: 8, color: '#f87171', fontSize: 13, padding: '6px 12px', cursor: 'pointer', flexShrink: 0, transition: 'all 0.2s' }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(220,53,69,0.2)'; }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}>
+      x
+    </button>
+  );
+
   return (
-      <div className="container-fluid py-5" style={{ backgroundColor: 'var(--color-principal)', minHeight: '100vh', color: 'var(--colorTexto)' }}>
-      <div className="row justify-content-center">
-        <div className="col-12 col-xl-10">
-          <div className="card border-0 shadow" style={{ backgroundColor: 'var(--color-grisOscuro)', borderRadius: '24px' }}>
-            <div className="card-body p-4 p-md-5" style={{ color: 'var(--color-grisClarito)' }}>
-              <div className="mb-4 text-center">
-                <h1 className="h3 text-uppercase mb-2" style={{ color: 'var(--color4)', letterSpacing: '0.08em' }}>
-                  {isEditMode ? 'Editar personaje' : 'Crear personaje'}
-                </h1>
-                <p className="text-muted mb-0" style={{ color: 'var(--color4)!important', fontFamily: 'var(--texto-normal)' }}>Completa los bloques básicos, las relaciones y los contenidos dinámicos del personaje.</p>
+    <div style={{ backgroundColor: 'var(--color-principal)', minHeight: '100vh', color: 'var(--colorTexto)' }}>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .fp-input:focus { border-color: var(--color2) !important; box-shadow: 0 0 0 3px rgba(37,135,132,0.25) !important; }
+        .fp-input::placeholder { color: var(--color-grisClarito); opacity: 0.5; }
+        .fp-input option { background: var(--color-grisOscuro); color: var(--colorTexto); }
+        .fp-tag { border-radius: 20px; padding: 5px 14px; font-size: 13px; cursor: pointer; border: 1px solid; transition: all 0.18s; font-weight: 500; font-family: var(--texto-normal); }
+        .fp-tag:hover { transform: translateY(-1px); }
+        .fp-film-card { background: var(--color-principal); border: 1px solid var(--color2); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+        .fp-audio-card { background: var(--color-principal); border: 1px solid var(--color2); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+        .fp-dropzone { border: 2px dashed var(--color-grisClarito); border-radius: 14px; padding: 32px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .fp-dropzone:hover { border-color: var(--color2); background: var(--color-grisOscuro); }
+        .fp-gallery-item { position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 1; }
+        .fp-gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+        .fp-gallery-item .fp-remove { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.7); border: none; border-radius: 6px; color: #f87171; padding: 2px 7px; cursor: pointer; font-size: 13px; opacity: 0; transition: opacity 0.2s; }
+        .fp-gallery-item:hover .fp-remove { opacity: 1; }
+      `}</style>
+
+      <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 20px 120px' }}>
+
+        {/* Header */}
+        <div style={{ marginBottom: 36, textAlign: 'center' }}>
+          <p style={{ fontSize: 12, color: 'var(--color-grisClarito)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8, fontFamily: 'var(--texto-normal)' }}>
+            Panel de administracion
+          </p>
+          <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--color4)', margin: 0, letterSpacing: '-0.01em', fontFamily: 'var(--texto-encabezados)' }}>
+            {isEditMode ? 'Editar personaje' : 'Nuevo personaje'}
+          </h1>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+
+          {/* 1. Datos basicos */}
+          <div style={sS}>
+            {sectionTitle(1, 'Datos básicos')}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div style={{ gridColumn: '1' }}>
+                <label style={labelS}>Nombre</label>
+                <input id="name" name="name" type="text" value={formData.name} onChange={handleChange}
+                  className="fp-input" style={inputS} placeholder="Nombre del personaje" />
               </div>
-
-              <form onSubmit={handleSubmit}>
-                <section className="mb-5">
-                  <h2 className="h5 fw-semibold mb-3" style={{ color: 'var(--color4)' }}>1. Datos básicos</h2>
-                  <div className="row gx-3 gy-3">
-                    <div className="col-md-6">
-                      <label htmlFor="name" className="form-label"  style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Nombre</label>
-                      <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        value={formData.name}
-                        onChange={handleChange}
-                        className="form-control"
-                        placeholder="Nombre del personaje"
-                      />
-                    </div>
-
-                    <div className="col-md-6">
-                      <label htmlFor="creation_date" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Fecha de creación</label>
-                      <input
-                        id="creation_date"
-                        name="creation_date"
-                        type="date"
-                        value={formData.creation_date}
-                        onChange={handleChange}
-                        className="form-control"
-                      />
-                    </div>
-
-                    <div className="col-12">
-                      <label htmlFor="story" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Historia</label>
-                      <textarea
-                        id="story"
-                        name="story"
-                        rows="4"
-                        value={formData.story}
-                        onChange={handleChange}
-                        className="form-control"
-                        placeholder="Descripción breve del origen y arco del personaje"
-                      />
-                    </div>
-
-                    <div className="col-md-6">
-                      <label htmlFor="place_of_origin" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Lugar de origen</label>
-                      <input
-                        id="place_of_origin"
-                        name="place_of_origin"
-                        type="text"
-                        value={formData.place_of_origin}
-                        onChange={handleChange}
-                        className="form-control"
-                        placeholder="Ciudad, planeta o dimensión"
-                      />
-                    </div>
-
-                    <div className="col-md-6">
-                      <label htmlFor="biological_origin" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Origen biológico</label>
-                      <input
-                        id="biological_origin"
-                        name="biological_origin"
-                        type="text"
-                        value={formData.biological_origin}
-                        onChange={handleChange}
-                        className="form-control"
-                        placeholder="Humano, alienígena, híbrido..."
-                      />
-                    </div>
-
-                    <div className="col-12">
-                      <label htmlFor="first_appearance" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Primera aparición</label>
-                      <input
-                        id="first_appearance"
-                        name="first_appearance"
-                        type="text"
-                        value={formData.first_appearance}
-                        onChange={handleChange}
-                        className="form-control"
-                        placeholder="Título o medio de la primera aparición"
-                      />
-                    </div>
-                  </div>
-                </section>
-
-                <section className="mb-5">
-                  <h2 className="h5 fw-semibold mb-3" style={{ color: 'var(--color4)' }}>2. Relaciones</h2>
-                  <div className="row gx-3 gy-3">
-                    <div className="col-md-6">
-                      <label htmlFor="universe_id" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Universo</label>
-                      <select
-                        id="universe_id"
-                        name="universe_id"
-                        value={formData.universe_id}
-                        onChange={handleChange}
-                        className="form-select"
-                      >
-                        <option value="">Selecciona universo</option>
-                        {universes.map((option) => (
-                          <option key={option.id} value={option.id}>{option.name}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="col-md-6">
-                      <label htmlFor="mbti_type_id" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Tipo MBTI</label>
-                      <select
-                        id="mbti_type_id"
-                        name="mbti_type_id"
-                        value={formData.mbti_type_id}
-                        onChange={handleChange}
-                        className="form-select"
-                      >
-                        <option value="">Selecciona MBTI</option>
-                        {mbtiTypes.map((option) => (
-                          <option key={option.id} value={option.id}>{option.code}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="col-md-6">
-                      <label htmlFor="personality_tag_id" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>Carácter</label>
-                      <select
-                        id="personality_tag_id"
-                        name="personality_tag_id"
-                        value={formData.personality_tag_id}
-                        onChange={handleChange}
-                        className="form-select"
-                      >
-                        <option value="">Selecciona carácter</option>
-                        {personalityTags.map((option) => (
-                          <option key={option.id} value={option.id}>{option.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </section>
-
-                <section className="mb-5">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h2 className="h5 fw-semibold mb-0" style={{ color: 'var(--color4)' }}>3. Filmografía</h2>
-                    <button type="button" className="btn btn-sm btn-outline-light btnAnadirPelis" onClick={addFilmographyItem}>
-                      Añadir película nueva
-                    </button>
-                  </div>
-
-                  <div className="mb-4 p-3 rounded-3" style={{ backgroundColor: 'var(--color-grisOscuro)' }}>
-                    <label htmlFor="existingFilmSelect" className="form-label mb-2" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>
-                      Película existente
-                    </label>
-                    <div className="d-flex gap-2 align-items-center">
-                      <select
-                        id="existingFilmSelect"
-                        className="form-select"
-                        value={selectedExistingFilm}
-                        onChange={(e) => setSelectedExistingFilm(e.target.value)}
-                      >
-                        <option value="">Selecciona una película existente</option>
-                        {existingFilms.map((film) => (
-                          <option key={filmKey(film)} value={filmKey(film)}>
-                            {film.title} {film.year ? `(${film.year})` : ''}
-                          </option>
-                        ))}
-                      </select>
-                      <button type="button" className="btn btn-sm btn-outline-light btnAnadirPelis" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }} onClick={handleAddExistingFilm}>
-                        Añadir existente
-                      </button>
-                    </div>
-                    <small className="text-muted mt-2 d-block" style={{ color: 'var(--colorTexto)', fontFamily: 'var(--texto-normal)' }}>
-                      Selecciona una película ya registrada para enlazarla sin crear duplicados.
-                    </small>
-                  </div>
-
-                  <div className="row gx-3 gy-4">
-                    {(formData.filmography || []).map((item, index) => (
-                      <div
-                        key={index}
-                        className="col-12 border rounded-3 p-3"
-                        style={{ backgroundColor: 'var(--color-grisOscuro)' }}
-                      >
-                        <div className="row gx-3 gy-3 align-items-end">
-                          <div className="col-md-4">
-                            <label className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)'}}>Título</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              value={item.title}
-                              onChange={(e) => handleFilmographyChange(index, 'title', e.target.value)}
-                              placeholder="Título de la película"
-                            />
-                          </div>
-
-                          <div className="col-md-3">
-                            <label className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)'}}>Año</label>
-                            <input
-                              type="number"
-                              className="form-control"
-                              value={item.year}
-                              onChange={(e) => handleFilmographyChange(index, 'year', e.target.value)}
-                              placeholder="Año"
-                            />
-                          </div>
-
-                          <div className="col-md-4">
-                            <label className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)'}}>Portada</label>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="form-control"
-                              onChange={(e) => handleFilmographyFile(index, e.target.files?.[0] || null)}
-                            />
-
-                            {/* {(item.cover_path?.name || item.coverPath) && (
-                              <small className="text-muted">
-                                Archivo: {item.cover_path?.name || item.coverPath}
-                              </small>
-                            )} */}
-                          </div>
-
-                          <div className="col-md-1 text-end">
-                            <button
-                              type="button"
-                              className="btn btn-outline-danger btn-sm btnEliminarPelis"
-                              onClick={() => removeFilmographyItem(index)}
-                            >
-                              x
-                            </button>
-                          </div>
-                        </div>
-
-                        {item.preview && (
-                          <div className="row gx-3 mt-3">
-                            <div className="col-12">
-                              <div
-                                className="border rounded-3 overflow-hidden"
-                                style={{ backgroundColor: 'var(--color-grisOscuro)' }}
-                              >
-                                <img
-                                  src={item.preview}
-                                  alt={`Portada de ${item.title || 'película'}`}
-                                  className="img-fluid"
-                                  style={{ maxHeight: '180px', width: '100%', objectFit: 'cover' }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                <section className="mb-5">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h2 className="h5 fw-semibold mb-0" style={{ color: 'var(--color4)' }}>4. Actores</h2>
-                    <button type="button" className="btn btn-sm btn-outline-light btnAnadirPelis" onClick={addActor}>
-                      Añadir actor
-                    </button>
-                  </div>
-                  <div className="row gx-3 gy-3">
-                    {(formData.actors || []).map((actor, index) => (
-                      <div key={index} className="col-12 d-flex gap-3 align-items-end">
-                        <div className="flex-grow-1">
-                          <label className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)' }}>Nombre del actor</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={actor.actor_name}
-                            onChange={(e) => handleActorsChange(index, e.target.value)}
-                            placeholder="Nombre del actor"
-                          />
-                        </div>
-                        <button type="button" className="btn btn-outline-danger btn-sm mt-4" onClick={() => removeActor(index)}>
-                          x
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                <section className="mb-5">
-                  <h2 className="h5 fw-semibold mb-3" style={{ color: 'var(--color4)' }}>5. Análisis psicológico</h2>
-                  <div className="mb-3">
-                    <label htmlFor="psychological_analysis" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)'}}>Análisis</label>
-                    <textarea
-                      id="psychological_analysis"
-                      name="psychological_analysis"
-                      rows="5"
-                      value={formData.psychological_analysis}
-                      onChange={handleChange}
-                      className="form-control"
-                      placeholder="Describe la psicología del personaje"
-                    />
-                  </div>
-                </section>
-
-                <section className="mb-5">
-                  <h2 className="h5 fw-semibold mb-3" style={{ color: 'var(--color4)' }}>6. Portada principal</h2>
-                  <div className="row gx-3 gy-3 align-items-end">
-                    <div className="col-md-8">
-                      <label htmlFor="cover_path" className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)' }}>Archivo de portada</label>
-                      <input
-                        id="cover_path"
-                        type="file"
-                        accept="image/*"
-                        className="form-control"
-                        onChange={(e) => handleCoverFile(e.target.files?.[0] || null)}
-                      />
-                      {/* {(formData.cover_path?.name || formData.cover_preview) && (
-                        <small className="text-muted">Archivo seleccionado: {formData.cover_path?.name || 'Portada actual cargada'}</small>
-                      )} */}
-                    </div>
-                    <div className="col-md-4">
-                      {formData.cover_preview && (
-                        <div className="border rounded-3 p-2" style={{ backgroundColor: 'var(--color-grisOscuro)' }}>
-                          <p className="mb-1" style={{ color: 'var(--color-grisClarito)' }}>Previsualización</p>
-                          <img
-                            src={formData.cover_preview}
-                            alt="Portada seleccionada"
-                            className="img-fluid rounded"
-                            style={{ maxHeight: '120px' }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </section>
-
-                <section className="mb-5">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h2 className="h5 fw-semibold mb-0" style={{ color: 'var(--color4)' }}>7. Galería de medios</h2>
-                    <label className="btn btn-sm btn-outline-light mb-0 btnAnadirPelis">
-                      Añadir imágenes
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        hidden
-                        onChange={(e) => handleGalleryFiles(e.target.files)}
-                      />
-                    </label>
-                  </div>
-                  <div className="row gx-3 gy-3">
-                    {(formData.gallery || []).length === 0 ? (
-                      <div className="col-12" style={{ color: 'var(--color-grisClarito)' }}>No hay imágenes en la galería aún.</div>
-                    ) : (
-                      (formData.gallery || []).map((item, index) => (
-                        <div key={index} className="col-6 col-md-4 col-lg-3">
-                          <div className="position-relative rounded overflow-hidden" style={{ backgroundColor: 'var(--color-grisOscuro)' }}>
-                            <img
-                              src={item.preview}
-                              alt={`Galería ${index + 1}`}
-                              className="img-fluid"
-                              style={{ minHeight: '120px', objectFit: 'cover', width: '100%' }}
-                            />
-                            <button
-                              type="button"
-                              className="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
-                              onClick={() => removeGalleryImage(index)}
-                            >
-                              x
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </section>
-
-                <section className="mb-5">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h2 className="h5 fw-semibold mb-0" style={{ color: 'var(--color4)' }}>8. Audios</h2>
-                    <button type="button" className="btn btn-sm btn-outline-light btnAnadirPelis" onClick={addAudio}>
-                      Añadir audio
-                    </button>
-                  </div>
-                  <div className="row gx-3 gy-4">
-                    {(formData.audios || []).map((item, index) => (
-                      <div key={index} className="col-12 border rounded-3 p-3" style={{ backgroundColor: 'var(--color-grisOscuro)' }}>
-                        <div className="row gx-3 gy-3">
-                          <div className="col-md-4">
-                            <label className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)' }}>Título</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              value={item.title}
-                              onChange={(e) => handleAudiosChange(index, 'title', e.target.value)}
-                              placeholder="Nombre del audio"
-                            />
-                          </div>
-                          <div className="col-md-4">
-                            <label className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)' }}>Archivo de audio</label>
-                            <input
-                              type="file"
-                              accept="audio/*"
-                              className="form-control"
-                              onChange={(e) => handleAudioFile(index, e.target.files?.[0] || null)}
-                            />
-                            {(item.audio_path?.name || item.audioPath) && (
-                              <small className="text-muted">
-                                Archivo: {item.audio_path?.name || item.audioPath}
-                              </small>
-                            )}
-                          </div>
-                          <div className="col-md-3">
-                            <label className="form-label" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)' }}>Transcripción</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              value={item.transcription}
-                              onChange={(e) => handleAudiosChange(index, 'transcription', e.target.value)}
-                              placeholder="Transcripción breve"
-                            />
-                          </div>
-                          <div className="col-md-1 text-end">
-                            <button type="button" className="btn btn-outline-danger btn-sm mt-4" onClick={() => removeAudio(index)}>
-                              x
-                            </button>
-                          </div>
-                        </div>
-                        {item.url && (
-                          <div className="row gx-3 mt-3">
-                            <div className="col-12">
-                              <div className="border rounded-3 p-3" style={{ backgroundColor: 'var(--color-grisOscuro)' }}>
-                                <p className="mb-2" style={{ color: 'var(--color-grisClarito)' }}>Reproductor de audio</p>
-                                <audio controls className="w-100" style={{ color: 'var(--colorTexto)', fontFamily:'var(--texto-normal)'}}>
-                                  <source src={item.url} />
-                                  Tu navegador no soporta reproducción de audio.
-                                </audio>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
-                  <button type="button" className="btn btn-outline-light btnVolver" onClick={() => navigate(-1)}>
-                    Volver
-                  </button>
-                  <button type="submit" className="btn btn-primary px-4 btnGuardarPer" disabled={submitting} style={{ backgroundColor: 'var(--color2)', borderColor: 'var(--color2)' }}>
-                    {submitting ? 'Guardando...' : isEditMode ? 'Actualizar Personaje' : 'Crear personaje'}
-                  </button>
-                </div>
-              </form>
+              <div>
+                <label style={labelS}>Fecha de creación</label>
+                <input id="creation_date" name="creation_date" type="date" value={formData.creation_date} onChange={handleChange}
+                  className="fp-input" style={inputS} />
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={labelS}>Historia</label>
+                <textarea id="story" name="story" rows="4" value={formData.story} onChange={handleChange}
+                  className="fp-input" style={{ ...inputS, resize: 'vertical' }} placeholder="Descripción breve del origen y arco del personaje" />
+              </div>
+              <div>
+                <label style={labelS}>Lugar de origen</label>
+                <input id="place_of_origin" name="place_of_origin" type="text" value={formData.place_of_origin} onChange={handleChange}
+                  className="fp-input" style={inputS} placeholder="Ciudad, planeta o dimensión" />
+              </div>
+              <div>
+                <label style={labelS}>Origen biológico</label>
+                <input id="biological_origin" name="biological_origin" type="text" value={formData.biological_origin} onChange={handleChange}
+                  className="fp-input" style={inputS} placeholder="Humano, alienigena, hibrido..." />
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={labelS}>Primera aparición</label>
+                <input id="first_appearance" name="first_appearance" type="text" value={formData.first_appearance} onChange={handleChange}
+                  className="fp-input" style={inputS} placeholder="Título o medio de la primera aparición" />
+              </div>
             </div>
           </div>
-        </div>
+
+          {/* 2. Relaciones */}
+          <div style={sS}>
+            {sectionTitle(2, 'Relaciones y personalidad')}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div>
+                <label style={labelS}>Universo</label>
+                <select id="universe_id" name="universe_id" value={formData.universe_id} onChange={handleChange}
+                  className="fp-input" style={inputS}>
+                  <option value="">Selecciona universo</option>
+                  {universes.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={labelS}>Tipo MBTI</label>
+                <select id="mbti_type_id" name="mbti_type_id" value={formData.mbti_type_id} onChange={handleChange}
+                  className="fp-input" style={inputS}>
+                  <option value="">Selecciona MBTI</option>
+                  {mbtiTypes.map(o => <option key={o.id} value={o.id}>{o.code}</option>)}
+                </select>
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={labelS}>Carácter <span style={{ fontSize: 11, opacity: 0.5, textTransform: 'none', fontWeight: 400 }}>(selecciona uno o más)</span></label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
+                  {personalityTags.map(tag => {
+                    const sel = formData.personality_tag_ids.includes(tag.id);
+                    return (
+                      <button key={tag.id} type="button"
+                        className="fp-tag"
+                        onClick={() => setFormData(prev => ({
+                          ...prev,
+                          personality_tag_ids: sel
+                            ? prev.personality_tag_ids.filter(id => id !== tag.id)
+                            : [...prev.personality_tag_ids, tag.id]
+                        }))}
+                        style={{
+                          background: sel ? 'var(--color2)' : 'rgba(255,255,255,0.06)',
+                          borderColor: sel ? 'var(--color2)' : 'rgba(255,255,255,0.15)',
+                          color: sel ? '#fff' : 'var(--color-grisClarito)',
+                        }}>
+                        {sel && 'X '}{tag.name}
+                      </button>
+                    );
+                  })}
+                </div>
+                {formData.personality_tag_ids.length === 0 && (
+                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 8, marginBottom: 0 }}>Ningún carácter seleccionado</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 3. Filmografia */}
+          <div style={sS}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>3</span>
+                <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--color4)', fontFamily: 'var(--texto-normal)' }}>Filmografia</h2>
+              </div>
+              {addBtn(addFilmographyItem, 'Película nueva')}
+            </div>
+
+            {/* Enlazar pelicula existente */}
+            <div style={{ background: 'var(--color-principal)', border: '1px solid var(--color2)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+              <label style={{ ...labelS, marginBottom: 10 }}>Enlazar pelicula existente</label>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <select id="existingFilmSelect" value={selectedExistingFilm}
+                  onChange={e => setSelectedExistingFilm(e.target.value)}
+                  className="fp-input" style={{ ...inputS, flex: 1 }}>
+                  <option value="">Selecciona una pelicula ya registrada...</option>
+                  {existingFilms.map(film => (
+                    <option key={filmKey(film)} value={filmKey(film)}>
+                      {film.title}{film.year ? ` (${film.year})` : ''}
+                    </option>
+                  ))}
+                </select>
+                <button type="button" onClick={handleAddExistingFilm}
+                  style={{ background: 'var(--color2)', border: 'none', borderRadius: 10, color: 'var(--color-principal)', padding: '0 18px', fontWeight: 600, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'var(--texto-normal)' }}>
+                  Añadir
+                </button>
+              </div>
+            </div>
+
+            {formData.filmography.map((item, index) => (
+              <div key={index} className="fp-film-card">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 1fr auto', gap: 12, alignItems: 'end' }}>
+                  <div>
+                    <label style={labelS}>Tí­tulo</label>
+                    <input type="text" className="fp-input" style={inputS} value={item.title}
+                      onChange={e => handleFilmographyChange(index, 'title', e.target.value)} placeholder="Título" />
+                  </div>
+                  <div>
+                    <label style={labelS}>Año</label>
+                    <input type="number" className="fp-input" style={inputS} value={item.year}
+                      onChange={e => handleFilmographyChange(index, 'year', e.target.value)} placeholder="Año" />
+                  </div>
+                  <div>
+                    <label style={labelS}>Portada</label>
+                    <input type="file" accept="image/*" className="fp-input" style={{ ...inputS, padding: '7px 10px' }}
+                      onChange={e => handleFilmographyFile(index, e.target.files?.[0] || null)} />
+                  </div>
+                  <div style={{ paddingBottom: 2 }}>{removeBtn(() => removeFilmographyItem(index))}</div>
+                </div>
+                {item.preview && (
+                  <div style={{ marginTop: 12, borderRadius: 8, overflow: 'hidden', maxHeight: 160 }}>
+                    <img src={item.preview} alt={item.title || 'portada'} style={{ width: '100%', height: 160, objectFit: 'cover' }} />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* 4. Actores */}
+          <div style={sS}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>4</span>
+                <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--color4)', fontFamily: 'var(--texto-normal)' }}>Actores</h2>
+              </div>
+              {addBtn(addActor, 'Actor')}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {formData.actors.map((actor, index) => (
+                <div key={index} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                  <input type="text" className="fp-input" style={{ ...inputS, flex: 1 }} value={actor.actor_name}
+                    onChange={e => handleActorsChange(index, e.target.value)} placeholder={`Actor ${index + 1}`} />
+                  {removeBtn(() => removeActor(index))}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 5. Analisis psicologico */}
+          <div style={sS}>
+            {sectionTitle(5, 'Análisis psicológico')}
+            <label style={labelS}>Análisis</label>
+            <textarea id="psychological_analysis" name="psychological_analysis" rows="5"
+              value={formData.psychological_analysis} onChange={handleChange}
+              className="fp-input" style={{ ...inputS, resize: 'vertical' }}
+              placeholder="Describe la psicología, motivaciones y arco emocional del personaje" />
+          </div>
+
+          {/* 6. Portada principal */}
+          <div style={sS}>
+            {sectionTitle(6, 'Portada principal')}
+            <div style={{ display: 'grid', gridTemplateColumns: formData.cover_preview ? '1fr 180px' : '1fr', gap: 20, alignItems: 'start' }}>
+              <div>
+                <label htmlFor="cover_path" className="fp-dropzone" style={{ display: 'block', cursor: 'pointer' }}>
+                  <div style={{ fontSize: 28, marginBottom: 10 }}>🖼</div>
+                  <p style={{ color: 'var(--color-grisClarito)', margin: 0, fontSize: 14 }}>
+                    {formData.cover_path?.name
+                      ? formData.cover_path.name
+                      : formData.cover_preview
+                        ? 'Portada actual - haz clic para cambiar'
+                        : 'Haz clic para seleccionar imagen de portada'}
+                  </p>
+                  <input id="cover_path" type="file" accept="image/*" hidden
+                    onChange={e => handleCoverFile(e.target.files?.[0] || null)} />
+                </label>
+              </div>
+              {formData.cover_preview && (
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <img src={formData.cover_preview} alt="Portada" style={{ width: '100%', height: 180, objectFit: 'cover', display: 'block' }} />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 7. Galeria */}
+          <div style={sS}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>7</span>
+                <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--color4)', fontFamily: 'var(--texto-normal)' }}>Galeria de medios</h2>
+              </div>
+              <label style={{ background: 'transparent', border: '1px solid var(--color3)', borderRadius: 8, color: 'var(--color3)', fontSize: 13, padding: '6px 14px', cursor: 'pointer', fontFamily: 'var(--texto-normal)' }}>
+                + Imagenes
+                <input type="file" accept="image/*" multiple hidden onChange={e => handleGalleryFiles(e.target.files)} />
+              </label>
+            </div>
+            {formData.gallery.length === 0 ? (
+              <p style={{ textAlign: 'center', color: 'var(--color-grisClarito)', fontSize: 14, padding: '24px 0', margin: 0, fontFamily: 'var(--texto-normal)' }}>
+                Sin imagenes. Usa el boton superior para agregar.
+              </p>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 10 }}>
+                {formData.gallery.map((item, index) => (
+                  <div key={index} className="fp-gallery-item">
+                    <img src={item.preview} alt={`Galería ${index + 1}`} />
+                    <button type="button" className="fp-remove" onClick={() => removeGalleryImage(index)}>X</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 8. Audios */}
+          <div style={sS}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>8</span>
+                <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--color4)', fontFamily: 'var(--texto-normal)' }}>Audios</h2>
+              </div>
+              {addBtn(addAudio, 'Audio')}
+            </div>
+            {formData.audios.map((item, index) => (
+              <div key={index} className="fp-audio-card">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 12, alignItems: 'end' }}>
+                  <div>
+                    <label style={labelS}>Título</label>
+                    <input type="text" className="fp-input" style={inputS} value={item.title}
+                      onChange={e => handleAudiosChange(index, 'title', e.target.value)} placeholder="Nombre del audio" />
+                  </div>
+                  <div>
+                    <label style={labelS}>Archivo</label>
+                    <input type="file" accept="audio/*" className="fp-input" style={{ ...inputS, padding: '7px 10px' }}
+                      onChange={e => handleAudioFile(index, e.target.files?.[0] || null)} />
+                  </div>
+                  <div>
+                    <label style={labelS}>Transcripción</label>
+                    <input type="text" className="fp-input" style={inputS} value={item.transcription}
+                      onChange={e => handleAudiosChange(index, 'transcription', e.target.value)} placeholder="Transcripción breve" />
+                  </div>
+                  <div style={{ paddingBottom: 2 }}>{removeBtn(() => removeAudio(index))}</div>
+                </div>
+                {item.url && (
+                  <div style={{ marginTop: 12 }}>
+                    <audio controls style={{ width: '100%', accentColor: 'var(--color2)' }}>
+                      <source src={item.url} />
+                    </audio>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Footer flotante */}
+          <div style={{
+            position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100,
+            background: 'var(--color-piePagina)', backdropFilter: 'blur(16px)',
+            borderTop: '3px solid var(--color2)',
+            padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+          }}>
+            <button type="button" onClick={() => navigate(-1)}
+              style={{ background: 'transparent', border: '1px solid var(--color-grisClarito)', borderRadius: 10, color: 'var(--color-grisClarito)', padding: '10px 22px', fontSize: 14, cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'var(--texto-normal)' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--color4)'; e.currentTarget.style.color = 'var(--color4)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--color-grisClarito)'; e.currentTarget.style.color = 'var(--color-grisClarito)'; }}>
+              Volver
+            </button>
+            <button type="submit" disabled={submitting}
+              style={{ background: submitting ? 'var(--color-grisOscuro)' : 'var(--color2)', border: '2px solid var(--color2)', borderRadius: 10, color: 'var(--colorTexto)', padding: '10px 32px', fontSize: 14, fontWeight: 700, cursor: submitting ? 'not-allowed' : 'pointer', transition: 'all 0.2s', letterSpacing: '0.03em', fontFamily: 'var(--texto-normal)' }}>
+              {submitting ? 'Guardando...' : isEditMode ? 'Actualizar personaje' : 'Crear personaje'}
+            </button>
+          </div>
+
+        </form>
       </div>
     </div>
   );

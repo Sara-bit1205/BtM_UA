@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import characterService from '../../services/characterService';
 import categoryService from '../../services/categoryService';
 import { uploadFile, getPublicUrl, STORAGE_BUCKETS } from '../../lib/storage';
+import '../../assets/styles/adminPersonajes.css';
 
 function FormularioPersonaje() {
   const navigate = useNavigate();
@@ -543,26 +544,22 @@ function FormularioPersonaje() {
     padding: '28px 28px 24px',
     marginBottom: 24,
   };
-  const labelS = { fontSize: 12, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--color4)', marginBottom: 6, display: 'block', fontFamily: 'var(--texto-normal)' };
-  const inputS = { background: 'var(--color-principal)', border: '1px solid var(--color-grisClarito)', borderRadius: 10, color: 'var(--colorTexto)', padding: '10px 14px', width: '100%', fontSize: 14, outline: 'none', transition: 'border-color 0.2s', fontFamily: 'var(--texto-normal)' };
+  const labelS = { fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--color4)', marginBottom: 6, display: 'block', fontFamily: 'var(--texto-normal)' };
+  const inputS = { background: 'var(--color-principal)', border: '1px solid var(--color-grisClarito)', borderRadius: 10, color: 'var(--colorTexto)', padding: '10px 14px', width: '100%', fontSize: '0.875rem', outline: 'none', transition: 'border-color 0.2s', fontFamily: 'var(--texto-normal)' };
   const sectionTitle = (num, text) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-      <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{num}</span>
-      <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--color4)', letterSpacing: '0.04em', fontFamily: 'var(--texto-normal)' }}>{text}</h2>
+      <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{num}</span>
+      <h2 style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color4)', letterSpacing: '0.04em', fontFamily: 'var(--texto-normal)' }}>{text}</h2>
     </div>
   );
   const addBtn = (onClick, label) => (
-    <button type="button" onClick={onClick} style={{ background: 'transparent', border: '1px solid var(--color3)', borderRadius: 8, color: 'var(--color3)', fontSize: 13, padding: '6px 14px', cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'var(--texto-normal)' }}
-      onMouseEnter={e => { e.currentTarget.style.background = 'var(--color3)'; e.currentTarget.style.color = 'var(--color-principal)'; }}
-      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--color3)'; }}>
-      + {label}
+    <button type="button" onClick={onClick} className="btn rounded-pill fw-bold px-3 py-1 border-0 d-inline-flex align-items-center gap-1 shadow btnCrearPers" style={{ fontSize: '0.85rem' }}>
+      <i className="bi bi-plus-circle"></i> {label}
     </button>
   );
   const removeBtn = (onClick) => (
-    <button type="button" onClick={onClick} style={{ background: 'transparent', border: '1px solid rgba(220,53,69,0.5)', borderRadius: 8, color: '#f87171', fontSize: 13, padding: '6px 12px', cursor: 'pointer', flexShrink: 0, transition: 'all 0.2s' }}
-      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(220,53,69,0.2)'; }}
-      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}>
-      x
+    <button type="button" onClick={onClick} className="btn rounded-circle p-1 d-flex align-items-center justify-content-center shadow btnEliminarPers" style={{ width: '32px', height: '32px' }}>
+      <i className="bi bi-trash iconEliminar" style={{ fontSize: '1rem' }}></i>
     </button>
   );
 
@@ -571,9 +568,9 @@ function FormularioPersonaje() {
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         .fp-input:focus { border-color: var(--color2) !important; box-shadow: 0 0 0 3px rgba(37,135,132,0.25) !important; }
-        .fp-input::placeholder { color: var(--color-grisClarito); opacity: 0.5; }
+        .fp-input::placeholder { color: var(--colorTexto); opacity: 0.5; }
         .fp-input option { background: var(--color-grisOscuro); color: var(--colorTexto); }
-        .fp-tag { border-radius: 20px; padding: 5px 14px; font-size: 13px; cursor: pointer; border: 1px solid; transition: all 0.18s; font-weight: 500; font-family: var(--texto-normal); }
+        .fp-tag { border-radius: 20px; padding: 5px 14px; font-size: 0.8125rem; cursor: pointer; border: 1px solid; transition: all 0.18s; font-weight: 500; font-family: var(--texto-normal); }
         .fp-tag:hover { transform: translateY(-1px); }
         .fp-film-card { background: var(--color-principal); border: 1px solid var(--color2); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
         .fp-audio-card { background: var(--color-principal); border: 1px solid var(--color2); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
@@ -581,7 +578,7 @@ function FormularioPersonaje() {
         .fp-dropzone:hover { border-color: var(--color2); background: var(--color-grisOscuro); }
         .fp-gallery-item { position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 1; }
         .fp-gallery-item img { width: 100%; height: 100%; object-fit: cover; }
-        .fp-gallery-item .fp-remove { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.7); border: none; border-radius: 6px; color: #f87171; padding: 2px 7px; cursor: pointer; font-size: 13px; opacity: 0; transition: opacity 0.2s; }
+        .fp-gallery-item .fp-remove { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.7); border: none; border-radius: 6px; color: #f87171; padding: 2px 7px; cursor: pointer; font-size: 0.8125rem; opacity: 0; transition: opacity 0.2s; }
         .fp-gallery-item:hover .fp-remove { opacity: 1; }
       `}</style>
 
@@ -589,10 +586,10 @@ function FormularioPersonaje() {
 
         {/* Header */}
         <div style={{ marginBottom: 36, textAlign: 'center' }}>
-          <p style={{ fontSize: 12, color: 'var(--color-grisClarito)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8, fontFamily: 'var(--texto-normal)' }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-grisClarito)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8, fontFamily: 'var(--texto-normal)' }}>
             Panel de administracion
           </p>
-          <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--color4)', margin: 0, letterSpacing: '-0.01em', fontFamily: 'var(--texto-encabezados)' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color4)', margin: 0, letterSpacing: '-0.01em', fontFamily: 'var(--texto-encabezados)' }}>
             {isEditMode ? 'Editar personaje' : 'Nuevo personaje'}
           </h1>
         </div>
@@ -602,8 +599,8 @@ function FormularioPersonaje() {
           {/* 1. Datos basicos */}
           <div style={sS}>
             {sectionTitle(1, 'Datos básicos')}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <div style={{ gridColumn: '1' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+              <div style={{ gridColumn: '1 / -1' }}>
                 <label style={labelS}>Nombre</label>
                 <input id="name" name="name" type="text" value={formData.name} onChange={handleChange}
                   className="fp-input" style={inputS} placeholder="Nombre del personaje" />
@@ -639,11 +636,11 @@ function FormularioPersonaje() {
           {/* 2. Relaciones */}
           <div style={sS}>
             {sectionTitle(2, 'Relaciones y personalidad')}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16 }}>
               <div>
                 <label style={labelS}>Universo</label>
-                <select id="universe_id" name="universe_id" value={formData.universe_id} onChange={handleChange}
-                  className="fp-input" style={inputS}>
+                <select id="universe_id" name="universe_id" value={formData.universe_id} onChange={handleChange} 
+                  className="form-select rounded-pill fw-bold shadow-sm btnAnadirPelis" style={{ color: 'var(--colorTexto)', cursor: 'pointer', fontSize: '0.9rem' }}>
                   <option value="">Selecciona universo</option>
                   {universes.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
                 </select>
@@ -651,13 +648,13 @@ function FormularioPersonaje() {
               <div>
                 <label style={labelS}>Tipo MBTI</label>
                 <select id="mbti_type_id" name="mbti_type_id" value={formData.mbti_type_id} onChange={handleChange}
-                  className="fp-input" style={inputS}>
+                  className="form-select rounded-pill fw-bold shadow-sm btnAnadirPelis" style={{ color: 'var(--colorTexto)', cursor: 'pointer', fontSize: '0.9rem' }}>
                   <option value="">Selecciona MBTI</option>
                   {mbtiTypes.map(o => <option key={o.id} value={o.id}>{o.code}</option>)}
                 </select>
               </div>
               <div style={{ gridColumn: '1 / -1' }}>
-                <label style={labelS}>Carácter <span style={{ fontSize: 11, opacity: 0.5, textTransform: 'none', fontWeight: 400 }}>(selecciona uno o más)</span></label>
+                <label style={labelS}>Carácter <span style={{ fontSize: '0.6875rem', opacity: 0.5, textTransform: 'none', fontWeight: 400 }}>(selecciona uno o más)</span></label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
                   {personalityTags.map(tag => {
                     const sel = formData.personality_tag_ids.includes(tag.id);
@@ -671,9 +668,10 @@ function FormularioPersonaje() {
                             : [...prev.personality_tag_ids, tag.id]
                         }))}
                         style={{
-                          background: sel ? 'var(--color2)' : 'rgba(255,255,255,0.06)',
-                          borderColor: sel ? 'var(--color2)' : 'rgba(255,255,255,0.15)',
-                          color: sel ? '#fff' : 'var(--color-grisClarito)',
+                          background: sel ? 'var(--color2)' : 'transparent',
+                          borderColor: sel ? 'var(--color2)' : 'var(--colorTexto)',
+                          color: sel ? 'var(--colorTexto)' : 'var(--colorTexto)',
+                          opacity: sel ? 1 : 0.6,
                         }}>
                         {sel && 'X '}{tag.name}
                       </button>
@@ -681,7 +679,7 @@ function FormularioPersonaje() {
                   })}
                 </div>
                 {formData.personality_tag_ids.length === 0 && (
-                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 8, marginBottom: 0 }}>Ningún carácter seleccionado</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--colorTexto)', opacity: 0.6, marginTop: 8, marginBottom: 0 }}>Ningún carácter seleccionado</p>
                 )}
               </div>
             </div>
@@ -691,8 +689,8 @@ function FormularioPersonaje() {
           <div style={sS}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>3</span>
-                <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--color4)', fontFamily: 'var(--texto-normal)' }}>Filmografia</h2>
+                <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>3</span>
+                <h2 style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color4)', fontFamily: 'var(--texto-normal)' }}>Filmografia</h2>
               </div>
               {addBtn(addFilmographyItem, 'Película nueva')}
             </div>
@@ -700,10 +698,10 @@ function FormularioPersonaje() {
             {/* Enlazar pelicula existente */}
             <div style={{ background: 'var(--color-principal)', border: '1px solid var(--color2)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
               <label style={{ ...labelS, marginBottom: 10 }}>Enlazar pelicula existente</label>
-              <div style={{ display: 'flex', gap: 10 }}>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 <select id="existingFilmSelect" value={selectedExistingFilm}
                   onChange={e => setSelectedExistingFilm(e.target.value)}
-                  className="fp-input" style={{ ...inputS, flex: 1 }}>
+                  className="form-select rounded-pill fw-bold shadow-sm btnAnadirPelis" style={{ color: 'var(--colorTexto)', cursor: 'pointer', fontSize: '0.9rem', flex: 1 }}>
                   <option value="">Selecciona una pelicula ya registrada...</option>
                   {existingFilms.map(film => (
                     <option key={filmKey(film)} value={filmKey(film)}>
@@ -712,31 +710,32 @@ function FormularioPersonaje() {
                   ))}
                 </select>
                 <button type="button" onClick={handleAddExistingFilm}
-                  style={{ background: 'var(--color2)', border: 'none', borderRadius: 10, color: 'var(--color-principal)', padding: '0 18px', fontWeight: 600, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'var(--texto-normal)' }}>
-                  Añadir
+                  className="btn rounded-pill fw-bold px-3 py-1 border-0 d-inline-flex align-items-center gap-1 shadow btnCrearPers"
+                  style={{ fontSize: '0.8125rem' }}>
+                  Añadir <i className="bi bi-plus"></i>
                 </button>
               </div>
             </div>
 
             {formData.filmography.map((item, index) => (
               <div key={index} className="fp-film-card">
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 1fr auto', gap: 12, alignItems: 'end' }}>
-                  <div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'end' }}>
+                  <div style={{ flex: '1 1 200px' }}>
                     <label style={labelS}>Tí­tulo</label>
                     <input type="text" className="fp-input" style={inputS} value={item.title}
                       onChange={e => handleFilmographyChange(index, 'title', e.target.value)} placeholder="Título" />
                   </div>
-                  <div>
+                  <div style={{ flex: '1 1 100px' }}>
                     <label style={labelS}>Año</label>
                     <input type="number" className="fp-input" style={inputS} value={item.year}
                       onChange={e => handleFilmographyChange(index, 'year', e.target.value)} placeholder="Año" />
                   </div>
-                  <div>
+                  <div style={{ flex: '1 1 220px' }}>
                     <label style={labelS}>Portada</label>
-                    <input type="file" accept="image/*" className="fp-input" style={{ ...inputS, padding: '7px 10px' }}
+                    <input type="file" accept="image/*" className="form-control rounded-pill fw-bold shadow-sm btnAnadirPelis" style={{ color: 'var(--colorTexto)', cursor: 'pointer', fontSize: '0.85rem', padding: '6px 12px' }}
                       onChange={e => handleFilmographyFile(index, e.target.files?.[0] || null)} />
                   </div>
-                  <div style={{ paddingBottom: 2 }}>{removeBtn(() => removeFilmographyItem(index))}</div>
+                  <div style={{ paddingBottom: 2, flexShrink: 0 }}>{removeBtn(() => removeFilmographyItem(index))}</div>
                 </div>
                 {item.preview && (
                   <div style={{ marginTop: 12, borderRadius: 8, overflow: 'hidden', maxHeight: 160 }}>
@@ -751,8 +750,8 @@ function FormularioPersonaje() {
           <div style={sS}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>4</span>
-                <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--color4)', fontFamily: 'var(--texto-normal)' }}>Actores</h2>
+                <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>4</span>
+                <h2 style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color4)', fontFamily: 'var(--texto-normal)' }}>Actores</h2>
               </div>
               {addBtn(addActor, 'Actor')}
             </div>
@@ -780,11 +779,11 @@ function FormularioPersonaje() {
           {/* 6. Portada principal */}
           <div style={sS}>
             {sectionTitle(6, 'Portada principal')}
-            <div style={{ display: 'grid', gridTemplateColumns: formData.cover_preview ? '1fr 180px' : '1fr', gap: 20, alignItems: 'start' }}>
-              <div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, alignItems: 'start' }}>
+              <div style={{ flex: '1 1 250px' }}>
                 <label htmlFor="cover_path" className="fp-dropzone" style={{ display: 'block', cursor: 'pointer' }}>
-                  <div style={{ fontSize: 28, marginBottom: 10 }}>🖼</div>
-                  <p style={{ color: 'var(--color-grisClarito)', margin: 0, fontSize: 14 }}>
+                  <div style={{ fontSize: '1.75rem', marginBottom: 10 }}>🖼</div>
+                  <p style={{ color: 'var(--color-grisClarito)', margin: 0, fontSize: '0.875rem' }}>
                     {formData.cover_path?.name
                       ? formData.cover_path.name
                       : formData.cover_preview
@@ -796,7 +795,7 @@ function FormularioPersonaje() {
                 </label>
               </div>
               {formData.cover_preview && (
-                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid var(--color-grisClaro)', flex: '0 0 180px' }}>
                   <img src={formData.cover_preview} alt="Portada" style={{ width: '100%', height: 180, objectFit: 'cover', display: 'block' }} />
                 </div>
               )}
@@ -807,16 +806,16 @@ function FormularioPersonaje() {
           <div style={sS}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>7</span>
-                <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--color4)', fontFamily: 'var(--texto-normal)' }}>Galeria de medios</h2>
+                <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>7</span>
+                <h2 style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color4)', fontFamily: 'var(--texto-normal)' }}>Galeria de medios</h2>
               </div>
-              <label style={{ background: 'transparent', border: '1px solid var(--color3)', borderRadius: 8, color: 'var(--color3)', fontSize: 13, padding: '6px 14px', cursor: 'pointer', fontFamily: 'var(--texto-normal)' }}>
-                + Imagenes
+              <label className="btn rounded-pill fw-bold px-3 py-1 border-0 d-inline-flex align-items-center gap-1 shadow btnCrearPers m-0" style={{ fontSize: '0.8125rem', cursor: 'pointer' }}>
+                <i className="bi bi-plus-circle"></i> Imagenes
                 <input type="file" accept="image/*" multiple hidden onChange={e => handleGalleryFiles(e.target.files)} />
               </label>
             </div>
             {formData.gallery.length === 0 ? (
-              <p style={{ textAlign: 'center', color: 'var(--color-grisClarito)', fontSize: 14, padding: '24px 0', margin: 0, fontFamily: 'var(--texto-normal)' }}>
+              <p style={{ textAlign: 'center', color: 'var(--color-grisClarito)', fontSize: '0.875rem', padding: '24px 0', margin: 0, fontFamily: 'var(--texto-normal)' }}>
                 Sin imagenes. Usa el boton superior para agregar.
               </p>
             ) : (
@@ -835,30 +834,30 @@ function FormularioPersonaje() {
           <div style={sS}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>8</span>
-                <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--color4)', fontFamily: 'var(--texto-normal)' }}>Audios</h2>
+                <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>8</span>
+                <h2 style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color4)', fontFamily: 'var(--texto-normal)' }}>Audios</h2>
               </div>
               {addBtn(addAudio, 'Audio')}
             </div>
             {formData.audios.map((item, index) => (
               <div key={index} className="fp-audio-card">
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 12, alignItems: 'end' }}>
-                  <div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'end' }}>
+                  <div style={{ flex: '1 1 200px' }}>
                     <label style={labelS}>Título</label>
                     <input type="text" className="fp-input" style={inputS} value={item.title}
                       onChange={e => handleAudiosChange(index, 'title', e.target.value)} placeholder="Nombre del audio" />
                   </div>
-                  <div>
+                  <div style={{ flex: '1 1 200px' }}>
                     <label style={labelS}>Archivo</label>
-                    <input type="file" accept="audio/*" className="fp-input" style={{ ...inputS, padding: '7px 10px' }}
+                    <input type="file" accept="audio/*" className="form-control rounded-pill fw-bold shadow-sm btnAnadirPelis" style={{ color: 'var(--colorTexto)', cursor: 'pointer', fontSize: '0.85rem', padding: '6px 12px' }}
                       onChange={e => handleAudioFile(index, e.target.files?.[0] || null)} />
                   </div>
-                  <div>
+                  <div style={{ flex: '1 1 200px' }}>
                     <label style={labelS}>Transcripción</label>
                     <input type="text" className="fp-input" style={inputS} value={item.transcription}
                       onChange={e => handleAudiosChange(index, 'transcription', e.target.value)} placeholder="Transcripción breve" />
                   </div>
-                  <div style={{ paddingBottom: 2 }}>{removeBtn(() => removeAudio(index))}</div>
+                  <div style={{ paddingBottom: 2, flexShrink: 0 }}>{removeBtn(() => removeAudio(index))}</div>
                 </div>
                 {item.url && (
                   <div style={{ marginTop: 12 }}>
@@ -879,14 +878,15 @@ function FormularioPersonaje() {
             padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
           }}>
             <button type="button" onClick={() => navigate(-1)}
-              style={{ background: 'transparent', border: '1px solid var(--color-grisClarito)', borderRadius: 10, color: 'var(--color-grisClarito)', padding: '10px 22px', fontSize: 14, cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'var(--texto-normal)' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--color4)'; e.currentTarget.style.color = 'var(--color4)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--color-grisClarito)'; e.currentTarget.style.color = 'var(--color-grisClarito)'; }}>
-              Volver
+              className="btn rounded-pill fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 shadow btnAnadirPelis"
+              style={{ color: 'var(--colorTexto)', fontSize: '0.9rem' }}>
+              <i className="bi bi-arrow-left"></i> Volver
             </button>
             <button type="submit" disabled={submitting}
-              style={{ background: submitting ? 'var(--color-grisOscuro)' : 'var(--color2)', border: '2px solid var(--color2)', borderRadius: 10, color: 'var(--colorTexto)', padding: '10px 32px', fontSize: 14, fontWeight: 700, cursor: submitting ? 'not-allowed' : 'pointer', transition: 'all 0.2s', letterSpacing: '0.03em', fontFamily: 'var(--texto-normal)' }}>
+              className="btn rounded-pill fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 shadow btnCrearPers"
+              style={{ fontSize: '0.9rem', opacity: submitting ? 0.7 : 1 }}>
               {submitting ? 'Guardando...' : isEditMode ? 'Actualizar personaje' : 'Crear personaje'}
+              {!submitting && <i className="bi bi-check-circle fs-5"></i>}
             </button>
           </div>
 

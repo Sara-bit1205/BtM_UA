@@ -49,7 +49,7 @@ function ListaPersonajes() {
     // Contenedor principal oscuro
     <div
       className="container-fluid pb-5"
-      style={{ backgroundColor: "black", minHeight: "100vh", color: "white" }}
+      style={{ backgroundColor: "var(--color-principal)", minHeight: "100vh", color: "var(--colorTexto)" }}
     >
       <div className="row justify-content-center pt-4">
         <div className="col-12 col-md-8 col-lg-6">

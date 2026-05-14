@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { getPublicUrl, STORAGE_BUCKETS } from '../../lib/storage'
-import characterService from '../../services/characterService'
+import { getPublicUrl, STORAGE_BUCKETS } from '../../lib/storage';
+import characterService from '../../services/characterService';
+import '../../assets/styles/adminPersonajes.css';
 
 function EliminarPersonaje() {
     const navigate = useNavigate();
@@ -75,7 +76,7 @@ function EliminarPersonaje() {
             <div className="col-12 col-md-8 col-lg-6">
             
             {/* Tarjeta principal */}
-            <div className="card border-0 p-4 shadow" style={{ backgroundColor: 'var(--color-grisOscuro, #1a1a1a)', borderRadius: '30px' }}>
+            <div className="card border-0 p-4 shadow" style={{ backgroundColor: 'var(--color-grisOscuro)', borderRadius: '30px' }}>
                 
                 {/* Título */}
                 <h1 className="text-center mb-4 text-uppercase" style={{ fontFamily: 'var(--texto-encabezados)', color: 'var(--color4)' }}>
@@ -125,19 +126,20 @@ function EliminarPersonaje() {
                 <button 
                     onClick={handleBorrar}
                     disabled={deleting}
-                    className="btn rounded-pill px-4 py-2 fw-bold text-uppercase shadow-sm"
-                    style={{ backgroundColor: 'var(--color1)', color: 'var(--color-principal)', border: '2px solid var(--color2)', fontFamily: 'var(--texto-encabezados)', fontSize: '1.2rem' }}
+                    className="btn rounded-pill fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 shadow btnEliminarPers"
+                    style={{ fontSize: '1.2rem' }}
                 >
-                    {deleting ? 'Borrando...' : 'Aceptar'}
+                    {deleting ? 'Borrando...' : 'Aceptar'} 
+                    {!deleting && <i className="bi bi-trash"></i>}
                 </button>
 
                 {/* Botón CANCELAR */}
                 <button 
-                    onClick={() => navigate(-1)} // Volver atrás sin hacer nada
-                    className="btn rounded-pill px-4 py-2 fw-bold text-uppercase shadow-sm"
-                    style={{ backgroundColor: 'transparent', color: 'var(--color-grisClarito)', border: '2px solid var(--color-grisClarito)', fontFamily: 'var(--texto-encabezados)', fontSize: '1.2rem' }}
+                    onClick={() => navigate(-1)} 
+                    className="btn rounded-pill fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 shadow btnAnadirPelis"
+                    style={{ color: 'var(--colorTexto)', fontSize: '1.2rem' }}
                 >
-                    Cancelar
+                    <i className="bi bi-arrow-left"></i> Cancelar
                 </button>
                 </div>
 

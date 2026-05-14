@@ -84,6 +84,8 @@ body {
   font-family: var(--texto-normal);
   background-color: var(--color-principal);
   color: var(--colorTexto);
+  /* Permitir zoom en dispositivos */
+  zoom: var(--ui-zoom, 1);
 }
 
 h1{

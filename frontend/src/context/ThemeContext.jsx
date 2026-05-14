@@ -32,6 +32,7 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     document.documentElement.style.setProperty("--font-size-scale", `${fontSize}%`);
+    document.documentElement.style.setProperty("--ui-zoom", `${Number(fontSize) / 100}`);
   }, [fontSize]);
 
   useEffect(() => {
@@ -95,6 +96,8 @@ export function ThemeProvider({ children }) {
 
     document.documentElement.setAttribute("data-theme", DEFAULT_THEME);
     document.documentElement.style.setProperty("--font-size-scale", `${DEFAULT_FONT_SIZE}%`);
+     /* Permitir zoom en dispositivos */
+    document.documentElement.style.setProperty("--ui-zoom", `${Number(DEFAULT_FONT_SIZE) / 100}`);
     document.documentElement.removeAttribute("data-font");
   };
 

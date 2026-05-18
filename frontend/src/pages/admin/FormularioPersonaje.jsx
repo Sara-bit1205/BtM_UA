@@ -1,10 +1,62 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import characterService from '../../services/characterService';
 import categoryService from '../../services/categoryService';
 import { uploadFile, getPublicUrl, STORAGE_BUCKETS } from '../../lib/storage';
 import '../../assets/styles/adminPersonajes.css';
+
+function AdminDropdown({ placeholder, options, selected, onSelect }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+
+  const label = selected
+    ? options.find(o => o.id === selected)?.name
+    : placeholder;
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handler = (e) => {
+      if (!wrapRef.current?.contains(e.target)) setOpen(false);
+    };
+
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  return (
+    <div className="admin-cat-dropdown-wrap fp-dropdown-wrap" ref={wrapRef}>
+      <button
+        type="button"
+        className={`admin-cat-dropdown-btn fp-dropdown-btn ${open ? 'open' : ''}`}
+        onClick={() => setOpen(o => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+      >
+        <span>{label}</span>
+        <span className="chevron">▼</span>
+      </button>
+
+      <ul role="listbox" className={`admin-cat-dropdown-list fp-dropdown-list ${open ? 'open' : ''}`}>
+        {options.map(opt => (
+          <li
+            key={opt.id}
+            role="option"
+            aria-selected={selected === opt.id}
+            className={`admin-cat-dropdown-item fp-dropdown-item ${selected === opt.id ? 'selected' : ''}`}
+            onClick={() => {
+              onSelect(opt.id);
+              setOpen(false);
+            }}
+          >
+            {opt.name}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 function FormularioPersonaje() {
   const navigate = useNavigate();
@@ -546,6 +598,13 @@ function FormularioPersonaje() {
   };
   const labelS = { fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--color4)', marginBottom: 6, display: 'block', fontFamily: 'var(--texto-normal)' };
   const inputS = { background: 'var(--color-principal)', border: '1px solid var(--color-grisClarito)', borderRadius: 10, color: 'var(--colorTexto)', padding: '10px 14px', width: '100%', fontSize: '0.875rem', outline: 'none', transition: 'border-color 0.2s', fontFamily: 'var(--texto-normal)' };
+  const filmInputS = {
+    ...inputS,
+    background: 'rgba(255,255,255,0.04)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    backdropFilter: 'blur(4px)'
+  };
+
   const sectionTitle = (num, text) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
       <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{num}</span>
@@ -553,10 +612,17 @@ function FormularioPersonaje() {
     </div>
   );
   const addBtn = (onClick, label) => (
-    <button type="button" onClick={onClick} className="btn rounded-pill fw-bold px-3 py-1 border-0 d-inline-flex align-items-center gap-1 shadow btnCrearPers" style={{ fontSize: '0.85rem' }}>
-      <i className="bi bi-plus-circle"></i> {label}
+    <button
+      type="button"
+      onClick={onClick}
+      className="btn rounded-pill fw-bold px-3 py-1 border-0 d-inline-flex align-items-center justify-content-center gap-1 shadow btnCrearPers fp-mobile-icon-btn"
+      style={{ fontSize: '0.85rem' }}
+    >
+      <i className="bi bi-plus-circle"></i>
+      <span className="fp-mobile-btn-text">{label}</span>
     </button>
   );
+
   const removeBtn = (onClick) => (
     <button type="button" onClick={onClick} className="btn rounded-circle p-1 d-flex align-items-center justify-content-center shadow btnEliminarPers" style={{ width: '32px', height: '32px' }}>
       <i className="bi bi-trash iconEliminar" style={{ fontSize: '1rem' }}></i>
@@ -586,7 +652,7 @@ function FormularioPersonaje() {
 
         {/* Header */}
         <div style={{ marginBottom: 36, textAlign: 'center' }}>
-          <p style={{ fontSize: '0.75rem', color: 'var(--color-grisClarito)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8, fontFamily: 'var(--texto-normal)' }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--colorTexto)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8, fontFamily: 'var(--texto-normal)' }}>
             Panel de administracion
           </p>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color4)', margin: 0, letterSpacing: '-0.01em', fontFamily: 'var(--texto-encabezados)' }}>
@@ -599,7 +665,7 @@ function FormularioPersonaje() {
           {/* 1. Datos basicos */}
           <div style={sS}>
             {sectionTitle(1, 'Datos básicos')}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 16 }}>
               <div style={{ gridColumn: '1 / -1' }}>
                 <label style={labelS}>Nombre</label>
                 <input id="name" name="name" type="text" value={formData.name} onChange={handleChange}
@@ -636,26 +702,44 @@ function FormularioPersonaje() {
           {/* 2. Relaciones */}
           <div style={sS}>
             {sectionTitle(2, 'Relaciones y personalidad')}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: 16 }}>
               <div>
                 <label style={labelS}>Universo</label>
-                <select id="universe_id" name="universe_id" value={formData.universe_id} onChange={handleChange} 
-                  className="form-select rounded-pill fw-bold shadow-sm btnAnadirPelis" style={{ color: 'var(--colorTexto)', cursor: 'pointer', fontSize: '0.9rem' }}>
-                  <option value="">Selecciona universo</option>
-                  {universes.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
-                </select>
+                <AdminDropdown
+                  placeholder="Selecciona universo"
+                  options={universes.map(o => ({
+                    id: o.id,
+                    name: o.name
+                  }))}
+                  selected={formData.universe_id}
+                  onSelect={(id) =>
+                    setFormData(prev => ({
+                      ...prev,
+                      universe_id: id
+                    }))
+                  }
+                />
               </div>
               <div>
                 <label style={labelS}>Tipo MBTI</label>
-                <select id="mbti_type_id" name="mbti_type_id" value={formData.mbti_type_id} onChange={handleChange}
-                  className="form-select rounded-pill fw-bold shadow-sm btnAnadirPelis" style={{ color: 'var(--colorTexto)', cursor: 'pointer', fontSize: '0.9rem' }}>
-                  <option value="">Selecciona MBTI</option>
-                  {mbtiTypes.map(o => <option key={o.id} value={o.id}>{o.code}</option>)}
-                </select>
+                <AdminDropdown
+                  placeholder="Selecciona MBTI"
+                  options={mbtiTypes.map(o => ({
+                    id: o.id,
+                    name: o.code
+                  }))}
+                  selected={formData.mbti_type_id}
+                  onSelect={(id) =>
+                    setFormData(prev => ({
+                      ...prev,
+                      mbti_type_id: id
+                    }))
+                  }
+                />
               </div>
               <div style={{ gridColumn: '1 / -1' }}>
                 <label style={labelS}>Carácter <span style={{ fontSize: '0.6875rem', opacity: 0.5, textTransform: 'none', fontWeight: 400 }}>(selecciona uno o más)</span></label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4, maxWidth: '100%', overflow: 'hidden' }}>
                   {personalityTags.map(tag => {
                     const sel = formData.personality_tag_ids.includes(tag.id);
                     return (
@@ -698,17 +782,18 @@ function FormularioPersonaje() {
             {/* Enlazar pelicula existente */}
             <div style={{ background: 'var(--color-principal)', border: '1px solid var(--color2)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
               <label style={{ ...labelS, marginBottom: 10 }}>Enlazar pelicula existente</label>
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                <select id="existingFilmSelect" value={selectedExistingFilm}
-                  onChange={e => setSelectedExistingFilm(e.target.value)}
-                  className="form-select rounded-pill fw-bold shadow-sm btnAnadirPelis" style={{ color: 'var(--colorTexto)', cursor: 'pointer', fontSize: '0.9rem', flex: 1 }}>
-                  <option value="">Selecciona una pelicula ya registrada...</option>
-                  {existingFilms.map(film => (
-                    <option key={filmKey(film)} value={filmKey(film)}>
-                      {film.title}{film.year ? ` (${film.year})` : ''}
-                    </option>
-                  ))}
-                </select>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'stretch' }}>
+                <div style={{ flex: '1 1 280px', minWidth: 0 }}>
+                  <AdminDropdown
+                    placeholder="Selecciona una película ya registrada..."
+                    options={existingFilms.map(film => ({
+                      id: filmKey(film),
+                      name: `${film.title}${film.year ? ` (${film.year})` : ''}`
+                    }))}
+                    selected={selectedExistingFilm}
+                    onSelect={setSelectedExistingFilm}
+                  />
+                </div>
                 <button type="button" onClick={handleAddExistingFilm}
                   className="btn rounded-pill fw-bold px-3 py-1 border-0 d-inline-flex align-items-center gap-1 shadow btnCrearPers"
                   style={{ fontSize: '0.8125rem' }}>
@@ -722,17 +807,17 @@ function FormularioPersonaje() {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'end' }}>
                   <div style={{ flex: '1 1 200px' }}>
                     <label style={labelS}>Tí­tulo</label>
-                    <input type="text" className="fp-input" style={inputS} value={item.title}
+                    <input type="text" className="fp-input" style={filmInputS} value={item.title}
                       onChange={e => handleFilmographyChange(index, 'title', e.target.value)} placeholder="Título" />
                   </div>
                   <div style={{ flex: '1 1 100px' }}>
                     <label style={labelS}>Año</label>
-                    <input type="number" className="fp-input" style={inputS} value={item.year}
+                    <input type="number" className="fp-input" style={filmInputS} value={item.year}
                       onChange={e => handleFilmographyChange(index, 'year', e.target.value)} placeholder="Año" />
                   </div>
                   <div style={{ flex: '1 1 220px' }}>
                     <label style={labelS}>Portada</label>
-                    <input type="file" accept="image/*" className="form-control rounded-pill fw-bold shadow-sm btnAnadirPelis" style={{ color: 'var(--colorTexto)', cursor: 'pointer', fontSize: '0.85rem', padding: '6px 12px' }}
+                    <input type="file" accept="image/*" className="form-control fw-bold shadow-sm fp-file-input" style={{ color: 'var(--colorTexto)', cursor: 'pointer', fontSize: '0.85rem', padding: '6px 12px' }}
                       onChange={e => handleFilmographyFile(index, e.target.files?.[0] || null)} />
                   </div>
                   <div style={{ paddingBottom: 2, flexShrink: 0 }}>{removeBtn(() => removeFilmographyItem(index))}</div>
@@ -781,9 +866,9 @@ function FormularioPersonaje() {
             {sectionTitle(6, 'Portada principal')}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, alignItems: 'start' }}>
               <div style={{ flex: '1 1 250px' }}>
-                <label htmlFor="cover_path" className="fp-dropzone" style={{ display: 'block', cursor: 'pointer' }}>
-                  <div style={{ fontSize: '1.75rem', marginBottom: 10 }}>🖼</div>
-                  <p style={{ color: 'var(--color-grisClarito)', margin: 0, fontSize: '0.875rem' }}>
+                <label htmlFor="cover_path" className="fp-dropzone fp-cover-upload">
+                  <div className="fp-cover-icon">🖼</div>
+                  <p className="fp-cover-text">
                     {formData.cover_path?.name
                       ? formData.cover_path.name
                       : formData.cover_preview
@@ -809,13 +894,14 @@ function FormularioPersonaje() {
                 <span style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--color2)', color: 'var(--color-principal)', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>7</span>
                 <h2 style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color4)', fontFamily: 'var(--texto-normal)' }}>Galeria de medios</h2>
               </div>
-              <label className="btn rounded-pill fw-bold px-3 py-1 border-0 d-inline-flex align-items-center gap-1 shadow btnCrearPers m-0" style={{ fontSize: '0.8125rem', cursor: 'pointer' }}>
-                <i className="bi bi-plus-circle"></i> Imagenes
+              <label className="btn rounded-pill fw-bold px-3 py-1 border-0 d-inline-flex align-items-center justify-content-center gap-1 shadow btnCrearPers m-0 fp-mobile-icon-btn" style={{ fontSize: '0.8125rem', cursor: 'pointer' }}>
+                <i className="bi bi-plus-circle"></i>
+                <span className="fp-mobile-btn-text">Imagenes</span>
                 <input type="file" accept="image/*" multiple hidden onChange={e => handleGalleryFiles(e.target.files)} />
               </label>
             </div>
             {formData.gallery.length === 0 ? (
-              <p style={{ textAlign: 'center', color: 'var(--color-grisClarito)', fontSize: '0.875rem', padding: '24px 0', margin: 0, fontFamily: 'var(--texto-normal)' }}>
+              <p style={{ textAlign: 'center', color: 'var(--colorTexto)', fontSize: '0.875rem', padding: '24px 0', margin: 0, fontFamily: 'var(--texto-normal)' }}>
                 Sin imagenes. Usa el boton superior para agregar.
               </p>
             ) : (
@@ -849,7 +935,7 @@ function FormularioPersonaje() {
                   </div>
                   <div style={{ flex: '1 1 200px' }}>
                     <label style={labelS}>Archivo</label>
-                    <input type="file" accept="audio/*" className="form-control rounded-pill fw-bold shadow-sm btnAnadirPelis" style={{ color: 'var(--colorTexto)', cursor: 'pointer', fontSize: '0.85rem', padding: '6px 12px' }}
+                    <input type="file" accept="audio/*" className="form-control fw-bold shadow-sm fp-file-input" style={{ color: 'var(--colorTexto)', cursor: 'pointer', fontSize: '0.85rem', padding: '6px 12px' }}
                       onChange={e => handleAudioFile(index, e.target.files?.[0] || null)} />
                   </div>
                   <div style={{ flex: '1 1 200px' }}>
@@ -878,15 +964,25 @@ function FormularioPersonaje() {
             padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
           }}>
             <button type="button" onClick={() => navigate(-1)}
-              className="btn rounded-pill fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 shadow btnAnadirPelis"
-              style={{ color: 'var(--colorTexto)', fontSize: '0.9rem' }}>
+              className="btn rounded-pill fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 shadow btnAnadirPelis fp-footer-btn"
+              style={{ color: 'var(--colorTexto)', fontSize: '0.9rem', fontFamily: 'var(--texto-encabezados)' }}>
               <i className="bi bi-arrow-left"></i> Volver
             </button>
-            <button type="submit" disabled={submitting}
-              className="btn rounded-pill fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 shadow btnCrearPers"
-              style={{ fontSize: '0.9rem', opacity: submitting ? 0.7 : 1 }}>
-              {submitting ? 'Guardando...' : isEditMode ? 'Actualizar personaje' : 'Crear personaje'}
-              {!submitting && <i className="bi bi-check-circle fs-5"></i>}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="btn rounded-pill fw-bold px-4 py-2 d-inline-flex align-items-center justify-content-center gap-2 shadow btnCrearPers fp-mobile-icon-btn fp-footer-btn"
+              style={{ fontSize: '0.9rem', opacity: submitting ? 0.7 : 1 }}
+            >
+            <span className="fp-mobile-btn-text">
+              {submitting
+                ? 'Guardando...'
+                : isEditMode
+                  ? 'Actualizar personaje'
+                  : 'Crear personaje'}
+            </span>
+
+            <i className={`bi ${submitting ? 'bi-hourglass-split' : 'bi-check-circle'} fs-5`}></i>
             </button>
           </div>
 

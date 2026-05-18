@@ -115,19 +115,19 @@ function EliminarPersonaje() {
 
                 {/* Cuadro gris de advertencia */}
                 <div className="p-4 mb-4" style={{ backgroundColor: 'var(--color-principal)', border: '1px solid var(--color2)', borderRadius: '25px', textAlign: 'center' }}>
-                <p className="m-0 fs-5" style={{ color: 'var(--colorTexto)' }}>
+                <p className="m-0 fs-6" style={{ color: 'var(--colorTexto)' }}>
                     ¿Confirmas que deseas borrar este personaje? También desaparecerán sus imágenes, categorías y personalidades a las que pertenezca.
                 </p>
                 </div>
 
                 {/* Botones de acción */}
-                <div className="d-flex justify-content-center gap-4 mt-2">
+                <div className="d-flex justify-content-center gap-3 mt-2 flex-wrap">
                 {/* Botón ACEPTAR  */}
                 <button 
                     onClick={handleBorrar}
                     disabled={deleting}
-                    className="btn rounded-pill fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 shadow btnEliminarPers"
-                    style={{ fontSize: '1.2rem' }}
+                    className="btn rounded-pill fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 shadow btnEliminarPers deleteActionBtn"
+                    style={{ fontSize: '1.3rem !i' }}
                 >
                     {deleting ? 'Borrando...' : 'Aceptar'} 
                     {!deleting && <i className="bi bi-trash"></i>}
@@ -136,8 +136,8 @@ function EliminarPersonaje() {
                 {/* Botón CANCELAR */}
                 <button 
                     onClick={() => navigate(-1)} 
-                    className="btn rounded-pill fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 shadow btnAnadirPelis"
-                    style={{ color: 'var(--colorTexto)', fontSize: '1.2rem' }}
+                    className="btn rounded-pill fw-bold px-4 py-2 d-inline-flex align-items-center gap-2 shadow btnAnadirPelis deleteActionBtn"
+                    style={{ color: 'var(--colorTexto)', fontSize: '1.3rem', fontFamily: 'var(--texto-encabezados) !important' }}
                 >
                     <i className="bi bi-arrow-left"></i> Cancelar
                 </button>

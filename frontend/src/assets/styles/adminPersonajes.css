@@ -127,3 +127,313 @@
     box-shadow: 0 0 12px var(--color4) !important;
     transform: translateY(-2px);
 }
+
+/*Formulario Personajes*/
+
+.fp-input,
+.form-control,
+.form-select {
+  max-width: 100%;
+  box-sizing: border-box;
+  line-height: 2.75;
+}
+
+.fp-film-card,
+.fp-audio-card {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.fp-dropdown-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.fp-dropdown-btn {
+  width: 100%;
+  min-height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  padding: 0.75rem 1rem;
+
+  background: var(--color-principal) !important;
+  color: var(--colorTexto) !important;
+
+  border: 3px solid var(--color2) !important;
+  border-radius: 999px;
+
+  font-family: var(--texto-normal) !important;
+  font-size: 0.9rem;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+
+  overflow: hidden;
+}
+
+.fp-dropdown-btn:hover {
+  border-color: var(--color4) !important;
+  box-shadow: 0 0 4px var(--color4);
+}
+
+.fp-dropdown-btn.open {
+  border-color: var(--color4) !important;
+}
+
+.fp-dropdown-btn span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fp-dropdown-btn .chevron {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.fp-dropdown-list {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+
+  z-index: 50;
+
+  background: var(--color-grisOscuro);
+
+  border: 2px solid var(--color2);
+  border-radius: 18px;
+
+  padding: 0.4rem;
+
+  list-style: none;
+
+  margin: 0;
+
+  max-height: 240px;
+  overflow-y: auto;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+
+  display: none;
+}
+
+.fp-dropdown-list.open {
+  display: block;
+}
+
+.fp-dropdown-item {
+  padding: 0.75rem 1rem;
+
+  border-radius: 12px;
+
+  color: var(--colorTexto);
+
+  font-family: var(--texto-normal);
+
+  font-size: 0.9rem;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.fp-dropdown-item:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+.fp-dropdown-item.selected {
+  background: var(--color2);
+  color: var(--colorTexto);
+}
+
+.fp-cover-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 180px;
+
+  padding: 24px 18px !important;
+
+  text-align: center;
+
+  background: rgba(255,255,255,0.02);
+
+  border: 2px dashed var(--color2) !important;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.fp-cover-upload:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: var(--color4) !important;
+}
+
+.fp-cover-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  opacity: 0.9;
+}
+
+.fp-cover-text {
+  color: var(--colorTexto);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  word-break: break-word;
+  font-family: var(--texto-normal);
+}
+
+.fp-file-input {
+    background-color: var(--color-principal) !important;
+    border-radius: 20px !important;
+    padding: 0.55rem 0.7rem !important;
+    font-size: 0.78rem !important;
+    width: 100%;
+    font-family: var(--texto-normal);
+    color:var(--colorTexto) !important;
+}
+
+.fp-file-input::file-selector-button {
+    background-color: var(--color-principal) !important;
+    border-radius: 20px solid var(--color2) !important;
+    padding: 0.45rem 0.65rem;
+    margin-right: 0.5rem;
+    font-family: var(--texto-normal);
+    color:var(--colorTexto) !important;
+}
+
+.fp-file-input::hover {
+    background-color: var(--color-principal) !important;
+    border-radius: 20px solid var(--color2) !important;
+}
+
+.fp-footer-btn {
+  min-height: 48px;
+  font-family: var(--texto-encabezados) !important;
+  line-height: 1 !important;
+}
+
+.deleteActionBtn {
+  min-height: 48px;
+  justify-content: center;
+}
+
+@media (max-width: 576px) {
+
+  .fp-film-card,
+  .fp-audio-card {
+    padding: 12px;
+  }
+
+  .btnCrearPers {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .btnAnadirPelis {
+    white-space: normal;
+    text-align: center;
+  }
+
+  .btnEditarPers,
+  .btnEliminarPers {
+    padding: 0.35rem 0.7rem !important;
+    border-width: 3px !important;
+  }
+
+  .btnEditarPers i,
+  .btnEliminarPers i {
+    font-size: 1rem !important;
+  }
+
+  .fp-dropdown-btn {
+    min-height: 44px;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.82rem;
+  }
+
+  .fp-dropdown-item {
+    font-size: 0.82rem;
+    padding: 0.7rem 0.85rem;
+  }
+
+  .fp-dropdown-list {
+    max-height: 200px;
+  }
+
+  .fp-mobile-btn-text {
+    display: none;
+  }
+
+  .fp-mobile-icon-btn {
+    width: 42px;
+    height: 42px;
+
+    padding: 0 !important;
+
+    border-radius: 50% !important;
+
+    flex-shrink: 0;
+  }
+
+  .fp-mobile-icon-btn i {
+    margin: 0 !important;
+    font-size: 1rem;
+  }
+
+  .fp-cover-upload {
+    min-height: 140px;
+    padding: 18px 14px !important;
+    border-radius: 12px !important;
+  }
+
+  .fp-cover-icon {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
+
+  .fp-cover-text {
+    font-size: 0.78rem;
+  }
+  .fp-file-input {
+    border-radius: 0px !important;
+  }
+
+  .fp-file-input::file-selector-button {
+      border-radius: 0px !important;
+  }
+
+  .fp-footer-btn {
+    height: 44px;
+    min-height: 44px;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  .fp-footer-btn i {
+    line-height: 1;
+  }
+
+  .deleteActionBtn {
+    width: 100%;
+    font-size: 1.3rem !important;
+    padding: 0.7rem 1rem !important;
+  }
+
+}

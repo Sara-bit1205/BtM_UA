@@ -146,7 +146,7 @@ function ListaPersonajes() {
                         {personaje.descripcion}
                       </p>
 
-                      <div className="d-flex justify-content-center gap-3 mt-auto pt-2">
+                      <div className="d-flex justify-content-center gap-2 mt-auto pt-2 flex-wrap">
                         {/* Botón Editar */}
                         <button
                           className="btn rounded-pill px-4 btnEditarPers"

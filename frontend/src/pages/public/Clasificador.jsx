@@ -139,7 +139,7 @@ function Clasificador() {
 
               {/* --- CONTENEDOR FILA DESLIZABLE --- */}
               <div
-                className="d-flex flex-nowrap overflow-x-auto gap-3 py-3 px-2"
+                className="d-flex flex-nowrap overflow-x-auto gap-3 py-3 px-2 customScrollRow"
                 style={{ scrollBehavior: "smooth" }}
               >
                 {grupo.personajes.map((personaje) => (
@@ -149,7 +149,7 @@ function Clasificador() {
                     key={personaje.id}
                   >
                     <div
-                      className="card border-0 flex-shrink-0"
+                      className="card border-0 flex-shrink-0 classifier-card"
                       style={{
                         width: "240px",
                         backgroundColor: "var(--color-grisOscuro)",

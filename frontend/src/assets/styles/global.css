@@ -34,6 +34,8 @@
   --colorDashed: #3778a0;
   --color-grisOscuro: #d1eceb;
   --color-piePagina: #12262d;
+  --color-grisClaro: #ffffff0f;
+  --color-grisClarito:#a3d6dfb3;
 
   --colorTexto: #000000;
 }
@@ -609,6 +611,63 @@ main {
   font-family: var(--texto-normal);
   padding: 0 1.5rem 1.5rem 1.5rem; 
   font-size: 1rem;
+}
+
+.customScrollRow {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-grisClarito) transparent;
+}
+
+/* Chrome, Edge, Safari */
+.customScrollRow::-webkit-scrollbar {
+  height: 8px;
+}
+
+.customScrollRow::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 999px;
+}
+
+.customScrollRow::-webkit-scrollbar-thumb {
+  background: var(--color-grisClarito);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.customScrollRow::-webkit-scrollbar-thumb:hover {
+  background: var(--color4);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.classifier-card {
+  width: 240px;
+  min-height: 355px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.classifier-card .card-body {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.classifier-card .card-title {
+  line-height: 1.25;
+  min-height: 3.2rem;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+
+  overflow: hidden;
+}
+
+.classifier-card img {
+  flex-shrink: 0;
 }
 
 @media (max-width: 412px) {

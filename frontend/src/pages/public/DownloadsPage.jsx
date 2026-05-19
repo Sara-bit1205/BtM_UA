@@ -24,6 +24,11 @@ function DownloadsInfoPage() {
         <p>Puedes escuchar los temas principales directamente en la web. Además podrás descargar los audios y consultar sus transcripciones.</p>
       </section>
 
+      <section className="mb-5">
+        <h3><i className="bi bi-file-earmark-richtext me-2"></i>Galería de Comunidad y Archivos</h3>
+        <p>Podrás añadir cualquier documento, imagen o video a la galeria de comunidad de un personaje, así cómo podrás descargarlos.</p>
+      </section>
+
       <div className="alert alert-info bg-dark text-light border-0">
         <i className="bi bi-info-circle me-2"></i>
         Nota: Para subir tus propias imágenes a la <strong>Galería de la Comunidad</strong>, debes estar registrado e iniciar sesión.

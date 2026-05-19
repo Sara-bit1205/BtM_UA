@@ -10,6 +10,8 @@ import { getAvatarUrl, STORAGE_BUCKETS, uploadFile } from '../../lib/storage'
 function EditUserPage() {
   const { profile, refreshProfile } = useAuth()
   const navigate = useNavigate()
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const [formData, setFormData] = useState({
     nombre: '',
@@ -220,28 +222,62 @@ function EditUserPage() {
 
             <div className="form-field">
               <label className="custom-label" htmlFor="password">Nueva contraseña:</label>
-              <input
-                id="password"
-                type="password"
-                name="password"
-                className="form-control custom-input"
-                value={formData.password}
-                onChange={handleChange}
-                minLength={6}
-              />
+
+              <div className="position-relative">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  className="form-control custom-input pe-5"
+                  value={formData.password}
+                  onChange={handleChange}
+                  minLength={6}
+                />
+
+                <i
+                  className={`bi ${showPassword ? "bi-eye-slash-fill" : "bi-eye-fill"}`}
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: "absolute",
+                    right: "15px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    cursor: "pointer",
+                    color: "var(--color-principal)",
+                    fontSize: "1.2rem",
+                  }}
+                ></i>
+              </div>
             </div>
 
             <div className="form-field">
               <label className="custom-label" htmlFor="confirmPassword">Repetir contraseña:</label>
-              <input
-                id="confirmPassword"
-                type="password"
-                name="confirmPassword"
-                className="form-control custom-input"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                minLength={6}
-              />
+
+              <div className="position-relative">
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  className="form-control custom-input pe-5"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  minLength={6}
+                />
+
+                <i
+                  className={`bi ${showConfirmPassword ? "bi-eye-slash-fill" : "bi-eye-fill"}`}
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{
+                    position: "absolute",
+                    right: "15px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    cursor: "pointer",
+                    color: "var(--color-principal)",
+                    fontSize: "1.2rem",
+                  }}
+                ></i>
+              </div>
             </div>
 
             <div className="form-field">

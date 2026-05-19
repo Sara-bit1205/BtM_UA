@@ -69,6 +69,9 @@
   font-weight: bold;
   margin: 0;
   font-family: var(--texto-encabezados);
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: break-word;
 
 }
 .character-name:hover {
@@ -80,10 +83,13 @@
 .character-type {
   background-color: var(--color5);
   color: var(--color-grisOscuro);
-  font-size: 1.5rem;
+  font-size: clamp(0.2rem, 1.5rem);
+  margin-left: 4px;
   font-weight: 800;
   padding: 1px 4px;
   border-radius: 4px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .character-universe {
@@ -289,7 +295,6 @@
   }
 
   .character-type {
-    font-size: 1.5rem;
     padding: 2px 6px;
   }
 }

@@ -11,6 +11,7 @@ function LoginPage() {
   const { role, isAuthenticated } = useAuth() //Lee el estado de autenticación y el rol del usuario desde el contexto de autenticación. isAuthenticated → si hay sesión válida y role --> admin o user
   const navigate = useNavigate() //Sirve para redirigir programáticamente.
   const [validated, setValidated] = useState(false) //Esto parece usarse para activar clases de validación visual en el formulario.
+  const [showPassword, setShowPassword] = useState(false)
 
   //Recupera el email guardado en localStorage al montar el componente, y si existe lo pone en el formulario y marca "recordar mis datos" como true.
   useEffect(() => {
@@ -131,16 +132,34 @@ function LoginPage() {
 
           <div className="text-start">
             <label className="custom-label">CONTRASEÑA</label>
-            <input
-              type="password"
-              name="password"
-              className="form-control custom-input"
-              placeholder="••••••••"
-              value={form.password}
-              onChange={handleChange}
-              required
-              minLength={6}
-            />
+
+            <div className="position-relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                className="form-control custom-input pe-5"
+                placeholder="••••••••"
+                value={form.password}
+                onChange={handleChange}
+                required
+                minLength={6}
+              />
+
+              <i
+                className={`bi ${showPassword ? "bi-eye-slash-fill" : "bi-eye-fill"}`}
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "15px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  cursor: "pointer",
+                  color: "var(--color-principal)",
+                  fontSize: "1.2rem",
+                }}
+              ></i>
+            </div>
+
             <div className="invalid-feedback">
               La contraseña debe tener al menos 6 caracteres
             </div>
@@ -154,7 +173,7 @@ function LoginPage() {
               checked={form.rememberMe}
               onChange={handleChange}
             />
-            <label className="form-check-label text-white">
+            <label className="form-check-label" style={{ color: "var(--colorTexto)" }}>
               Recordar mis datos
             </label>
           </div>
@@ -165,7 +184,7 @@ function LoginPage() {
         </form>
 
         <div className="login-footer">
-          <p>
+          <p style={{ color: "var(--colorTexto)" }}>
             ¿No tienes cuenta?{' '}
             <Link to="/register" className="register-link">
               REGÍSTRATE

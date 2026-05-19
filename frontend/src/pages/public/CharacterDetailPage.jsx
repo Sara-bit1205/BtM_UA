@@ -204,7 +204,7 @@ useEffect(() => {
       if (error) throw error
 
       const avatarUrl = authData?.user?.user_metadata?.avatar_path
-      ? getPublicUrl(STORAGE_BUCKETS.avatars, authData.user.user_metadata.avatar_path)
+      ? `${getPublicUrl(STORAGE_BUCKETS.avatars, authData.user.user_metadata.avatar_path)}?t=${Date.now()}`
       : null
       
       const newFormattedComment = {

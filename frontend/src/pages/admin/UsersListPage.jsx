@@ -68,11 +68,23 @@ function UsersListPage() {
           <tbody>
             {users.map((user, index) => (
               <tr key={user.id}>
-                <th scope="row">{index + 1}</th>
-                <td>{user.username}</td>
-                <td>{user.name || '—'}</td>
-                <td>{user.email}</td>
-                <td>
+                <th scope="row" data-label="#">
+                  {index + 1}
+                </th>
+
+                <td data-label="Username">
+                  {user.username}
+                </td>
+
+                <td data-label="Nombre">
+                  {user.name || '—'}
+                </td>
+
+                <td data-label="Email">
+                  {user.email}
+                </td>
+
+                <td data-label="Fecha registro">
                   {new Date(user.created_at).toLocaleDateString()}
                 </td>
               </tr>

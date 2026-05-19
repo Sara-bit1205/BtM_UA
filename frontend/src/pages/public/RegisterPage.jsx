@@ -7,6 +7,8 @@ import '../../assets/styles/Login.css'
 function RegisterPage() {
   const [validated, setValidated] = useState(false)
   const [error, setError] = useState(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const [form, setForm] = useState({
     nombre: '',
@@ -131,29 +133,62 @@ function RegisterPage() {
 
           <div className="col-12 col-md-6 text-start">
             <label className="custom-label">CONTRASEÑA</label>
-            <input
-              type="password"
-              name="password"
-              className="form-control custom-input"
-              value={form.password}
-              onChange={handleChange}
-              required
-              minLength={6}
-              placeholder="Mínimo 6 caracteres"
-            />
+
+            <div className="position-relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                className="form-control custom-input pe-5"
+                value={form.password}
+                onChange={handleChange}
+                required
+                minLength={6}
+                placeholder="Mínimo 6 caracteres"
+              />
+
+              <i
+                className={`bi ${showPassword ? "bi-eye-slash-fill" : "bi-eye-fill"}`}
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "15px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  cursor: "pointer",
+                  color: "var(--color-principal)",
+                  fontSize: "1.2rem",
+                }}
+              ></i>
+            </div>
           </div>
 
           <div className="col-12 col-md-6 text-start">
             <label className="custom-label">REPETIR CONTRASEÑA</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              className="form-control custom-input"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              required
-             
-            />
+
+            <div className="position-relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirmPassword"
+                className="form-control custom-input pe-5"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                required
+              />
+
+              <i
+                className={`bi ${showConfirmPassword ? "bi-eye-slash-fill" : "bi-eye-fill"}`}
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                style={{
+                  position: "absolute",
+                  right: "15px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  cursor: "pointer",
+                  color: "var(--color-principal)",
+                  fontSize: "1.2rem",
+                }}
+              ></i>
+            </div>
           </div>
 
           <div className="col-12 text-start">
@@ -166,7 +201,9 @@ function RegisterPage() {
               accept="image/*"
               aria-describedby="profileImageHelp"
             />
-            <div id="profileImageHelp" className="form-text text-white">Formato JPG/PNG. Tamaño recomendado &lt; 2MB.</div>
+            <div id="profileImageHelp" className="form-text" style={{ color: "var(--colorTexto)" }}>
+              Formatos JPG/PNG. Tamaño recomendado &lt; 2MB.
+            </div>
           </div>
 
           <div className="col-12 text-center">
@@ -177,7 +214,7 @@ function RegisterPage() {
         </form>
 
         <div className="login-footer mt-3">
-          <p className="text-white mb-1">¿Ya tienes cuenta?</p>
+          <p className="mb-1" style={{ color: "var(--colorTexto)" }}> ¿Ya tienes cuenta?</p>
           <Link to="/login" className="register-link">LOG IN</Link>
         </div>
       </div>

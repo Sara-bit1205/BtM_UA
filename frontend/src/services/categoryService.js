@@ -133,7 +133,7 @@ const categoryService = {
     todosLosPersonajes.sort((a, b) => b.totalFavorites - a.totalFavorites)
 
     const personajesPopulares = todosLosPersonajes.slice(0, 3)
-    const personajesRestantes = todosLosPersonajes.slice(3)
+    const personajesRestantes = todosLosPersonajes
 
     return {
       name: universeData.name,

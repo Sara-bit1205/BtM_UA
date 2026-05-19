@@ -167,8 +167,8 @@
 
 .favorites-page .favorite-card__like {
   position: absolute;
-  bottom: 34px;
-  left: 8px;
+  /* bottom: 80px; */
+  left: 22px;
   width: 36px;
   height: 36px;
   border-radius: 50%;

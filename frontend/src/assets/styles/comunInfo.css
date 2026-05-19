@@ -69,6 +69,17 @@
   color: var(--color5);
 }
 
+.volverCat {
+  color: var(--color1) !important;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.volverCat:hover {
+  color: var(--color5) !important;
+  transform: scale(1.1);
+}
+
+
 /* --- MEDIA QUERIES PARA RESPONSIVE --- */
 /* MÓVIL*/
 @media (max-width: 767px) {

@@ -2,8 +2,8 @@
 // Cada categoría incluye descripción, personajes populares y listado completoç
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-// import { supabase } from "../../lib/supabase";
-import categoryService from '../../services/categoryService'
+import '../../assets/styles/comunInfo.css';
+import categoryService from '../../services/categoryService';
 
 
 // 1. El estado que controla qué número de personaje estamos viendo (empezamos en el 0)
@@ -62,7 +62,7 @@ function CategoriesPage() {
     // Contenedor principal oscuro
     <div
       className="container-fluid pb-5"
-      style={{ backgroundColor: "black", minHeight: "100vh", color: "white" }}
+      style={{ backgroundColor: "var(--color-principal)", minHeight: "100vh", color: "var(--colorTexto)" }}
     >
       <div className="row justify-content-center pt-4">
         <div className="col-12 col-md-10 col-lg-8">
@@ -121,9 +121,10 @@ function CategoriesPage() {
                 </h4>
                 <p
                   style={{
-                    fontSize: "1.1rem",
+                    fontSize: "clamp(0.5rem, 1.1rem)",
                     lineHeight: "1.6",
                     textAlign: "justify",
+                    color: "var(--colorTexto)",
                   }}
                 >
                   {Data.description || "Descripción no disponible."}
@@ -136,9 +137,9 @@ function CategoriesPage() {
                   <h3
                     className="mb-4 ps-3"
                     style={{
-                      color: "var(--color3)",
+                      color: "var(--color1)",
                       fontFamily: "var(--texto-encabezados)",
-                      borderLeft: "5px solid var(--color3)",
+                      borderLeft: "5px solid var(--color1)",
                     }}
                   >
                     PERSONAJES POPULARES
@@ -229,7 +230,7 @@ function CategoriesPage() {
                             <h5
                               style={{
                                 fontFamily: "var(--texto-encabezados)",
-                                color: "var(--color1)",
+                                color: "var(--color3)",
                               }}
                             >
                               {personaje.name}
@@ -238,7 +239,7 @@ function CategoriesPage() {
                               src={personaje.coverUrl}
                               alt={personaje.name}
                               className="img-fluid my-2"
-                              style={{ height: "200px", objectFit: "contain" }}
+                              style={{ height: "clamp(90px, 200px)", objectFit: "contain" }}
                             />
                             <div
                               className="mt-2"
@@ -249,7 +250,7 @@ function CategoriesPage() {
                             >
                               <span
                                 className="text-decoration-none fw-bold"
-                                style={{ color: "var(--color1)" }}
+                                style={{ color: "var(--color4)" }}
                               >
                                 <i
                                   className="bi bi-circle-fill"
@@ -280,9 +281,9 @@ function CategoriesPage() {
                   <h3
                     className="mb-4 ps-3"
                     style={{
-                      color: "var(--color5)",
+                      color: "var(--color1)",
                       fontFamily: "var(--texto-encabezados)",
-                      borderLeft: "5px solid var(--color5)",
+                      borderLeft: "5px solid var(--color1)",
                     }}
                   >
                     EXPLORA MÁS PERSONAJES
@@ -321,8 +322,8 @@ function CategoriesPage() {
                                 className="position-absolute bottom-0 start-0 m-2 px-2 py-1 rounded-2 fw-bold"
                                 style={{
                                   backgroundColor: "rgba(0,0,0,0.7)",
-                                  color: "white",
-                                  border: "2px solid white",
+                                  color: "var(--color5)",
+                                  border: "2px solid var(--color5)",
                                   fontSize: "0.9rem",
                                 }}
                               >
@@ -334,7 +335,7 @@ function CategoriesPage() {
                                 className="m-0 text-uppercase"
                                 style={{
                                   fontFamily: "var(--texto-encabezados)",
-                                  color: "var(--color1)",
+                                  color: "var(--color3)",
                                 }}
                               >
                                 {personaje.name}
@@ -342,7 +343,7 @@ function CategoriesPage() {
                               <div className="mt-auto">
                                 <span
                                   className="text-decoration-none fw-bold"
-                                  style={{ color: "var(--color1)" }}
+                                  style={{ color: "var(--color4)" }}
                                 >
                                   <i
                                     className="bi bi-circle-fill"
@@ -377,8 +378,7 @@ function CategoriesPage() {
               <div className="mt-5 mb-3">
                 <button
                   onClick={() => navigate(-1)}
-                  className="btn border-0 p-0"
-                  style={{ color: "var(--color1)" }}
+                  className="btn border-0 p-0 volverCat"
                 >
                   <i
                     className="bi bi-arrow-left-circle-fill"

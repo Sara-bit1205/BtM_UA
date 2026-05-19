@@ -16,17 +16,18 @@ export function getPublicUrl(bucket, path) {
   const { data } = supabase.storage.from(bucket).getPublicUrl(path)
   return data?.publicUrl ?? null
 }
-
 export function getAvatarUrl(value, defaultAvatar = 'default-avatar.jpg') {
   const finalValue = value || defaultAvatar
 
   if (!finalValue) return null
 
   if (finalValue.startsWith('http://') || finalValue.startsWith('https://')) {
-    return finalValue
+    return `${finalValue}?t=${Date.now()}`
   }
 
-  return getPublicUrl(STORAGE_BUCKETS.avatars, finalValue)
+  const url = getPublicUrl(STORAGE_BUCKETS.avatars, finalValue)
+
+  return url ? `${url}?t=${Date.now()}` : null
 }
 
 

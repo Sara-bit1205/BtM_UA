@@ -39,6 +39,7 @@ function CharacterDetailPage() {
 
   const [zoomedImage, setZoomedImage] = useState(null)
   const [uploadMessage, setUploadMessage] = useState(null)
+  const [commentMessage, setCommentMessage] = useState(null)
 
   function formatTranscription(text) {
   return text
@@ -228,13 +229,14 @@ useEffect(() => {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      if (!window.confirm('¿Eliminar este comentario?')) return
-
       setLoadingComment(true)
 
       await characterService.deleteComment(commentId)
 
       setComments((prev) => prev.filter((c) => c.id !== commentId))
+
+      setCommentMessage({ type: 'success', text: 'comentario borrado correctamente' })
+      setTimeout(() => setCommentMessage(null), 3000)
     } catch (error) {
       console.error('Error eliminando comentario:', error.message)
     } finally {
@@ -262,7 +264,6 @@ useEffect(() => {
 
       setLoadingCommunityPhoto(true)
 
-      // nombre único y sanitizado (sin espacios ni caracteres especiales)
       const safeName = file.name
         .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar acentos
         .replace(/[^a-zA-Z0-9._-]/g, '_')                 // reemplazar caracteres no permitidos
@@ -897,6 +898,13 @@ useEffect(() => {
                   <p style={{ margin: 0, color: 'var(--colorTexto)', padding: '12px 0' }}>
                     Debe iniciar sesión para poder escribir un comentario.
                   </p>
+                </div>
+              )}
+
+              {commentMessage && (
+                <div className={`upload-toast upload-toast--${commentMessage.type}`}>
+                  <i className={`bi ${commentMessage.type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'}`}></i>
+                  <span>{commentMessage.text}</span>
                 </div>
               )}
 

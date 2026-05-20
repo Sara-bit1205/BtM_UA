@@ -46,7 +46,7 @@ function Footer() {
             <div id="footerCollapse1" className="accordion-collapse collapse" aria-labelledby="footerHeading1" data-bs-parent="#footerAccordion">
               <div className="accordion-body d-flex flex-column gap-2">
                 <Link to="/clasificador/universos" className="footer-link">Universos</Link>
-                <Link to="/clasificador/personalidades" className="footer-link">Personalidades MBT</Link>
+                <Link to="/clasificador/personalidades" className="footer-link">Personalidades MBTI</Link>
                 <Link to="/tipos-personalidad" className="footer-link">Tipos de personalidad</Link>
               </div>
             </div>

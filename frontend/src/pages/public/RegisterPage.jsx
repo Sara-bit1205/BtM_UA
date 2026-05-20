@@ -155,7 +155,7 @@ function RegisterPage() {
                   top: "50%",
                   transform: "translateY(-50%)",
                   cursor: "pointer",
-                  color: "var(--color-principal)",
+                  color: "black",
                   fontSize: "1.2rem",
                 }}
               ></i>
@@ -184,7 +184,7 @@ function RegisterPage() {
                   top: "50%",
                   transform: "translateY(-50%)",
                   cursor: "pointer",
-                  color: "var(--color-principal)",
+                  color: "black",
                   fontSize: "1.2rem",
                 }}
               ></i>

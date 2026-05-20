@@ -16,7 +16,7 @@ function Footer() {
           <div className="footer-col">
             <h4 className="footer-col-title">Explorar</h4>
             <Link to="/clasificador/universos" className="footer-link">Universos</Link>
-            <Link to="/clasificador/personalidades" className="footer-link">Personalidades MBT</Link>
+            <Link to="/clasificador/personalidades" className="footer-link">Personalidades MBTI</Link>
             <Link to="/tipos-personalidad" className="footer-link">Tipos de personalidad</Link>
           </div>
           <div className="footer-col">
